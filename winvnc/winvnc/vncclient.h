@@ -64,7 +64,9 @@ typedef std::list<vncClientId> vncClientList;
 #include "vncbuffer.h"
 #include "vncencodemgr.h"
 #include "TextChat.h" // sf@2002 - TextChat
+#ifndef ULTRAVNC_ITALC_SUPPORT
 #include "ZipUnZip32/zipUnZip32.h"
+#endif
 //#include "timer.h"
 // adzm - 2010-07 - Extended clipboard
 #include "common/Clipboard.h"
@@ -504,7 +506,9 @@ protected:
 
 	// Modif sf@2002 - FileTransfer 
 	BOOL m_fFileTransferRunning;
+#ifndef ULTRAVNC_ITALC_SUPPORT
 	CZipUnZip32		*m_pZipUnZip;
+#endif
 
 	char  m_szFullDestName[MAX_PATH + 64];
 	char  m_szFileTime[18];

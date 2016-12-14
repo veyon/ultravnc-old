@@ -78,6 +78,11 @@
 #include "common/win32_helpers.h"
 #include "uvncUiAccess.h"
 
+#ifdef ULTRAVNC_ITALC_SUPPORT
+extern BOOL ultravnc_italc_load_int( LPCSTR valname, LONG *out );
+extern BOOL ultravnc_italc_access_control( const char *username, const char *host );
+#endif
+
 bool isDirectoryTransfer(const char *szFileName);
 extern BOOL SPECIAL_SC_PROMPT;
 extern BOOL SPECIAL_SC_EXIT;
@@ -88,6 +93,7 @@ extern bool PreConnect;
 int PreConnectID = 0;
 extern BOOL	m_fRunningFromExternalService;
 
+#ifndef ULTRAVNC_ITALC_SUPPORT
 // take a full path & file name, split it, prepend prefix to filename, then merge it back
 static std::string make_temp_filename(const char *szFullPath)
 {
@@ -102,6 +108,7 @@ static std::string make_temp_filename(const char *szFullPath)
 
     return tmpName;
 }
+#endif
 
 std::string get_real_filename(std::string name)
 {
@@ -980,6 +987,7 @@ vncClientThread::FilterClients_Ask_Permission()
 		verified = m_server->VerifyHost(m_socket->GetPeerName());
 	}
 	
+#ifndef ULTRAVNC_ITALC_SUPPORT
 	// If necessary, query the connection with a timed dialog
 	char username[UNLEN+1];
 	if (!vncService::CurrentUser(username, sizeof(username))) return false;
@@ -1035,6 +1043,7 @@ vncClientThread::FilterClients_Ask_Permission()
             }
 		}
     }
+#endif
 
 	if (verified == vncServer::aqrReject) {
 		return FALSE;
@@ -1064,6 +1073,7 @@ vncClientThread::FilterClients_Blacklist()
 
 BOOL vncClientThread::CheckEmptyPasswd()
 {
+#ifndef ULTRAVNC_ITALC_SUPPORT
 	char password[MAXPWLEN];
 	m_server->GetPassword(password);
 	vncPasswd::ToText plain(password);
@@ -1075,6 +1085,7 @@ BOOL vncClientThread::CheckEmptyPasswd()
 					"Until a password is set, incoming connections cannot be accepted.");
 		return FALSE;
 	}
+#endif
 	return TRUE;
 }
 
@@ -1104,6 +1115,19 @@ vncClientThread::CheckLoopBack()
 				SendConnFailed("Local loop-back connections are disabled.");
 				return FALSE;
 			}
+#ifdef ULTRAVNC_ITALC_SUPPORT
+			else
+			{
+				LONG val = 0;
+				if( ultravnc_italc_load_int( "LocalConnectOnly", &val ) && val )
+				{
+					// FOOOOOOO
+					vnclog.Print(LL_CONNERR, VNCLOG("non-loopback connections disabled - client rejected\n"));
+					SendConnFailed("non-loopback connections are disabled.");
+					return FALSE;
+				}
+			}
+#endif
 		}
 	}
 	else
@@ -1332,6 +1356,14 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 		}
 	}
 
+#ifdef ULTRAVNC_ITALC_SUPPORT
+	auth_types.clear();
+	if( m_ms_logon )
+	{
+		auth_types.push_back(rfbUltraVNC_MsLogonIIAuth);
+	}
+	auth_types.push_back(rfbSecTypeItalc);
+#endif
 	// adzm 2010-09 - Send the auths
 	{
 		CARD8 authCount = (CARD8)auth_types.size();
@@ -1396,6 +1428,13 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 		// adzm 2010-10 - Do the SessionSelect auth
 		auth_success = AuthSessionSelect(auth_message);
 		break;
+#ifdef ULTRAVNC_ITALC_SUPPORT
+	case rfbSecTypeItalc:
+		auth_success =
+			ItalcCoreServer::instance()->
+				authSecTypeItalc( vsocketDispatcher, m_socket );
+		break;
+#endif
 	default:
 		auth_success = FALSE;
 		break;
@@ -1525,6 +1564,13 @@ BOOL vncClientThread::AuthenticateLegacyClient()
 	{
 		auth_type = rfbNoAuth;
 	}
+
+#ifdef ULTRAVNC_ITALC_SUPPORT
+	// always use MS logon authentication when authenticating against
+	// an old VNC viewer - this allows to use the iTALC client as regular
+	// VNC server
+	auth_type = rfbLegacy_MsLogon;
+#endif
 
 	// abort if invalid
 	if (auth_type == rfbInvalidAuth) {
@@ -1828,6 +1874,9 @@ vncClientThread::AuthMsLogon(std::string& auth_message)
 	}
 
 	if (result) {
+#ifdef ULTRAVNC_ITALC_SUPPORT
+		return ultravnc_italc_access_control( user, m_socket->GetPeerName() );
+#endif
 		return TRUE;
 	} else {
 		return FALSE;
@@ -3695,6 +3744,7 @@ vncClientThread::run(void *arg)
 			break;
 
 
+#ifndef ULTRAVNC_ITALC_SUPPORT
 		// Modif sf@2002 - TextChat
 		case rfbTextChat:
 			m_client->m_pTextChat->ProcessTextChatMsg(nTO);
@@ -4564,6 +4614,18 @@ vncClientThread::run(void *arg)
             }
 			m_socket->SetPluginStreamingIn();
             break;
+
+		case rfbItalcCoreRequest:
+		{
+			omni_mutex_lock l(m_client->GetUpdateLock());
+			if( !ItalcCoreServer::instance()->
+				handleItalcClientMessage( vsocketDispatcher, m_socket ) )
+			{
+				connected = FALSE;
+			}
+			break;
+		}
+#endif
 		default:
 			// Unknown message, so fail!
 			m_client->cl_connected = FALSE;
@@ -4727,7 +4789,9 @@ vncClient::vncClient() : Sendinput("USER32", "SendInput"), m_clipboard(Clipboard
 
 	// Modif sf@2002 - FileTransfer
 	m_fFileTransferRunning = FALSE;
+#ifndef ULTRAVNC_ITALC_SUPPORT
 	m_pZipUnZip = new CZipUnZip32(); // Directory FileTransfer utils
+#endif
 
 	m_hDestFile = 0;
 	//m_szFullDestName = NULL;
@@ -4776,7 +4840,9 @@ vncClient::vncClient() : Sendinput("USER32", "SendInput"), m_clipboard(Clipboard
 	m_lLastFTUserImpersonationTime = 0L;
 
 	// Modif sf@2002 - Text Chat
+#ifndef ULTRAVNC_ITALC_SUPPORT
 	m_pTextChat = new TextChat(this); 	
+#endif
 	m_fUltraViewer = true;
 	m_IsLoopback=false;
 	m_NewSWUpdateWaiting=false;
@@ -4809,6 +4875,7 @@ vncClient::~vncClient()
 	cl_connected = false;
 	vnclog.Print(LL_INTINFO, VNCLOG("~vncClient() executing...\n"));
 
+#ifndef ULTRAVNC_ITALC_SUPPORT
 	// Modif sf@2002 - Text Chat
 	if (m_pTextChat) 
 	{
@@ -4819,6 +4886,7 @@ vncClient::~vncClient()
 
 	// Directory FileTransfer utils
 	if (m_pZipUnZip) delete m_pZipUnZip;
+#endif
 
 	// We now know the thread is dead, so we can clean up
 	if (m_client_name != 0) {
@@ -4931,8 +4999,10 @@ vncClient::Kill()
 {
 	// Close the socket
 	vnclog.Print(LL_INTERR, VNCLOG("client Kill() called"));
+#ifndef ULTRAVNC_ITALC_SUPPORT
 	if (m_pTextChat)
         m_pTextChat->KillDialog();
+#endif
 	if (m_socket != NULL)
 		m_socket->Close();
 }
@@ -6421,6 +6491,7 @@ bool vncClient::GetSpecialFolderPath(int nId, char* szPath)
 //
 int vncClient::ZipPossibleDirectory(LPSTR szSrcFileName)
 {
+#ifndef ULTRAVNC_ITALC_SUPPORT
 //	vnclog.Print(0, _T("ZipPossibleDirectory\n"));
 	char* p1 = strrchr(szSrcFileName, '\\') + 1;
 	char* p2 = strrchr(szSrcFileName, rfbDirSuffix[0]);
@@ -6468,12 +6539,14 @@ int vncClient::ZipPossibleDirectory(LPSTR szSrcFileName)
 		return 1;
 	}
 	else
+#endif
 		return 0;
 }
 
 
 int vncClient::CheckAndZipDirectoryForChecksuming(LPSTR szSrcFileName)
 {
+#ifndef ULTRAVNC_ITALC_SUPPORT
 	if (!m_fFileDownloadError 
 		&& 
 		!strncmp(strrchr(szSrcFileName, '\\') + 1, rfbZipDirectoryPrefix, strlen(rfbZipDirectoryPrefix))
@@ -6505,6 +6578,7 @@ int vncClient::CheckAndZipDirectoryForChecksuming(LPSTR szSrcFileName)
 		}
 
 	}		
+#endif
 	return 0;
 }
 
@@ -6514,6 +6588,7 @@ int vncClient::CheckAndZipDirectoryForChecksuming(LPSTR szSrcFileName)
 //
 bool vncClient::UnzipPossibleDirectory(LPSTR szFileName)
 {
+#ifndef ULTRAVNC_ITALC_SUPPORT
 //	vnclog.Print(0, _T("UnzipPossibleDirectory\n"));
 	if (!m_fFileDownloadError 
 		&& 
@@ -6536,6 +6611,7 @@ bool vncClient::UnzipPossibleDirectory(LPSTR szFileName)
 		DeleteFile(szFileName);
         return true;
 	}						
+#endif
 	return false;
 }
 

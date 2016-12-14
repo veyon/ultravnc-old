@@ -113,6 +113,7 @@ BOOL SHDesktopHTML()
 static 
 HRESULT EnableActiveDesktop(bool enable)
 {
+#ifndef ULTRAVNC_ITALC_SUPPORT
 	CoInitialize(NULL);
 	CComQIPtr<IActiveDesktop, &IID_IActiveDesktop>	pIActiveDesktop;
 	
@@ -136,6 +137,9 @@ HRESULT EnableActiveDesktop(bool enable)
 	hr = pIActiveDesktop->ApplyChanges(AD_APPLY_REFRESH);
 	CoUninitialize();
 	return hr;
+#else
+	return 0;
+#endif
 }
 
 bool HideActiveDesktop()

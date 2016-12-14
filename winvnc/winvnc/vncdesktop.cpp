@@ -91,7 +91,9 @@ extern bool g_update_triggered;
 // 
 // 
 //
+#ifndef ULTRAVNC_ITALC_SUPPORT
  extern bool G_USE_PIXEL;
+#endif
 PixelCaptureEngine::~PixelCaptureEngine()
 {
 }
@@ -102,8 +104,10 @@ PixelCaptureEngine::PixelCaptureEngine()
 		else 
 			m_bIsVista=false;
 
+#ifndef ULTRAVNC_ITALC_SUPPORT
 		if (G_USE_PIXEL)
 			m_bIsVista=false;
+#endif
 	}
 void
 PixelCaptureEngine::PixelCaptureEngineInit(HDC rootdc, HDC memdc, HBITMAP membitmap, bool bCaptureAlpha, void *dibbits, int bpp, int bpr,int offsetx,int offsety)

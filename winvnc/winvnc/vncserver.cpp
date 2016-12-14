@@ -230,7 +230,7 @@ vncServer::vncServer()
 
 	m_impersonationtoken=NULL; // Modif Jeremy C. 
 
-	m_fRunningFromExternalService = false;
+	m_fRunningFromExternalService = true;
 	m_fAutoRestart = false;
     m_ftTimeout = FT_RECV_TIMEOUT;
     m_keepAliveInterval = KEEPALIVE_INTERVAL;
@@ -788,7 +788,9 @@ void vncServer::TextChatClient(LPSTR szClientName)
 				break;
 			}
 			vnclog.Print(LL_INTINFO, VNCLOG("TextChat with client named: %s\n"), szClientName);
+#ifndef ULTRAVNC_ITALC_SUPPORT
 			pClient->GetTextChatPointer()->OrderTextChat();
+#endif
 			break;
 		}
 	}
@@ -1542,7 +1544,7 @@ BOOL
 vncServer::SockConnect(BOOL On)
 {
 	// Are we being asked to switch socket connects on or off?
-	vnclog.Print(20, VNCLOG("SockConnect %d\n"), On);
+	vnclog.Print(LL_SOCKINFO, VNCLOG("SockConnect %d\n"), On);
 	if (On)
 	{
 		// Is there a listening socket?
@@ -1608,7 +1610,7 @@ vncServer::SockConnect(BOOL On)
 
 			// Now let's start the HTTP connection stuff
 			EnableHTTPConnect(m_enableHttpConn);
-			vnclog.Print(20, VNCLOG("SockConnect  Done %d\n"), On);
+			vnclog.Print(LL_SOCKINFO, VNCLOG("SockConnect  Done %d\n"), On);
 		}
 	}
 	else
@@ -2020,12 +2022,17 @@ vncServer::AddAuthHostsBlacklist(const char *machine) {
 			current->_lastRefTime.QuadPart = now.QuadPart + 10*current->_failureCount;
 			current->_failureCount++;
 
-			if (current->_failureCount > 5)
+			if (current->_failureCount > 50)
 				current->_blocked = TRUE;
 			return;
 		}
 
 		current = current->_next;
+	}
+
+	if( strcmp( machine, "127.0.0.1" ) == 0 )
+	{
+		return;
 	}
 
 	// Didn't find the entry

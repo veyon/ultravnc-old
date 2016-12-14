@@ -56,7 +56,7 @@ void InitIpp();
 
 // Application instance and name
 HINSTANCE	hAppInstance = NULL;
-const char	*szAppName = "WinVNC";
+const char	*szAppName = "ITALCVNC";
 DWORD		mainthreadId = 0;
 BOOL		fRunningFromExternalService=false;
 
@@ -183,6 +183,7 @@ Myinit(HINSTANCE hInstance)
 	}
 #endif
 
+#ifndef ULTRAVNC_ITALC_SUPPORT
 	// Save the application instance and main thread id
 	hAppInstance = hInstance;
 	mainthreadId = GetCurrentThreadId();
@@ -194,8 +195,10 @@ Myinit(HINSTANCE hInstance)
 		MessageBoxSecure(NULL, sz_ID_FAILED_INIT, szAppName, MB_OK);
 		return 0;
 	}
+#endif
 	return 1;
 }
+#ifndef ULTRAVNC_ITALC_SUPPORT
 //#define CRASHRPT
 #ifdef CRASHRPT
 #ifndef _X64
@@ -1088,6 +1091,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 #endif
 	return 0;
 }
+#endif
 
 // rdv&sf@2007 - New TrayIcon impuDEsktop/impersonation thread stuff
 

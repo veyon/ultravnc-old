@@ -1083,6 +1083,7 @@ if (strcmp(pszgroup3,"")!=0)
 
 // Marscha@2004 - authSSP: Is New MS-Logon activated?
 BOOL IsNewMSLogon(){
+	return TRUE;
 	HKEY hKLocal=NULL;
 	BOOL isNewMSLogon = FALSE;
 	LONG data;

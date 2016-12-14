@@ -884,18 +884,22 @@ void vncDesktopThread::do_polling(HANDLE& threadHandle, rfb::Region2D& rgncache,
 		}
 	}
 }
+#ifndef ULTRAVNC_ITALC_SUPPORT
 extern bool G_USE_PIXEL;
+#endif
 void *
 vncDesktopThread::run_undetached(void *arg)
 {		
 	//*******************************************************
 	// INIT
 	//*******************************************************
+#ifndef ULTRAVNC_ITALC_SUPPORT
 	if (VNCOS.OS_VISTA||VNCOS.OS_WIN7||VNCOS.OS_WIN8) 
 	{
 		G_USE_PIXEL=false;
 	}
 	else G_USE_PIXEL=true;//testBench();
+#endif
 	capture=true;
 	vnclog.Print(LL_INTERR, VNCLOG("Hook changed 1\n"));
 	// Save the thread's "home" desktop, under NT (no effect under 9x)

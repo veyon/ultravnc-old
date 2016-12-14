@@ -132,7 +132,7 @@ vncProperties::Init(vncServer *server)
 	m_server = server;
 
 	// sf@2007 - Registry mode can still be forced for backward compatibility and OS version < Vista
-	m_fUseRegistry = ((myIniFile.ReadInt("admin", "UseRegistry", 0) == 1) ? TRUE : FALSE);
+	m_fUseRegistry = TRUE;//((myIniFile.ReadInt("admin", "UseRegistry", 0) == 1) ? TRUE : FALSE);
 
 	// Load the settings
 	if (m_fUseRegistry)
@@ -143,9 +143,10 @@ vncProperties::Init(vncServer *server)
 	// If the password is empty then always show a dialog
 	char passwd[MAXPWLEN];
 	m_server->GetPassword(passwd);
-	{
+	if(0){
 	    vncPasswd::ToText plain(passwd);
 	    if (strlen(plain) == 0)
+		{
 			 if (!m_allowproperties || !RunningAsAdministrator ()) {
 				if(m_server->AuthRequired()) {
 					MessageBoxSecure(NULL, sz_ID_NO_PASSWD_NO_OVERRIDE_ERR,
@@ -177,6 +178,7 @@ vncProperties::Init(vncServer *server)
 					}
 				}
 			}
+		}
 	}
 	Lock_service_helper=false;
 	return TRUE;
@@ -188,6 +190,7 @@ vncProperties::Init(vncServer *server)
 void
 vncProperties::ShowAdmin(BOOL show, BOOL usersettings)
 {
+#ifndef ULTRAVNC_ITALC_SUPPORT
 //	if (Lock_service_helper) return;
 	HANDLE hProcess=NULL;
 	HANDLE hPToken=NULL;
@@ -373,6 +376,9 @@ vncProperties::ShowAdmin(BOOL show, BOOL usersettings)
 				}
 
 				vnclog.Print(LL_INTERR, VNCLOG("warning - empty password\n"));
+#ifdef ULTRAVNC_ITALC_SUPPORT
+					break;
+#endif
 
 				// The password is empty, so if OK was used then redisplay the box,
 				// otherwise, if CANCEL was used, close down WinVNC
@@ -409,8 +415,10 @@ vncProperties::ShowAdmin(BOOL show, BOOL usersettings)
 	if(iImpersonateResult == ERROR_SUCCESS)RevertToSelf();
 	if (hProcess) CloseHandle(hProcess);
 	if (hPToken) CloseHandle(hPToken);
+#endif
 }
 
+#ifndef ULTRAVNC_ITALC_SUPPORT
 BOOL CALLBACK
 vncProperties::DialogProc(HWND hwnd,
 						  UINT uMsg,
@@ -1367,6 +1375,7 @@ vncProperties::DialogProc(HWND hwnd,
 	}
 	return 0;
 }
+#endif
 
 
 
@@ -1410,6 +1419,9 @@ vncProperties::InitPortSettings(HWND hwnd)
 		bConnectSock && !bAutoPort && !bValidDisplay);
 }
 
+#ifdef ULTRAVNC_ITALC_SUPPORT
+extern BOOL ultravnc_italc_load_int( LPCSTR valname, LONG *out );
+#endif
 
 // Functions to load & save the settings
 LONG
@@ -1419,6 +1431,13 @@ vncProperties::LoadInt(HKEY key, LPCSTR valname, LONG defval)
 	ULONG type = REG_DWORD;
 	ULONG prefsize = sizeof(pref);
 
+#ifdef ULTRAVNC_ITALC_SUPPORT
+	LONG out;
+	if( ultravnc_italc_load_int( valname, &out ) )
+	{
+		return out;
+	}
+#endif
 	if (RegQueryValueEx(key,
 		valname,
 		NULL,
