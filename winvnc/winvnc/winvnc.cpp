@@ -55,9 +55,9 @@ void InitIpp();
 #include "Localization.h" // Act : add localization on messages
 
 // Application instance and name
-HINSTANCE	hAppInstance;
+HINSTANCE	hAppInstance = NULL;
 const char	*szAppName = "WinVNC";
-DWORD		mainthreadId;
+DWORD		mainthreadId = 0;
 BOOL		fRunningFromExternalService=false;
 
 //adzm 2009-06-20

@@ -3141,7 +3141,7 @@ BOOL COSVersion::GetNTCurrentVersionFromRegistry(HKEY hKeyCurrentVersion, DWORD&
   bSuccess = ::RegQueryValueEx(hKeyCurrentVersion, _T("CurrentVersion"), NULL, &dwType, (BYTE*) szData, &dwSize) == ERROR_SUCCESS;
   if (bSuccess)
   {
-  #if defined(_stscanf_s)
+  #if defined(_stscanf_s) && !defined(__GNUC__)
     _stscanf_s(szData, _T("%u.%u"), &dwMajorVersion, &dwMinorVersion);
   #else
     _stscanf(szData, _T("%u.%u"), &dwMajorVersion, &dwMinorVersion);

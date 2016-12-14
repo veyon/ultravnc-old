@@ -270,10 +270,10 @@ VIDEODRIVER::Mirror_driver_Vista(DWORD dwAttach,int x,int y,int w,int h)
         DWORD cyPrimary = 0xFFFFFFFF;
 
         // First enumerate for Primary display device:
-        while (result = (*pd)(NULL,
+        while ((result = (*pd)(NULL,
                                 devNum,
                                 &dispDevice,
-                                0))
+                                0)))
         {
 //          MessageBoxSecure(NULL, &dispDevice.DeviceString[0], NULL, MB_OK);
           if (dispDevice.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE)
@@ -317,10 +317,10 @@ VIDEODRIVER::Mirror_driver_Vista(DWORD dwAttach,int x,int y,int w,int h)
 
         // Enumerate again for the mirror driver:
         devNum = 0;
-        while (result = (*pd)(NULL,
+        while ((result = (*pd)(NULL,
                                   devNum,
                                   &dispDevice,
-                                  0))
+                                  0)))
         {
           if (strcmp(&dispDevice.DeviceString[0], driverName) == 0)
               break;
@@ -492,10 +492,10 @@ VIDEODRIVER::Mirror_driver_detach_XP()
         INT devNum = 0;
         BOOL result;
 
-        while (result = (*pd)(NULL,
+        while ((result = (*pd)(NULL,
                                   devNum,
                                   &dispDevice,
-                                  0))
+                                  0)))
         {
           if (strcmp(&dispDevice.DeviceString[0], driverName) == 0)
               break;
@@ -626,7 +626,6 @@ VIDEODRIVER::Mirror_driver_detach_XP()
 							}
 					}
 
-        INT code =
         ChangeDisplaySettingsEx(deviceName,
                                 &devmode, 
                                 NULL,
@@ -636,7 +635,7 @@ VIDEODRIVER::Mirror_driver_detach_XP()
     
 //        GetDispCode(code);
 
-        code = ChangeDisplaySettingsEx(deviceName,
+        ChangeDisplaySettingsEx(deviceName,
                                 &devmode, 
                                 NULL,
                                 0,
@@ -712,10 +711,10 @@ VIDEODRIVER::Mirror_driver_attach_XP(int x,int y,int w,int h)
         INT devNum = 0;
         BOOL result;
 
-        while (result = (*pd)(NULL,
+        while ((result = (*pd)(NULL,
                                   devNum,
                                   &dispDevice,
-                                  0))
+                                  0)))
         {
           if (strcmp(&dispDevice.DeviceString[0], driverName) == 0)
               break;
@@ -926,7 +925,7 @@ typedef BOOL (WINAPI* pEnumDisplayDevices)(PVOID,DWORD,PVOID,DWORD);
 		FillMemory(&devmode, sizeof(DEVMODE), 0);
 		devmode.dmSize = sizeof(DEVMODE);
 		devmode.dmDriverExtra = 0;
-		BOOL change = EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,&devmode);
+		/*BOOL change = */EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,&devmode);
 		devmode.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 		HMODULE hUser32=LoadLibrary("USER32");
 		if (hUser32) pd = (pEnumDisplayDevices)GetProcAddress( hUser32, "EnumDisplayDevicesA");
@@ -940,7 +939,7 @@ typedef BOOL (WINAPI* pEnumDisplayDevices)(PVOID,DWORD,PVOID,DWORD);
 				INT devNum = 0;
 				BOOL result;
 				DriverFound=false;
-				while (result = (*pd)(NULL,devNum, &dd,0))
+				while ((result = (*pd)(NULL,devNum, &dd,0)))
 				{
 					if (strcmp((const char *)&dd.DeviceString[0], driverName) == 0)
 					{
@@ -966,10 +965,9 @@ BOOL
 VIDEODRIVER:: HardwareCursor()
 {
 	HDC gdc;
-	int returnvalue;
 	gdc = GetDC(NULL);
-	returnvalue= ExtEscape(gdc, MAP1, 0, NULL, NULL, NULL);
-	returnvalue= ExtEscape(gdc, CURSOREN, 0, NULL, NULL, NULL);
+	ExtEscape(gdc, MAP1, 0, NULL, 0, NULL);
+	ExtEscape(gdc, CURSOREN, 0, NULL, 0, NULL);
 	ReleaseDC(NULL,gdc);
 	return true;
 }
@@ -978,9 +976,8 @@ BOOL
 VIDEODRIVER:: NoHardwareCursor()
 {
 	HDC gdc;
-	int returnvalue;
 	gdc = GetDC(NULL);
-	returnvalue= ExtEscape(gdc, CURSORDIS, 0, NULL, NULL, NULL);
+	ExtEscape(gdc, CURSORDIS, 0, NULL, 0, NULL);
 	ReleaseDC(NULL,gdc);
 	return true;
 }

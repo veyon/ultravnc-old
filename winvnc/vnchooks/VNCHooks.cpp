@@ -137,7 +137,7 @@ BOOL InitInstance();
 BOOL ExitInstance();
 
 // The DLL's main procedure
-BOOL WINAPI DllMain (HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
+extern "C" BOOL WINAPI DllMain (HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
    HANDLE filemapping = NULL;
 	// Find out why we're being called

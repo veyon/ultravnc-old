@@ -60,7 +60,7 @@ class vncServer;
 #endif
 // adzm - 2010-07 - Extended clipboard
 #include "common/Clipboard.h"
-#include "ipc.h"
+#include "IPC.h"
 //#define COMPILE_MULTIMON_STUBS
 //#include "Multimon.h"
 

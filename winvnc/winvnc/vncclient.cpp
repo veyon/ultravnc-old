@@ -2330,7 +2330,7 @@ vncClientThread::run(void *arg)
 	if (!InitAuthenticate())
 	{
 		m_server->RemoveClient(m_client->GetClientId());
-		goto testautoreconnect;
+		return;
 	}
 
 	// Authenticated OK - remove from blacklist and remove timeout
@@ -4662,7 +4662,7 @@ vncClientThread::run(void *arg)
 	m_server->RemoveClient(m_client->GetClientId());
 
 	// sf@2003 - AutoReconnection attempt if required
-	testautoreconnect:
+
 	if (!fShutdownOrdered) {
 		if (m_client->m_Autoreconnect)
 		{

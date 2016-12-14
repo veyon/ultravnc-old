@@ -139,6 +139,7 @@ void keybd_uni_event(_In_  BYTE bVk,_In_  BYTE bScan,_In_  DWORD dwFlags,_In_  U
 
 void keybd_initialize_no_crit()
 {
+{
 	if (!VNCOS.OS_WIN8) return;
 
 	keyEventFn=new comm_serv;
@@ -157,6 +158,7 @@ void keybd_initialize_no_crit()
 		 goto error;
 	}
 	return;
+}
 error:
 	if (keyEventFn)delete keyEventFn;
 			keyEventFn=NULL;
@@ -168,6 +170,7 @@ error:
 }
 
 void keybd_initialize()
+{
 {
 	if (!VNCOS.OS_WIN8) return;
 
@@ -193,6 +196,7 @@ void keybd_initialize()
 	}
 	LeaveCriticalSection(&keyb_crit);
 	return;
+}
 error:
 	if (keyEventFn)delete keyEventFn;
 			keyEventFn=NULL;

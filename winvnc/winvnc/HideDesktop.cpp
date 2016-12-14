@@ -23,13 +23,14 @@
 ////////////////////////////////////////////////////////////////////////////
 #include "stdhdrs.h"
 #define WIN32_LEAN_AND_MEAN
-#include <WinSock2.h>
-#include <Windows.h>
-#include <WinInet.h> // Shell object uses INTERNET_MAX_URL_LENGTH (go figure)
-#if _MSC_VER < 1400
+#include <shlwapi.h>
+#include <tchar.h>
+#include <winsock2.h>
+#include <windows.h>
+#include <wininet.h> // Shell object uses INTERNET_MAX_URL_LENGTH (go figure)
+#if !__GNUC__ && _MSC_VER < 1400
 #define _WIN32_IE 0x0400
 #endif
-#include <atlbase.h> // ATL smart pointers
 #include <shlguid.h> // shell GUIDs
 #include <shlobj.h>  // IActiveDesktop
 #include "stdhdrs.h"
@@ -206,8 +207,8 @@ void HideDesktop()
 	if (!ISWallPaperHided)
 	{
 		SaveWallpaperStyle(); // Added Jef Fix
-		SystemParametersInfo(SPI_GETDESKWALLPAPER,1024,SCREENNAME,NULL );
-		SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, "", SPIF_SENDCHANGE);
+		SystemParametersInfo(SPI_GETDESKWALLPAPER,1024,SCREENNAME,0 );
+		SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, (PVOID)"", SPIF_SENDCHANGE);
 		ADWasEnabled = HideActiveDesktop();
 		ISWallPaperHided=true;
 		vnclog.Print(LL_INTWARN, VNCLOG("Killwallpaper %i %i\n"),ISWallPaperHided,ADWasEnabled);
@@ -276,9 +277,9 @@ void DisableEffects()
 
 		::ZeroMemory(spiValues, sizeof(spiValues));
 
-		int iParam = 0;
+		size_t iParam = 0;
 		for (iParam = 0; iParam < (sizeof(spiParams) / sizeof(spiParams[0])); iParam++) {
-			if (!SystemParametersInfo(spiParams[iParam], 0, &(spiValues[iParam]), NULL)) {
+			if (!SystemParametersInfo(spiParams[iParam], 0, &(spiValues[iParam]), 0)) {
 				vnclog.Print(LL_INTWARN, VNCLOG("Failed to get SPI value for 0x%04x (0x%08x)\n"), spiParams[iParam], GetLastError());
 			} else {
 				vnclog.Print(LL_INTINFO, VNCLOG("Retrieved SPI value for 0x%04x: 0x%08x\n"), spiParams[iParam], spiValues[iParam]);
@@ -300,7 +301,7 @@ void DisableEffects()
 void EnableEffects()
 {
 	if (g_bEffectsDisabled) {
-		int iParam = 0;
+		size_t iParam = 0;
 		for (iParam = 0; iParam < (sizeof(spiParams) / sizeof(spiParams[0])); iParam++) {
 			if (spiValues[iParam] != spiSuggested[iParam]) {
 				if (!SystemParametersInfo(spiParams[iParam]+1, 0, (PVOID)spiValues[iParam], SPIF_SENDCHANGE)) {
@@ -337,14 +338,14 @@ void DisableFontSmoothing()
 		
 		if (!g_bGotOldFontSmoothingValue) {
 			// there appears to be a delay between setting the SPI_SETFONTSMOOTHING value and SPI_GETFONTSMOOTHING returning that up-to-date value.
-			if (!SystemParametersInfo(SPI_GETFONTSMOOTHING, 0, &g_bOldFontSmoothingValue, NULL)) {
+			if (!SystemParametersInfo(SPI_GETFONTSMOOTHING, 0, &g_bOldFontSmoothingValue, 0)) {
 				vnclog.Print(LL_INTWARN, VNCLOG("Failed to get SPI value for SPI_GETFONTSMOOTHING (0x%08x)\n"), GetLastError());
 				g_bGotOldFontSmoothingValue = false;
 			} else {
 				vnclog.Print(LL_INTINFO, VNCLOG("Retrieved SPI value for SPI_GETFONTSMOOTHING: 0x%08x\n"), g_bOldFontSmoothingValue);
 				g_bGotOldFontSmoothingValue = true;
 				
-				if (!SystemParametersInfo(0x200A /*SPI_GETFONTSMOOTHINGTYPE*/, 0, &g_nOldFontSmoothingType, NULL)) {
+				if (!SystemParametersInfo(0x200A /*SPI_GETFONTSMOOTHINGTYPE*/, 0, &g_nOldFontSmoothingType, 0)) {
 					vnclog.Print(LL_INTWARN, VNCLOG("Failed to get SPI value for SPI_GETFONTSMOOTHINGTYPE (0x%08x)\n"), GetLastError());
 					g_bGotFontSmoothingType = false;
 				} else {
@@ -352,7 +353,7 @@ void DisableFontSmoothing()
 					g_bGotFontSmoothingType = true;
 				}
 				
-				if (!SystemParametersInfo(0x1048 /*SPI_GETCLEARTYPE*/, 0, &g_bOldClearTypeValue, NULL)) {
+				if (!SystemParametersInfo(0x1048 /*SPI_GETCLEARTYPE*/, 0, &g_bOldClearTypeValue, 0)) {
 					vnclog.Print(LL_INTWARN, VNCLOG("Failed to get SPI value for SPI_GETCLEARTYPE (0x%08x)\n"), GetLastError());
 					g_bGotClearType = false;
 				} else {

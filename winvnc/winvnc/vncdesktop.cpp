@@ -49,7 +49,7 @@
 #include "vncdesktopthread.h"
 #include "common/win32_helpers.h"
 #include <algorithm>
-#include <Commctrl.h>
+#include <commctrl.h>
 
 extern bool PreConnect;
 int getinfo(char mytext[1024]);
@@ -1692,7 +1692,7 @@ vncDesktop::WriteMessageOnScreen(char * tt,BYTE *scrBuff, UINT scrBuffSize)
 	CopyToBuffer(rect, scrBuff, scrBuffSize);
 }
 
-#include "wtsApi32.h"
+#include "wtsapi32.h"
 char mytext22[1024] = "";
 DWORD GetCurrentConsoleSessionID();
 

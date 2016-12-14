@@ -494,9 +494,13 @@ int CheckUserGroupPasswordUni(char * userin,char *password,const char *machine)
 		}
 		HMODULE hModule = LoadLibrary(szCurrentDir);
 		if (hModule) {
+
+			static omni_mutex authSSPMutex;
+			omni_mutex_lock l( authSSPMutex );
+
 			CheckUserPasswordSDUni = (CheckUserPasswordSDUniFn) GetProcAddress(hModule, "CUPSD");
 			vnclog.Print(LL_INTINFO, VNCLOG("GetProcAddress"));
-			HRESULT hr = CoInitialize(NULL);
+			/*HRESULT hr =*/ CoInitialize(NULL);
 			result = CheckUserPasswordSDUni(userin, password, machine);
 			vnclog.Print(LL_INTINFO, "CheckUserPasswordSDUni result=%i", result);
 			CoUninitialize();
@@ -595,7 +599,7 @@ if (strcmp(pszgroup1,"")==0 && strcmp(pszgroup2,"")==0 && strcmp(pszgroup3,"")==
 		if (hModule)
 			{
 				CheckUserGroupPassword = (CheckUserGroupPasswordFn) GetProcAddress( hModule, "CUGP" );
-				HRESULT hr = CoInitialize(NULL);
+				/*HRESULT hr =*/ CoInitialize(NULL);
 				result=CheckUserGroupPassword(userin,password,clientname,pszgroup1,locdom1);
 				CoUninitialize();
 				FreeLibrary(hModule);
@@ -629,7 +633,7 @@ if (strcmp(pszgroup1,"")!=0)
 		if (hModule)
 			{
 				CheckUserGroupPassword = (CheckUserGroupPasswordFn) GetProcAddress( hModule, "CUGP" );
-				HRESULT hr = CoInitialize(NULL);
+				/*HRESULT hr =*/ CoInitialize(NULL);
 				result=CheckUserGroupPassword(userin,password,clientname,pszgroup1,locdom1);
 				CoUninitialize();
 				FreeLibrary(hModule);
@@ -657,7 +661,7 @@ if (strcmp(pszgroup1,"")!=0)
 		if (hModule)
 			{
 				CheckUserGroupPassword = (CheckUserGroupPasswordFn) GetProcAddress( hModule, "CUGP" );
-				HRESULT hr = CoInitialize(NULL);
+				/*HRESULT hr =*/ CoInitialize(NULL);
 				result=CheckUserGroupPassword(userin,password,clientname,pszgroup1,locdom1);
 				CoUninitialize();
 				FreeLibrary(hModule);
@@ -684,7 +688,7 @@ if (strcmp(pszgroup1,"")!=0)
 		if (hModule)
 			{
 				CheckUserGroupPassword = (CheckUserGroupPasswordFn) GetProcAddress( hModule, "CUGP" );
-				HRESULT hr = CoInitialize(NULL);
+				/*HRESULT hr =*/ CoInitialize(NULL);
 				result=CheckUserGroupPassword(userin,password,clientname,pszgroup1,locdom1);
 				CoUninitialize();
 				FreeLibrary(hModule);
@@ -711,7 +715,7 @@ if (strcmp(pszgroup1,"")!=0)
 		if (hModule)
 			{
 				CheckUserGroupPassword = (CheckUserGroupPasswordFn) GetProcAddress( hModule, "CUGP" );
-				HRESULT hr = CoInitialize(NULL);
+				/*HRESULT hr =*/ CoInitialize(NULL);
 				result=CheckUserGroupPassword(userin,password,clientname,pszgroup1,locdom1);
 				CoUninitialize();
 				FreeLibrary(hModule);
@@ -744,7 +748,7 @@ if (strcmp(pszgroup2,"")!=0)
 		if (hModule)
 			{
 				CheckUserGroupPassword = (CheckUserGroupPasswordFn) GetProcAddress( hModule, "CUGP" );
-				HRESULT hr = CoInitialize(NULL);
+				/*HRESULT hr =*/ CoInitialize(NULL);
 				result=CheckUserGroupPassword(userin,password,clientname,pszgroup2,locdom2);
 				CoUninitialize();
 				FreeLibrary(hModule);
@@ -771,7 +775,7 @@ if (strcmp(pszgroup2,"")!=0)
 		if (hModule)
 			{
 				CheckUserGroupPassword = (CheckUserGroupPasswordFn) GetProcAddress( hModule, "CUGP" );
-				HRESULT hr = CoInitialize(NULL);
+				/*HRESULT hr =*/ CoInitialize(NULL);
 				result=CheckUserGroupPassword(userin,password,clientname,pszgroup2,locdom2);
 				CoUninitialize();
 				FreeLibrary(hModule);
@@ -799,7 +803,7 @@ if (strcmp(pszgroup2,"")!=0)
 		if (hModule)
 			{
 				CheckUserGroupPassword = (CheckUserGroupPasswordFn) GetProcAddress( hModule, "CUGP" );
-				HRESULT hr = CoInitialize(NULL);
+				/*HRESULT hr =*/ CoInitialize(NULL);
 				result=CheckUserGroupPassword(userin,password,clientname,pszgroup2,locdom2);
 				CoUninitialize();
 				FreeLibrary(hModule);
@@ -826,7 +830,7 @@ if (strcmp(pszgroup2,"")!=0)
 		if (hModule)
 			{
 				CheckUserGroupPassword = (CheckUserGroupPasswordFn) GetProcAddress( hModule, "CUGP" );
-				HRESULT hr = CoInitialize(NULL);
+				/*HRESULT hr =*/ CoInitialize(NULL);
 				result=CheckUserGroupPassword(userin,password,clientname,pszgroup2,locdom2);
 				CoUninitialize();
 				FreeLibrary(hModule);
@@ -853,7 +857,7 @@ if (strcmp(pszgroup2,"")!=0)
 		if (hModule)
 			{
 				CheckUserGroupPassword = (CheckUserGroupPasswordFn) GetProcAddress( hModule, "CUGP" );
-				HRESULT hr = CoInitialize(NULL);
+				/*HRESULT hr =*/ CoInitialize(NULL);
 				result=CheckUserGroupPassword(userin,password,clientname,pszgroup2,locdom2);
 				CoUninitialize();
 				FreeLibrary(hModule);
@@ -886,7 +890,7 @@ if (strcmp(pszgroup3,"")!=0)
 		if (hModule)
 			{
 				CheckUserGroupPassword = (CheckUserGroupPasswordFn) GetProcAddress( hModule, "CUGP" );
-				HRESULT hr = CoInitialize(NULL);
+				/*HRESULT hr =*/ CoInitialize(NULL);
 				result=CheckUserGroupPassword(userin,password,clientname,pszgroup3,locdom3);
 				CoUninitialize();
 				FreeLibrary(hModule);
@@ -913,7 +917,7 @@ if (strcmp(pszgroup3,"")!=0)
 		if (hModule)
 			{
 				CheckUserGroupPassword = (CheckUserGroupPasswordFn) GetProcAddress( hModule, "CUGP" );
-				HRESULT hr = CoInitialize(NULL);
+				/*HRESULT hr =*/ CoInitialize(NULL);
 				result=CheckUserGroupPassword(userin,password,clientname,pszgroup3,locdom3);
 				CoUninitialize();
 				FreeLibrary(hModule);
@@ -941,7 +945,7 @@ if (strcmp(pszgroup3,"")!=0)
 		if (hModule)
 			{
 				CheckUserGroupPassword = (CheckUserGroupPasswordFn) GetProcAddress( hModule, "CUGP" );
-				HRESULT hr = CoInitialize(NULL);
+				/*HRESULT hr =*/ CoInitialize(NULL);
 				result=CheckUserGroupPassword(userin,password,clientname,pszgroup3,locdom3);
 				CoUninitialize();
 				FreeLibrary(hModule);
@@ -968,7 +972,7 @@ if (strcmp(pszgroup3,"")!=0)
 		if (hModule)
 			{
 				CheckUserGroupPassword = (CheckUserGroupPasswordFn) GetProcAddress( hModule, "CUGP" );
-				HRESULT hr = CoInitialize(NULL);
+				/*HRESULT hr =*/ CoInitialize(NULL);
 				result=CheckUserGroupPassword(userin,password,clientname,pszgroup3,locdom3);
 				CoUninitialize();
 				FreeLibrary(hModule);
@@ -995,7 +999,7 @@ if (strcmp(pszgroup3,"")!=0)
 		if (hModule)
 			{
 				CheckUserGroupPassword = (CheckUserGroupPasswordFn) GetProcAddress( hModule, "CUGP" );
-				HRESULT hr = CoInitialize(NULL);
+				/*HRESULT hr =*/ CoInitialize(NULL);
 				result=CheckUserGroupPassword(userin,password,clientname,pszgroup3,locdom3);
 				CoUninitialize();
 				FreeLibrary(hModule);
@@ -1091,7 +1095,7 @@ BOOL IsNewMSLogon(){
 	{
 		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
 				"Software\\ORL\\WinVNC3",
-				NULL,
+				0,
 				KEY_QUERY_VALUE,
 				&hKLocal) != ERROR_SUCCESS)
 				return false;

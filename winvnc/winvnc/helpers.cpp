@@ -55,7 +55,7 @@ Set_settings_as_admin(char *mycommand)
 
 	SHELLEXECUTEINFO shExecInfo;
 	shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-	shExecInfo.fMask = NULL;
+	shExecInfo.fMask = 0;
 	shExecInfo.hwnd = GetForegroundWindow();
 	shExecInfo.lpVerb = "runas";
 	shExecInfo.lpFile = exe_file_name;
@@ -165,7 +165,6 @@ if (BUseRegistry==99)
 if (!myIniFile_Out.WriteInt("admin", "UseRegistry", BUseRegistry))
 {
 		//error
-		DWORD error=GetLastError();
 		MessageBoxSecure(NULL,"Permission denied:Uncheck [_] Protect my computer... in run as dialog or use user with write permission." ,myIniFile_Out.myInifile,MB_ICONERROR);
 		return;
 }
@@ -351,7 +350,7 @@ Set_stop_service_as_admin()
 	SHELLEXECUTEINFO shExecInfo;
 
 	shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-	shExecInfo.fMask = NULL;
+	shExecInfo.fMask = 0;
 	shExecInfo.hwnd = GetForegroundWindow();
 	shExecInfo.lpVerb = "runas";
 	shExecInfo.lpFile = exe_file_name;
@@ -379,7 +378,7 @@ Set_start_service_as_admin()
 	SHELLEXECUTEINFO shExecInfo;
 
 	shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-	shExecInfo.fMask = NULL;
+	shExecInfo.fMask = 0;
 	shExecInfo.hwnd = GetForegroundWindow();
 	shExecInfo.lpVerb = "runas";
 	shExecInfo.lpFile = exe_file_name;
@@ -417,7 +416,7 @@ Set_install_service_as_admin()
 	SHELLEXECUTEINFO shExecInfo;
 
 	shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-	shExecInfo.fMask = NULL;
+	shExecInfo.fMask = 0;
 	shExecInfo.hwnd = GetForegroundWindow();
 	shExecInfo.lpVerb = "runas";
 	shExecInfo.lpFile = exe_file_name;
@@ -437,7 +436,7 @@ Set_uninstall_service_as_admin()
 	SHELLEXECUTEINFO shExecInfo;
 
 	shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-	shExecInfo.fMask = NULL;
+	shExecInfo.fMask = 0;
 	shExecInfo.hwnd = GetForegroundWindow();
 	shExecInfo.lpVerb = "runas";
 	shExecInfo.lpFile = exe_file_name;
@@ -457,7 +456,7 @@ winvncSecurityEditorHelper_as_admin()
 	SHELLEXECUTEINFO shExecInfo;
 
 	shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-	shExecInfo.fMask = NULL;
+	shExecInfo.fMask = 0;
 	shExecInfo.hwnd = GetForegroundWindow();
 	shExecInfo.lpVerb = "runas";
 	shExecInfo.lpFile = exe_file_name;
@@ -553,7 +552,7 @@ bool GetServiceName(TCHAR *pszAppPath, TCHAR *pszServiceName)
                                 // match given application name against executable path in the service config
                                 std::string servicePath(pServiceConfig->lpBinaryPathName);
                                 make_upper(servicePath);
-                                if (servicePath.find(appPath.c_str()) != -1)
+                                if (servicePath.find(appPath.c_str()) != (size_t) -1)
                                 {
                                     bResult = true;
                                     strncpy(pszServiceName, pServices[i].lpServiceName, 256);

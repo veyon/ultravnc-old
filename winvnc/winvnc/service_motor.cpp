@@ -380,8 +380,6 @@ void Set_Safemode()
 					strcat(stringvalue," /safeboot:network");
 					SetFileAttributes(systemdrive,FILE_ATTRIBUTE_NORMAL);
 					WritePrivateProfileString("operating systems",drivepath,stringvalue,systemdrive);
-					DWORD err=GetLastError();
-
 
 			}
 			else
@@ -398,7 +396,7 @@ void Set_Safemode()
 			strcpy(parameters,"/set safeboot network");
 			SHELLEXECUTEINFO shExecInfo;
 			shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-			shExecInfo.fMask = NULL;
+			shExecInfo.fMask = 0;
 			shExecInfo.hwnd = GetForegroundWindow();
 			shExecInfo.lpVerb = "runas";
 			shExecInfo.lpFile = exe_file_name;
@@ -428,7 +426,7 @@ void Set_Safemode()
 						strcpy(parameters,"/set safeboot network");
 						SHELLEXECUTEINFO shExecInfo;
 						shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-						shExecInfo.fMask = NULL;
+						shExecInfo.fMask = 0;
 						shExecInfo.hwnd = GetForegroundWindow();
 						shExecInfo.lpVerb = "runas";
 						shExecInfo.lpFile = exe_file_name;
@@ -451,7 +449,7 @@ void Set_Safemode()
 					strcpy(parameters,"/set safeboot network");
 					SHELLEXECUTEINFO shExecInfo;
 					shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-					shExecInfo.fMask = NULL;
+					shExecInfo.fMask = 0;
 					shExecInfo.hwnd = GetForegroundWindow();
 					shExecInfo.lpVerb = "runas";
 					shExecInfo.lpFile = exe_file_name;
@@ -474,7 +472,7 @@ void Set_Safemode()
 				strcpy(parameters,"/set safeboot network");
 				SHELLEXECUTEINFO shExecInfo;
 				shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-				shExecInfo.fMask = NULL;
+				shExecInfo.fMask = 0;
 				shExecInfo.hwnd = GetForegroundWindow();
 				shExecInfo.lpVerb = "runas";
 				shExecInfo.lpFile = exe_file_name;
@@ -550,7 +548,7 @@ void Reboot_with_force_reboot_elevated()
 	GetModuleFileName(0, exe_file_name, MAX_PATH);
 	SHELLEXECUTEINFO shExecInfo;
 	shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-	shExecInfo.fMask = NULL;
+	shExecInfo.fMask = 0;
 	shExecInfo.hwnd = GetForegroundWindow();
 	shExecInfo.lpVerb = "runas";
 	shExecInfo.lpFile = exe_file_name;
@@ -578,7 +576,7 @@ void Reboot_in_safemode_elevated()
 	GetModuleFileName(0, exe_file_name, MAX_PATH);
 	SHELLEXECUTEINFO shExecInfo;
 	shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-	shExecInfo.fMask = NULL;
+	shExecInfo.fMask = 0;
 	shExecInfo.hwnd = GetForegroundWindow();
 	shExecInfo.lpVerb = "runas";
 	shExecInfo.lpFile = exe_file_name;
@@ -637,7 +635,7 @@ void Restore_safemode()
 			strcpy(parameters,"/deletevalue safeboot");
 			SHELLEXECUTEINFO shExecInfo;
 			shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-			shExecInfo.fMask = NULL;
+			shExecInfo.fMask = 0;
 			shExecInfo.hwnd = GetForegroundWindow();
 			shExecInfo.lpVerb = "runas";
 			shExecInfo.lpFile = exe_file_name;
@@ -666,7 +664,7 @@ void Restore_safemode()
 						strcpy(parameters,"/deletevalue safeboot");
 						SHELLEXECUTEINFO shExecInfo;
 						shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-						shExecInfo.fMask = NULL;
+						shExecInfo.fMask = 0;
 						shExecInfo.hwnd = GetForegroundWindow();
 						shExecInfo.lpVerb = "runas";
 						shExecInfo.lpFile = exe_file_name;
@@ -689,7 +687,7 @@ void Restore_safemode()
 					strcpy(parameters,"/deletevalue safeboot");
 					SHELLEXECUTEINFO shExecInfo;
 					shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-					shExecInfo.fMask = NULL;
+					shExecInfo.fMask = 0;
 					shExecInfo.hwnd = GetForegroundWindow();
 					shExecInfo.lpVerb = "runas";
 					shExecInfo.lpFile = exe_file_name;
@@ -712,7 +710,7 @@ void Restore_safemode()
 				strcpy(parameters,"/deletevalue safeboot");
 				SHELLEXECUTEINFO shExecInfo;
 				shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-				shExecInfo.fMask = NULL;
+				shExecInfo.fMask = 0;
 				shExecInfo.hwnd = GetForegroundWindow();
 				shExecInfo.lpVerb = "runas";
 				shExecInfo.lpFile = exe_file_name;
@@ -872,7 +870,7 @@ void delete_softwareCAD_elevated()
 	GetModuleFileName(0, exe_file_name, MAX_PATH);
 	SHELLEXECUTEINFO shExecInfo;
 	shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-	shExecInfo.fMask = NULL;
+	shExecInfo.fMask = 0;
 	shExecInfo.hwnd = GetForegroundWindow();
 	shExecInfo.lpVerb = "runas";
 	shExecInfo.lpFile = exe_file_name;
@@ -894,7 +892,7 @@ void Enable_softwareCAD_elevated()
 	GetModuleFileName(0, exe_file_name, MAX_PATH);
 	SHELLEXECUTEINFO shExecInfo;
 	shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-	shExecInfo.fMask = NULL;
+	shExecInfo.fMask = 0;
 	shExecInfo.hwnd = GetForegroundWindow();
 	shExecInfo.lpVerb = "runas";
 	shExecInfo.lpFile = exe_file_name;

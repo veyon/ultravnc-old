@@ -130,7 +130,6 @@ void
 vncDesktop::GetPrimaryDevice()
 {
 	int i;
-    int j=0;
     helper::DynamicFn<pEnumDisplayDevices> pd("USER32","EnumDisplayDevicesA");
 
     if (pd.isValid())
@@ -156,7 +155,6 @@ void
 vncDesktop::GetSecondaryDevice()
 {
 	int i;
-    int j=0;
     helper::DynamicFn<pEnumDisplayDevices> pd("USER32","EnumDisplayDevicesA");
 
     if (pd.isValid())

@@ -387,7 +387,7 @@ vncProperties::ShowAdmin(BOOL show, BOOL usersettings)
 				}
 
 				// If we reached here then OK was used & there is no password!
-				int result2 = MessageBoxSecure(NULL, sz_ID_NO_PASSWORD_WARN,
+				MessageBoxSecure(NULL, sz_ID_NO_PASSWORD_WARN,
 				    sz_ID_WINVNC_WARNIN, MB_OK | MB_ICONEXCLAMATION);
 
 				omni_thread::sleep(4);
@@ -627,7 +627,7 @@ vncProperties::DialogProc(HWND hwnd,
 				TRUE,
 				0);
 
-			HWND hmvSetting;
+			HWND hmvSetting = 0;
 			switch (_this->m_server->ConnectPriority()) {
 			case 0:
 				hmvSetting = GetDlgItem(hwnd, IDC_MV1);
