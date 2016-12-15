@@ -47,7 +47,11 @@ extern "C"
 #ifdef IPP
 #include "libjpeg/jpeglib.h"
 #else
+#ifdef ULTRAVNC_ITALC_SUPPORT
+#include <jpeglib.h>
+#else
 #include "libjpeg-turbo-win/jpeglib.h"
+#endif
 #endif
 }
 #include <math.h>

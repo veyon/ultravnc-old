@@ -45,10 +45,17 @@ class vncEncodeZlibHex;
 #ifdef IPP
 #include "..\..\ipp_zlib\src\zlib\zlib.h"
 #else
+#ifdef ULTRAVNC_ITALC_SUPPORT
+#include <zlib.h>
+#else
 #include "zlib-1.2.5/zlib.h"
 #endif
+#endif
+#ifdef ULTRAVNC_ITALC_SUPPORT
+#include "minilzo.h"
+#else
 #include "lzo/minilzo.h"
-
+#endif
 // Minimum zlib rectangle size in bytes.  Anything smaller will
 // not compress well due to overhead.
 // temp change lzo
