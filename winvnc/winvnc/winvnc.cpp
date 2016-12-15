@@ -1132,6 +1132,7 @@ DWORD WINAPI imp_desktop_thread(LPVOID lpParam)
 
 //	ImpersonateCurrentUser_();
 
+#ifndef ULTRAVNC_ITALC_SUPPORT
 	char m_username[UNLEN+1];
 	HWINSTA station = GetProcessWindowStation();
 	if (station != NULL)
@@ -1166,6 +1167,13 @@ DWORD WINAPI imp_desktop_thread(LPVOID lpParam)
 		vnclog.Print(LL_INTERR, VNCLOG("failed to create tray menu\n"));
 		PostQuitMessage(0);
 	}
+#else
+	vncProperties   m_properties;
+	vncPropertiesPoll   m_propertiesPoll;
+
+	m_properties.Init(server);
+	m_propertiesPoll.Init(server);
+#endif
 
 	// This is a good spot to handle the old PostAdd messages
 	if (PostAddAutoConnectClient_bool)
@@ -1204,6 +1212,17 @@ DWORD WINAPI imp_desktop_thread(LPVOID lpParam)
 	}
 	bool Runonce=false;
 	MSG msg;
+#if ULTRAVNC_ITALC_SUPPORT
+	while( fShutdownOrdered == false )
+	{
+		DWORD result = WaitForSingleObject(hShutdownEvent, 100);
+		if (WAIT_OBJECT_0 == result)
+		{
+			ResetEvent(hShutdownEvent);
+			fShutdownOrdered = true;
+		}
+	}
+#else
 	while (GetMessage(&msg,0,0,0) != 0)
 	{
 		TranslateMessage(&msg);
@@ -1231,6 +1250,7 @@ DWORD WINAPI imp_desktop_thread(LPVOID lpParam)
 
 	if (menu != NULL)
 		delete menu;
+#endif
 
 	//vnclog.Print(LL_INTERR, VNCLOG("GetMessage stop \n"));
 	SetThreadDesktop(old_desktop);
