@@ -4618,14 +4618,14 @@ vncClientThread::run(void *arg)
             }
 			m_socket->SetPluginStreamingIn();
             break;
-
+#else
 		case rfbItalcCoreRequest:
 		{
-			omni_mutex_lock l(m_client->GetUpdateLock());
+			omni_mutex_lock l(m_client->GetUpdateLock(),92);
 			if( !ItalcCoreServer::instance()->
 				handleItalcClientMessage( vsocketDispatcher, m_socket ) )
 			{
-				connected = FALSE;
+				m_client->cl_connected = FALSE;
 			}
 			break;
 		}
