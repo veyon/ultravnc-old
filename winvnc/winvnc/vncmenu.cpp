@@ -311,9 +311,6 @@ vncMenu::vncMenu(vncServer *server)
 
 	RegisterClassEx(&wndclass);
 
-#ifdef ULTRAVNC_ITALC_SUPPORT
-	m_hwnd = NULL;
-#else
 	m_hwnd = CreateWindow(MENU_CLASS_NAME,
 				MENU_CLASS_NAME,
 				WS_OVERLAPPEDWINDOW,
@@ -345,7 +342,6 @@ vncMenu::vncMenu(vncServer *server)
 
 	// Ask the server object to notify us of stuff
 	server->AddNotify(m_hwnd);
-#endif
 
 	// Initialise the properties dialog object
 	if (!m_properties.Init(m_server))
@@ -364,9 +360,7 @@ vncMenu::vncMenu(vncServer *server)
 	ResetEvent(hEvent);
 	*/
 
-#ifndef ULTRAVNC_ITALC_SUPPORT
 	SetTimer(m_hwnd, 1, 5000, NULL);
-#endif
 
 
 	// sf@2002
@@ -542,9 +536,6 @@ vncMenu::~vncMenu()
 void
 vncMenu::AddTrayIcon()
 {
-#ifdef ULTRAVNC_ITALC_SUPPORT
-	return;
-#endif
 	//vnclog.Print(LL_INTERR, VNCLOG("########### vncMenu::AddTrayIcon \n"));
 	//vnclog.Print(LL_INTERR, VNCLOG("########### vncMenu::AddTrayIcon - UserName = %s\n"), m_username);
 
@@ -601,10 +592,8 @@ vncMenu::AddTrayIcon()
 void
 vncMenu::DelTrayIcon()
 {
-#ifndef ULTRAVNC_ITALC_SUPPORT
 	//vnclog.Print(LL_INTERR, VNCLOG("########### vncMenu::DelTrayIcon - DEL Tray Icon call\n"));
 	SendTrayMsg(NIM_DELETE, FALSE);
-#endif
 }
 
 void
@@ -1006,9 +995,6 @@ LRESULT CALLBACK vncMenu::WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lP
 	case WM_TIMER:
 		// sf@2007 - Can't get the WTS_CONSOLE_CONNECT message work properly for now..
 		// So use a hack instead
-#ifdef ULTRAVNC_ITALC_SUPPORT
-		break;
-#endif
         // jdp reread some ini settings
         _this->m_properties.ReloadDynamicSettings();
 
@@ -1061,7 +1047,6 @@ LRESULT CALLBACK vncMenu::WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lP
 		_this->FlashTrayIcon(_this->m_server->AuthClientCount() != 0);
 		break;
 
-#ifndef ULTRAVNC_ITALC_SUPPORT
 		// DEAL WITH NOTIFICATIONS FROM THE SERVER:
 	case WM_SRV_CLIENT_AUTHENTICATED:
 	case WM_SRV_CLIENT_DISCONNECT:
@@ -1688,7 +1673,6 @@ LRESULT CALLBACK vncMenu::WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lP
 			return 0;
 		}
 		
-#endif
 
 	case WM_CLOSE:
 		
