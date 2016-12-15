@@ -558,7 +558,9 @@ vncClientId vncServer::AddClient(VSocket *socket,
 
 		if (m_unauthClients.size() > 0) {
 			szInfo[strlen(szInfo) - 2] = '\0';
+#ifndef ULTRAVNC_ITALC_SUPPORT
 			vncMenu::NotifyBalloon(szInfo, NULL);
+#endif
 		}		
 	}
 
@@ -687,7 +689,9 @@ vncServer::Authenticated(vncClientId clientid)
 
 		szInfo[255] = '\0';
 
+#ifndef ULTRAVNC_ITALC_SUPPORT
 		vncMenu::NotifyBalloon(szInfo, NULL);
+#endif
 	}
 
 	vnclog.Print(LL_INTINFO, VNCLOG("Authenticated() done\n"));
