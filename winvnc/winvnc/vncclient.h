@@ -268,6 +268,7 @@ public:
 	};
 
 	// sf@2004 - Asynchronous FileTransfer - Delta Transfer
+#ifndef ULTRAVNC_ITALC_SUPPORT
 	int  GenerateFileChecksums(HANDLE hFile, char* lpCSBuffer, int nCSBufferSize);
 	bool ReceiveDestinationFileChecksums(int nSize, int nLen);
 	bool ReceiveFileChunk(int nLen, int nSize);
@@ -296,6 +297,7 @@ public:
     void FTNewFolderHook(std::string name);
     void FTDeleteHook(std::string name, bool isDir);
     void FTRenameHook(std::string oldName, std::string newname);
+#endif
     void SendServerStateUpdate(CARD32 state, CARD32 value);
 	void Record_SendServerStateUpdate(CARD32 state, CARD32 value);
     void SendKeepAlive(bool bForce = false);

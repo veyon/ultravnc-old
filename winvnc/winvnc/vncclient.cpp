@@ -251,6 +251,7 @@ void SplitTransferredFileNameAndDate(char *szFileAndDate, char *filetime)
 }
 
 
+#ifndef ULTRAVNC_ITALC_SUPPORT
 /*
  * File transfer event hooks
  *
@@ -325,6 +326,7 @@ void vncClient::FTRenameHook(std::string oldName, std::string newname)
 {
 }
 
+#endif
 
 
 class vncClientUpdateThread : public omni_thread
@@ -2346,7 +2348,9 @@ vncClientThread::run(void *arg)
 
 			szInfo[255] = '\0';
 
+#ifndef ULTRAVNC_ITALC_SUPPORT
 			if (m_client->m_outgoing) vncMenu::NotifyBalloon(szInfo, NULL);
+#endif
 		}
 		// wa@2005 - AutoReconnection attempt if required
 		if (m_client->m_Autoreconnect && !fShutdownOrdered)
@@ -4631,12 +4635,14 @@ vncClientThread::run(void *arg)
 			m_client->cl_connected = FALSE;
 		}
 
+#ifndef ULTRAVNC_ITALC_SUPPORT
 		// sf@2005 - Cancel FT User impersonation if possible
 		// We do it here to ensure impersonation is cancelled
 		if (m_server->FTUserImpersonation())
 		{
 			m_client->UndoFTUserImpersonation();
 		}
+#endif
 
 	}
 
@@ -4647,6 +4653,7 @@ vncClientThread::run(void *arg)
 	}
 	
 
+#ifndef ULTRAVNC_ITALC_SUPPORT
     if (m_client->m_fFileDownloadRunning)
     {
         m_client->m_fFileDownloadError = true;
@@ -4664,6 +4671,7 @@ vncClientThread::run(void *arg)
         m_client->m_fFileUploadRunning = false;
         helper::close_handle(m_client->m_hSrcFile);
     }
+#endif
 
   
 
@@ -6026,6 +6034,7 @@ void vncClient::TriggerUpdate()
 }
 
 
+#ifndef ULTRAVNC_ITALC_SUPPORT
 ////////////////////////////////////////////////
 // Asynchronous & Delta File Transfer functions
 ////////////////////////////////////////////////
@@ -6491,7 +6500,6 @@ bool vncClient::GetSpecialFolderPath(int nId, char* szPath)
 //
 int vncClient::ZipPossibleDirectory(LPSTR szSrcFileName)
 {
-#ifndef ULTRAVNC_ITALC_SUPPORT
 //	vnclog.Print(0, _T("ZipPossibleDirectory\n"));
 	char* p1 = strrchr(szSrcFileName, '\\') + 1;
 	char* p2 = strrchr(szSrcFileName, rfbDirSuffix[0]);
@@ -6539,14 +6547,12 @@ int vncClient::ZipPossibleDirectory(LPSTR szSrcFileName)
 		return 1;
 	}
 	else
-#endif
 		return 0;
 }
 
 
 int vncClient::CheckAndZipDirectoryForChecksuming(LPSTR szSrcFileName)
 {
-#ifndef ULTRAVNC_ITALC_SUPPORT
 	if (!m_fFileDownloadError 
 		&& 
 		!strncmp(strrchr(szSrcFileName, '\\') + 1, rfbZipDirectoryPrefix, strlen(rfbZipDirectoryPrefix))
@@ -6578,7 +6584,6 @@ int vncClient::CheckAndZipDirectoryForChecksuming(LPSTR szSrcFileName)
 		}
 
 	}		
-#endif
 	return 0;
 }
 
@@ -6588,7 +6593,6 @@ int vncClient::CheckAndZipDirectoryForChecksuming(LPSTR szSrcFileName)
 //
 bool vncClient::UnzipPossibleDirectory(LPSTR szFileName)
 {
-#ifndef ULTRAVNC_ITALC_SUPPORT
 //	vnclog.Print(0, _T("UnzipPossibleDirectory\n"));
 	if (!m_fFileDownloadError 
 		&& 
@@ -6611,7 +6615,6 @@ bool vncClient::UnzipPossibleDirectory(LPSTR szFileName)
 		DeleteFile(szFileName);
         return true;
 	}						
-#endif
 	return false;
 }
 
@@ -6767,6 +6770,7 @@ void vncClient::UndoFTUserImpersonation()
 	RevertToSelf();
 	m_fFTUserImpersonatedOk = false;
 }
+#endif
 
 // 10 April 2008 jdp paquette@atnetsend.net
 // This can crash as we can not send middle in an update...
