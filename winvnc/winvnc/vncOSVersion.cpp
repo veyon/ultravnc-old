@@ -84,9 +84,21 @@ VNC_OSVersion::SetAeroState()
 	else OS_AERO_ON=false;	
 }
 
+#ifdef ULTRAVNC_ITALC_SUPPORT
+extern BOOL ultravnc_italc_load_int( LPCSTR valname, LONG *out );
+#endif
+
 bool
 VNC_OSVersion::CaptureAlphaBlending()
 {
+#ifdef ULTRAVNC_ITALC_SUPPORT
+	LONG out;
+	if( ultravnc_italc_load_int( "CaptureAlphaBlending", &out ) )
+	{
+		return out != 0;
+	}
+#endif
+
 	if (OS_LAYER_ON==false) return false;
 	if (OS_XP) return true;
 	if ((OS_WIN7 || OS_VISTA) && OS_AERO_ON==false) return true;
