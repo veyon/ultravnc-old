@@ -52,7 +52,7 @@ class vncEncodeZlibHex;
 #endif
 #endif
 #ifdef ULTRAVNC_ITALC_SUPPORT
-#include "minilzo.h"
+#include <lzo/lzo1x.h>
 #else
 #include "lzo/minilzo.h"
 #endif

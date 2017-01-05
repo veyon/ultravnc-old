@@ -29,7 +29,7 @@ class vncEncodeUltra2;
 #pragma once
 #include "vncencoder.h"
 #ifdef ULTRAVNC_ITALC_SUPPORT
-#include "minilzo.h"
+#include <lzo/lzo1x.h>
 #include <jpeglib.h>
 #else
 #include "lzo/minilzo.h"
