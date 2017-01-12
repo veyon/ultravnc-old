@@ -670,7 +670,9 @@ vncDesktop::InitWindow()
 		
 		if (PeekMessage(&msg,NULL,0,0,PM_REMOVE))
 		{
+#ifndef ULTRAVNC_ITALC_SUPPORT
 			vnclog.Print(LL_INTERR, VNCLOG("OOOOOOOOOOOO %i %i\n"),msg.message,msg.hwnd);
+#endif
 			if (msg.message==WM_TIMER)
 			{
 				if(msg.wParam==1001) keepalive();
@@ -692,7 +694,9 @@ vncDesktop::InitWindow()
 				{
 					if (can_be_hooked)
 					{
+#ifndef ULTRAVNC_ITALC_SUPPORT
 					vnclog.Print(LL_INTERR, VNCLOG("RFB_SCREEN_UPDATE  \n"));
+#endif
 					rfb::Rect rect;
 					rect.tl = rfb::Point((SHORT)LOWORD(msg.wParam), (SHORT)HIWORD(msg.wParam));
 					rect.br = rfb::Point((SHORT)LOWORD(msg.lParam), (SHORT)HIWORD(msg.lParam));
@@ -701,7 +705,9 @@ vncDesktop::InitWindow()
 					rect.br.x-=m_ScreenOffsetx;
 					rect.tl.y-=m_ScreenOffsety;
 					rect.br.y-=m_ScreenOffsety;
+#ifndef ULTRAVNC_ITALC_SUPPORT
 					vnclog.Print(LL_INTERR, VNCLOG("REct3 %i %i %i %i  \n"),rect.tl.x,rect.br.x,rect.tl.y,rect.br.y);
+#endif
 
 					rect = rect.intersect(m_Cliprect);
 					if (!rect.is_empty())
@@ -716,7 +722,9 @@ vncDesktop::InitWindow()
 				{
 					if (can_be_hooked)
 					{
+#ifndef ULTRAVNC_ITALC_SUPPORT
 					vnclog.Print(LL_INTERR, VNCLOG("RFB_MOUSE_UPDATE  \n"));
+#endif
 					SetCursor((HCURSOR) msg.wParam);
 					SetEvent(trigger_events[2]);
 					}
