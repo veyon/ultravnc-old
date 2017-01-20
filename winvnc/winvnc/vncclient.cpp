@@ -450,7 +450,12 @@ vncClientUpdateThread::EnableUpdates(BOOL enable)
 
 	// give bad results with java
 	//if (enable)
+#ifndef ULTRAVNC_ITALC_SUPPORT
 		if (!m_sync_sig->wait(5000))
+#else
+		// wait up to 60 seconds e.g. for completing permission dialogs
+		if (!m_sync_sig->wait(60000))
+#endif
 			vnclog.Print(LL_INTINFO, VNCLOG("wait timeout\n"));
 	/*if  (m_sync_sig->timedwait(now_sec+1,0)==0)
 		{
