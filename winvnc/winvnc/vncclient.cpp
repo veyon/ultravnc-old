@@ -4627,8 +4627,16 @@ vncClientThread::run(void *arg)
 		case rfbItalcCoreRequest:
 		{
 			omni_mutex_lock l(m_client->GetUpdateLock(),92);
-			if( !ItalcCoreServer::instance()->
-				handleItalcClientMessage( vsocketDispatcher, m_socket ) )
+			if( !ItalcCoreServer::instance()->handleItalcCoreMessage( vsocketDispatcher, m_socket ) )
+			{
+				m_client->cl_connected = FALSE;
+			}
+			break;
+		}
+		case rfbItalcFeatureRequest:
+		{
+			omni_mutex_lock l(m_client->GetUpdateLock(),93);
+			if( !ItalcCoreServer::instance()->handleItalcFeatureMessage( vsocketDispatcher, m_socket ) )
 			{
 				m_client->cl_connected = FALSE;
 			}
