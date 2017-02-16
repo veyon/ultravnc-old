@@ -38,6 +38,7 @@
 #include <string>
 #include <rdr/MemOutStream.h>
 #include "rfb.h"
+#include "stdhdrs.h"
 
 struct ExtendedClipboardDataMessage {
 	ExtendedClipboardDataMessage();

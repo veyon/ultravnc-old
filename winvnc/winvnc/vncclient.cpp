@@ -1281,6 +1281,7 @@ vncClientThread::InitAuthenticate()
 				return FALSE;
 			}
 	}
+#ifndef ULTRAVNC_ITALC_SUPPORT
 	// adzm 2010-09
 	if (!(client_ini.flags & clientInitShared) && !m_shared)
 	{
@@ -1300,6 +1301,7 @@ vncClientThread::InitAuthenticate()
 			}
 		}
 	}
+#endif
 
 	vnclog.Print(LL_CLIENTS, VNCLOG("Leaving InitAuthenticate\n"));
 	// Tell the server that this client is ok
