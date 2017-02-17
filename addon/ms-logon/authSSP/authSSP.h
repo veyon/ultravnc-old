@@ -44,7 +44,9 @@
 
 #define MAXLEN 256
 
-BOOL CUPSD2(const char * domainuser, 
+#include "ItalcCore.h"
+
+BOOL ITALC_CORE_EXPORT CUPSD2(const char * domainuser, 
 					   const char *password);
 
 BOOL WINAPI SSPLogonUser(LPTSTR szDomain, 
