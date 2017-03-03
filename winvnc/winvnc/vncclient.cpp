@@ -78,11 +78,6 @@
 #include "common/win32_helpers.h"
 #include "uvncUiAccess.h"
 
-#ifdef ULTRAVNC_ITALC_SUPPORT
-extern BOOL ultravnc_italc_load_int( LPCSTR valname, LONG *out );
-extern BOOL ultravnc_italc_access_control( const char *username, const char *host );
-#endif
-
 bool isDirectoryTransfer(const char *szFileName);
 extern BOOL SPECIAL_SC_PROMPT;
 extern BOOL SPECIAL_SC_EXIT;
@@ -1123,17 +1118,7 @@ vncClientThread::CheckLoopBack()
 				return FALSE;
 			}
 #ifdef ULTRAVNC_ITALC_SUPPORT
-			else
-			{
-				LONG val = 0;
-				if( ultravnc_italc_load_int( "LocalConnectOnly", &val ) && val )
-				{
-					// FOOOOOOO
-					vnclog.Print(LL_CONNERR, VNCLOG("non-loopback connections disabled - client rejected\n"));
-					SendConnFailed("non-loopback connections are disabled.");
-					return FALSE;
-				}
-			}
+			return FALSE;
 #endif
 		}
 	}
@@ -1367,11 +1352,8 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 
 #ifdef ULTRAVNC_ITALC_SUPPORT
 	auth_types.clear();
-	if( m_ms_logon )
-	{
-		auth_types.push_back(rfbUltraVNC_MsLogonIIAuth);
-	}
-	auth_types.push_back(rfbSecTypeItalc);
+	auth_types.push_back(rfbNoAuth);
+	auth_types.push_back(rfbVncAuth);
 #endif
 	// adzm 2010-09 - Send the auths
 	{
@@ -1437,13 +1419,6 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 		// adzm 2010-10 - Do the SessionSelect auth
 		auth_success = AuthSessionSelect(auth_message);
 		break;
-#ifdef ULTRAVNC_ITALC_SUPPORT
-	case rfbSecTypeItalc:
-		auth_success =
-			ItalcCoreServer::instance()->
-				authSecTypeItalc( vsocketDispatcher, m_socket );
-		break;
-#endif
 	default:
 		auth_success = FALSE;
 		break;
@@ -1573,13 +1548,6 @@ BOOL vncClientThread::AuthenticateLegacyClient()
 	{
 		auth_type = rfbNoAuth;
 	}
-
-#ifdef ULTRAVNC_ITALC_SUPPORT
-	// always use MS logon authentication when authenticating against
-	// an old VNC viewer - this allows to use the iTALC client as regular
-	// VNC server
-	auth_type = rfbLegacy_MsLogon;
-#endif
 
 	// abort if invalid
 	if (auth_type == rfbInvalidAuth) {
@@ -1883,9 +1851,6 @@ vncClientThread::AuthMsLogon(std::string& auth_message)
 	}
 
 	if (result) {
-#ifdef ULTRAVNC_ITALC_SUPPORT
-		return ultravnc_italc_access_control( user, m_socket->GetPeerName() );
-#endif
 		return TRUE;
 	} else {
 		return FALSE;
@@ -4625,25 +4590,6 @@ vncClientThread::run(void *arg)
             }
 			m_socket->SetPluginStreamingIn();
             break;
-#else
-		case rfbItalcCoreRequest:
-		{
-			omni_mutex_lock l(m_client->GetUpdateLock(),92);
-			if( !ItalcCoreServer::instance()->handleItalcCoreMessage( vsocketDispatcher, m_socket ) )
-			{
-				m_client->cl_connected = FALSE;
-			}
-			break;
-		}
-		case rfbItalcFeatureRequest:
-		{
-			omni_mutex_lock l(m_client->GetUpdateLock(),93);
-			if( !ItalcCoreServer::instance()->handleItalcFeatureMessage( vsocketDispatcher, m_socket ) )
-			{
-				m_client->cl_connected = FALSE;
-			}
-			break;
-		}
 #endif
 		default:
 			// Unknown message, so fail!
