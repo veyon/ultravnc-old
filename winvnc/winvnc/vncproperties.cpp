@@ -1421,6 +1421,7 @@ vncProperties::InitPortSettings(HWND hwnd)
 
 #ifdef ULTRAVNC_ITALC_SUPPORT
 extern BOOL ultravnc_italc_load_int( LPCSTR valname, LONG *out );
+extern void ultravnc_italc_load_password( char* out, int size );
 #endif
 
 // Functions to load & save the settings
@@ -1458,6 +1459,9 @@ vncProperties::LoadInt(HKEY key, LPCSTR valname, LONG defval)
 void
 vncProperties::LoadPassword(HKEY key, char *buffer)
 {
+#ifdef ULTRAVNC_ITALC_SUPPORT
+	ultravnc_italc_load_password( buffer, MAXPWLEN );
+#else
 	DWORD type = REG_BINARY;
 	int slen=MAXPWLEN;
 	char inouttext[MAXPWLEN];
@@ -1475,11 +1479,15 @@ vncProperties::LoadPassword(HKEY key, char *buffer)
 		return;
 
 	memcpy(buffer, inouttext, MAXPWLEN);
+#endif
 }
 
 void //PGM
 vncProperties::LoadPassword2(HKEY key, char *buffer) //PGM
 { //PGM
+#ifdef ULTRAVNC_ITALC_SUPPORT
+	ultravnc_italc_load_password( buffer, MAXPWLEN );
+#else
 	DWORD type = REG_BINARY; //PGM
 	int slen=MAXPWLEN; //PGM
 	char inouttext[MAXPWLEN]; //PGM
@@ -1497,6 +1505,7 @@ vncProperties::LoadPassword2(HKEY key, char *buffer) //PGM
 		return; //PGM
 
 	memcpy(buffer, inouttext, MAXPWLEN); //PGM
+#endif
 } //PGM
 
 char *

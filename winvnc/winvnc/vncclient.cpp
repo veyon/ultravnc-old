@@ -1352,7 +1352,6 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 
 #ifdef ULTRAVNC_ITALC_SUPPORT
 	auth_types.clear();
-	auth_types.push_back(rfbNoAuth);
 	auth_types.push_back(rfbVncAuth);
 #endif
 	// adzm 2010-09 - Send the auths
@@ -1861,7 +1860,11 @@ BOOL vncClientThread::AuthVnc(std::string& auth_message)
 {
 	char password[MAXPWLEN];
 	m_server->GetPassword(password);
+#ifdef ULTRAVNC_ITALC_SUPPORT
+	char* plain = password;
+#else
 	vncPasswd::ToText plain(password);
+#endif
 
 	BOOL auth_ok = FALSE;
 	{
