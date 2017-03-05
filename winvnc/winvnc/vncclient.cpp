@@ -981,6 +981,9 @@ vncClientThread::InitGiiVersion()
 BOOL
 vncClientThread::FilterClients_Ask_Permission()
 {
+#ifdef ULTRAVNC_ITALC_SUPPORT
+	return TRUE;
+#else
 	// Verify the peer host name against the AuthHosts string
 	vncServer::AcceptQueryReject verified;
 	if (m_auth) {
@@ -989,7 +992,6 @@ vncClientThread::FilterClients_Ask_Permission()
 		verified = m_server->VerifyHost(m_socket->GetPeerName());
 	}
 	
-#ifndef ULTRAVNC_ITALC_SUPPORT
 	// If necessary, query the connection with a timed dialog
 	char username[UNLEN+1];
 	if (!vncService::CurrentUser(username, sizeof(username))) return false;
@@ -1045,12 +1047,12 @@ vncClientThread::FilterClients_Ask_Permission()
             }
 		}
     }
-#endif
 
 	if (verified == vncServer::aqrReject) {
 		return FALSE;
 	}
 	return TRUE;
+#endif
 }
 
 // RDV 2010-4-10
@@ -1178,6 +1180,7 @@ void vncClientThread::LogAuthResult(bool success)
 	if (!success)
 	{
 		vnclog.Print(LL_CONNERR, VNCLOG("authentication failed\n"));
+#ifndef ULTRAVNC_ITALC_SUPPORT
 		typedef BOOL (*LogeventFn)(char *machine);
 		LogeventFn Logevent = 0;
 		char szCurrentDir[MAX_PATH];
@@ -1195,9 +1198,13 @@ void vncClientThread::LogAuthResult(bool success)
 				Logevent((char *)m_client->GetClientName());
 				FreeLibrary(hModule);
 			}		
+#endif
 	}
 	else
 	{
+#ifdef ULTRAVNC_ITALC_SUPPORT
+		vnclog.Print(LL_INTINFO, VNCLOG("authentication succeeded\n"));
+#else
 		typedef BOOL (*LogeventFn)(char *machine);
 		LogeventFn Logevent = 0;
 		char szCurrentDir[MAX_PATH];
@@ -1215,6 +1222,7 @@ void vncClientThread::LogAuthResult(bool success)
 				Logevent((char *)m_client->GetClientName());
 				FreeLibrary(hModule);
 			}
+#endif
 	}
 }
 
@@ -1427,7 +1435,7 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 
 	// Return the result
 	CARD32 auth_result = rfbVncAuthFailed;
-	if (auth_success==1) {
+	if (auth_success) {
 		current_auth.push_back(auth_accepted);
 
 		// continue the authentication if mslogon is enabled. any method of authentication should
@@ -1469,6 +1477,7 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 	}
 
 	CARD32 auth_result_msg = Swap32IfLE(auth_result);
+
 	if (!m_socket->SendExactQueue((char *)&auth_result_msg, sizeof(auth_result_msg)))
 		return FALSE;
 
