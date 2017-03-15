@@ -879,7 +879,7 @@ vncClientThread::InitVersion()
 					bReady = false;
 					// we need to reconnect!
 
-					Sleep(min(nRetry * 1000, 30000));
+					Sleep(std::min(nRetry * 1000, 30000));
 
 					if (TryReconnect()) {
 						// reconnect if in SC mode and not already using AutoReconnect
@@ -5326,7 +5326,6 @@ vncClient::SendRFBMsgQueue(CARD8 type, BYTE *buffer, int buflen)
 	}
 	return TRUE;
 }
-#define min(a, b)  (((a) < (b)) ? (a) : (b))
 
 BOOL
 vncClient::SendUpdate(rfb::SimpleUpdateTracker &update)
@@ -5532,11 +5531,11 @@ vncClient::SendRectangles(const rfb::RectVector &rects)
  
 			for (y = rect.tl.y; y < rect.br.y; y += Blocksize)
 			{
-				int blockbottom = min(y + Blocksize, rect.br.y);
+				int blockbottom = std::min(y + Blocksize, rect.br.y);
 				for (x = rect.tl.x; x < rect.br.x; x += BlocksizeX)
 					{
  
-					   int blockright = min(x+BlocksizeX, rect.br.x);
+					   int blockright = std::min(x+BlocksizeX, rect.br.x);
 					   rfb::Rect tilerect;
 					   tilerect.tl.x=x;
 					   tilerect.br.x=blockright;

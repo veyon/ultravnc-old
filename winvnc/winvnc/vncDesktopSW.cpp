@@ -186,7 +186,7 @@ vncDesktop::GetSize()
 				case 2:
 					{
 					nWidth=mymonitor[0].Width+mymonitor[1].Width;
-					nHeight=max(mymonitor[0].Height, mymonitor[1].Height);
+					nHeight=std::max(mymonitor[0].Height, mymonitor[1].Height);
 					} break;
 				case 3:
 					{
@@ -205,7 +205,7 @@ vncDesktop::GetSize()
 										nWidth = mymonitor[1].Width+mymonitor[2].Width;
 									} else
 										nWidth = mymonitor[3].Width;
-									nHeight = max(mymonitor[0].Height, mymonitor[1].Height);
+									nHeight = std::max(mymonitor[0].Height, mymonitor[1].Height);
 							} break;
 							case 5:
 							{
@@ -221,7 +221,7 @@ vncDesktop::GetSize()
 										nWidth = mymonitor[0].Width+mymonitor[1].Width;
 								} else
 									nWidth = mymonitor[3].Width;
-									nHeight = max(mymonitor[1].Height, mymonitor[2].Height);
+									nHeight = std::max(mymonitor[1].Height, mymonitor[2].Height);
 							} break;
 							default:
 							{

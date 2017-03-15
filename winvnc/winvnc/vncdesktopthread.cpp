@@ -571,8 +571,8 @@ bool vncDesktopThread::handle_display_change(HANDLE& threadHandle, rfb::Region2D
 											mon[1] = 2;
 										}
 									}
-									m_desktop->m_SWOffsetx=min(m_desktop->mymonitor[mon[0]].offsetx, m_desktop->mymonitor[mon[1]].offsetx);
-									m_desktop->m_SWOffsety=min(m_desktop->mymonitor[mon[0]].offsety, m_desktop->mymonitor[mon[1]].offsety);
+									m_desktop->m_SWOffsetx=std::min(m_desktop->mymonitor[mon[0]].offsetx, m_desktop->mymonitor[mon[1]].offsetx);
+									m_desktop->m_SWOffsety=std::min(m_desktop->mymonitor[mon[0]].offsety, m_desktop->mymonitor[mon[1]].offsety);
 									m_server->SetSWOffset(m_desktop->m_SWOffsetx,m_desktop->m_SWOffsety);
 
 									m_desktop->m_Cliprect.tl.x=m_desktop->m_SWOffsetx;
@@ -583,7 +583,7 @@ bool vncDesktopThread::handle_display_change(HANDLE& threadHandle, rfb::Region2D
 									else
 										m_desktop->m_Cliprect.br.x=m_desktop->mymonitor[mon[0]].offsetx+m_desktop->mymonitor[mon[0]].Width;
 										
-									m_desktop->m_Cliprect.br.y=max(m_desktop->mymonitor[mon[0]].Height,m_desktop->mymonitor[mon[1]].Height);
+									m_desktop->m_Cliprect.br.y=std::max(m_desktop->mymonitor[mon[0]].Height,m_desktop->mymonitor[mon[1]].Height);
 
 									rc.right = m_desktop->m_Cliprect.br.x - m_desktop->m_Cliprect.tl.x;
 									rc.bottom = m_desktop->m_Cliprect.br.y;
@@ -615,8 +615,8 @@ bool vncDesktopThread::handle_display_change(HANDLE& threadHandle, rfb::Region2D
 											mon[1] = 1;
 										}
 									}
-									m_desktop->m_SWOffsetx=min(m_desktop->mymonitor[mon[0]].offsetx, m_desktop->mymonitor[mon[1]].offsetx);
-									m_desktop->m_SWOffsety=min(m_desktop->mymonitor[mon[0]].offsety, m_desktop->mymonitor[mon[1]].offsety);
+									m_desktop->m_SWOffsetx=std::min(m_desktop->mymonitor[mon[0]].offsetx, m_desktop->mymonitor[mon[1]].offsetx);
+									m_desktop->m_SWOffsety=std::min(m_desktop->mymonitor[mon[0]].offsety, m_desktop->mymonitor[mon[1]].offsety);
 
 									m_server->SetSWOffset(m_desktop->m_SWOffsetx,m_desktop->m_SWOffsety);
 
@@ -627,7 +627,7 @@ bool vncDesktopThread::handle_display_change(HANDLE& threadHandle, rfb::Region2D
 										m_desktop->m_Cliprect.br.x=m_desktop->mymonitor[mon[1]].offsetx+m_desktop->mymonitor[mon[1]].Width;		
 									else
 										m_desktop->m_Cliprect.br.x=m_desktop->mymonitor[mon[0]].offsetx+m_desktop->mymonitor[mon[0]].Width;
-									m_desktop->m_Cliprect.br.y=max(m_desktop->mymonitor[0].Height, m_desktop->mymonitor[mon[1]].Height);
+									m_desktop->m_Cliprect.br.y=std::max(m_desktop->mymonitor[0].Height, m_desktop->mymonitor[mon[1]].Height);
 									rc.right = m_desktop->m_Cliprect.br.x - m_desktop->m_Cliprect.tl.x;
 									rc.bottom = m_desktop->m_Cliprect.br.y;
 									vnclog.Print(LL_INTINFO, VNCLOG("Last two monitor: width = %d height = %d\n"), rc.right, rc.bottom);
