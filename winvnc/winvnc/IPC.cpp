@@ -72,7 +72,7 @@ CIPC::~CIPC()
 	return pBitmap;
 }
 
-//***********************************************
+// ***********************************************
 unsigned char * CIPC::CreateBitmap()
 {
 	int size=plist->rect1[0].left;
