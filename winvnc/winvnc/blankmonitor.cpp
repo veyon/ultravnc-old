@@ -59,9 +59,9 @@ void vncDesktop::SetBlankMonitor(bool enabled)
 		    {			   
 			    SendMessage(m_hwnd,WM_SYSCOMMAND,SC_MONITORPOWER,(LPARAM)-1);
 				//win8 require mouse move
-				mouse_event(MOUSEEVENTF_MOVE, 0, 1, 0, NULL);
+				mouse_event(MOUSEEVENTF_MOVE, 0, 1, 0, 0);
 				Sleep(40);
-				mouse_event(MOUSEEVENTF_MOVE, 0, -1, 0, NULL);
+				mouse_event(MOUSEEVENTF_MOVE, 0, -1, 0, 0);
 				//JUst in case video driver state was changed
 				HWND Blackhnd = FindWindow(("blackscreen"), 0);
 			    if (Blackhnd) PostMessage(Blackhnd, WM_CLOSE, 0, 0);

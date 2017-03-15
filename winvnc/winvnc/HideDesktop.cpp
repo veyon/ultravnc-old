@@ -290,7 +290,7 @@ void DisableEffects()
 			}
 		}
 		for (iParam = 0; iParam < (sizeof(spiParams) / sizeof(spiParams[0])); iParam++) {
-			if (spiValues[iParam] != spiSuggested[iParam]) {
+			if (spiValues[iParam] != (BOOL) spiSuggested[iParam]) {
 				if (!SystemParametersInfo(spiParams[iParam]+1, 0, (PVOID)spiSuggested[iParam], SPIF_SENDCHANGE)) {				
 					vnclog.Print(LL_INTWARN, VNCLOG("Failed to set SPI value for 0x%04x to 0x%08x (0x%08x)\n"), spiParams[iParam]+1, spiSuggested[iParam], GetLastError());
 				} else {
@@ -307,7 +307,7 @@ void EnableEffects()
 	if (g_bEffectsDisabled) {
 		size_t iParam = 0;
 		for (iParam = 0; iParam < (sizeof(spiParams) / sizeof(spiParams[0])); iParam++) {
-			if (spiValues[iParam] != spiSuggested[iParam]) {
+			if (spiValues[iParam] != (BOOL) spiSuggested[iParam]) {
 				if (!SystemParametersInfo(spiParams[iParam]+1, 0, (PVOID)spiValues[iParam], SPIF_SENDCHANGE)) {
 					vnclog.Print(LL_INTWARN, VNCLOG("Failed to restore SPI value for 0x%04x (0x%08x)\n"), spiParams[iParam]+1, GetLastError());
 				} else {

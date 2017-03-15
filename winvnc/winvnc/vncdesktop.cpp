@@ -1104,7 +1104,7 @@ vncDesktop::InitBitmap()
 						INT devNum = 0;
 						BOOL result;
 						DriverFound=false;
-						while (result = (*pd)(NULL,devNum, &dd,0))
+						while ((result = (*pd)(NULL,devNum, &dd,0)))
 							{
 								if (strcmp((const char *)&dd.DeviceString[0], driverName) == 0)
 									{
@@ -1436,7 +1436,9 @@ vncDesktop::SetPalette()
 	// Lock the current display palette into the memory DC we're holding
 	// *** CHECK THIS FOR LEAKS!
     if (VideoBuffer())
+	{
         return TRUE;
+	}
 	if (!m_bminfo.truecolour)
 	{
 		if (!m_DIBbits)
@@ -1611,7 +1613,9 @@ vncDesktop::EnableOptimisedBlits()
 	        vnclog.Print(LL_INTINFO, VNCLOG("enabled slow blits OK\n"));
 	}
     else
+	{
         vnclog.Print(LL_INTINFO, VNCLOG("enabled fast DIBsection blits OK\n"));
+	}
 
 	// Delete the old memory bitmap
 	if (m_membitmap != NULL) {
@@ -1822,11 +1826,11 @@ vncDesktop::WriteMessageOnScreenPreConnect(BYTE *scrBuff, UINT scrBuffSize)
 		char menustring[12800];
 		strcpy(menustring, "");
 
-		for (DWORD i(0); i < aantal_session; ++i)
+		for (int i = 0; i < aantal_session; ++i)
 		{
 			if (sesmsg[i].ID != 65536 && sesmsg[i].ID!=0)
 			{
-			sprintf(bigstring, "%c) session%i %s user=%s  status=%s", 97+i, sesmsg[i].ID, sesmsg[i].name, sesmsg[i].username, sesmsg[i].type);
+			sprintf(bigstring, "%c) session%i %s user=%s  status=%s", 97+i, (int)sesmsg[i].ID, sesmsg[i].name, sesmsg[i].username, sesmsg[i].type);
 			strcat(menustring, bigstring);
 			strcat(menustring, "\n");
 			}
@@ -1858,7 +1862,7 @@ vncDesktop::WriteMessageOnScreenPreConnect(BYTE *scrBuff, UINT scrBuffSize)
 
 	SetRect(&rect, 30, 50, 640, 640);
 	hFont = (HFONT)GetStockObject(ANSI_FIXED_FONT);
-	if (hOldFont = (HFONT)SelectObject(m_hmemdc, hFont))
+	if ((hOldFont = (HFONT)SelectObject(m_hmemdc, hFont)))
 	{
 		DrawText(m_hmemdc, mytext22, strlen(mytext22), &rect, DT_LEFT | DT_WORDBREAK);
 		SelectObject(m_hmemdc, hOldFont);
@@ -1867,7 +1871,7 @@ vncDesktop::WriteMessageOnScreenPreConnect(BYTE *scrBuff, UINT scrBuffSize)
 
 	SetRect(&rect, 30, 180, 640, 640);
 	hFont = (HFONT)GetStockObject(ANSI_FIXED_FONT);
-	if (hOldFont = (HFONT)SelectObject(m_hmemdc, hFont))
+	if ((hOldFont = (HFONT)SelectObject(m_hmemdc, hFont)))
 	{
 		DrawText(m_hmemdc, menustring, strlen(menustring), &rect, DT_LEFT);
 		SelectObject(m_hmemdc, hOldFont);
@@ -2637,7 +2641,7 @@ void vncDesktop::SethookMechanism(BOOL hookall,BOOL hookdriver)
 	vnclog.Print(LL_INTERR, VNCLOG("Sethook_restart_wanted hook=%d driver=%d \r\n"),m_hookdll,m_hookdriver);
 	if (Hookdll_Changed)
 		vnclog.Print(LL_INTERR, VNCLOG("Hookdll status changed \r\n"));
-		if ((m_hookdriver && !VideoBuffer()) || (!m_hookdriver && VideoBuffer()))
+	if ((m_hookdriver && !VideoBuffer()) || (!m_hookdriver && VideoBuffer()))
 	{
 		m_hookswitch=true;
 		vnclog.Print(LL_INTERR, VNCLOG("Driver Status changed\r\n"));
@@ -2710,7 +2714,7 @@ void vncDesktop::SetBlockInputState(bool newstate)
     {
 		if (!m_server->BlankInputsOnly()) 
 			{
-				if (blankmonitorstate==newstate==1) 
+				if (blankmonitorstate==newstate && newstate==1)
 					{
 						SetBlankMonitor(0);
 						blankmonitorstate=0;

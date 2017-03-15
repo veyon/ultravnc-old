@@ -876,9 +876,10 @@ VIDEODRIVER::OSVersion()
       "GetNativeSystemInfo");
    if(NULL != pGNSI)
       pGNSI(&si);
-   else GetSystemInfo(&si);
+   else
+      GetSystemInfo(&si);
 
-	switch (osvi.dwPlatformId)
+   switch (osvi.dwPlatformId)
    {
       case VER_PLATFORM_WIN32_NT:
 

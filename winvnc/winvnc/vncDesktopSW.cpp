@@ -219,9 +219,10 @@ vncDesktop::GetSize()
 									if ((mymonitor[2].offsetx < mymonitor[1].offsetx && mymonitor[1].offsetx < mymonitor[0].offsetx) ||
 										(mymonitor[2].offsetx < mymonitor[0].offsetx && mymonitor[0].offsetx < mymonitor[1].offsetx))
 										nWidth = mymonitor[0].Width+mymonitor[1].Width;
-								} else
+								} else {
 									nWidth = mymonitor[3].Width;
 									nHeight = std::max(mymonitor[1].Height, mymonitor[2].Height);
+							    }
 							} break;
 							default:
 							{

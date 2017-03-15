@@ -293,7 +293,10 @@ BOOL CreateRemoteSessionProcess(
 			}
 		}
         else
+		{
                 bRet = FALSE;
+		}
+
 		// function sometimes fail, the use processid to get hprocess... bug MS
 		if (lpProcessInformation->hProcess==0) lpProcessInformation->hProcess=hProcess;
 		//this should never happen, looping connections
@@ -520,8 +523,10 @@ get_winlogon_handle(OUT LPHANDLE  lphUserToken, DWORD mysessionID)
 	else Id=GetwinlogonPid();
 
     // fall back to old method if Terminal services is disabled
-    if (W2K == 0 && Id == -1)
+    if (W2K == 0 && Id == (DWORD)-1)
+	{
         Id=GetwinlogonPid();
+	}
 
 	#ifdef _DEBUG
 					char			szText[256];
@@ -802,11 +807,11 @@ bool IsSessionStillActive(int ID)
 			for (DWORD i(0); i < nSessions && !rdpSessionExists; ++i)
 			{
 				//exclude console session
-				if ((_stricmp(pSessions[i].pWinStationName, "Console") == 0) && (pSessions[i].SessionId == ID))
+				if ((_stricmp(pSessions[i].pWinStationName, "Console") == 0) && (pSessions[i].SessionId == (DWORD) ID))
 				{
 					rdpSessionExists = true;
 				}
-				else if ( (pSessions[i].SessionId==ID) &&
+				else if ( (pSessions[i].SessionId==(DWORD) ID) &&
 					(pSessions[i].State == WTSActive        ||
 					 pSessions[i].State == WTSShadow        ||
 					 pSessions[i].State == WTSConnectQuery
@@ -1286,8 +1291,8 @@ void disconnect_remote_sessions()
 
 
     // don't kick rdp off if there's still an active session
-    if (IsAnyRDPSessionActive())
-        return;
+	if (IsAnyRDPSessionActive())
+		return;
 
 	if (hlibwinsta)
 	   {
@@ -1309,7 +1314,7 @@ void disconnect_remote_sessions()
 				if (!LockWorkStationF())
                 {
                     char msg[1024];
-                    sprintf(msg, "LockWorkstation failed with error 0x%0X", GetLastError());
+                    sprintf(msg, "LockWorkstation failed with error 0x%0lX", GetLastError());
                     ::OutputDebugString(msg);
                 }
 

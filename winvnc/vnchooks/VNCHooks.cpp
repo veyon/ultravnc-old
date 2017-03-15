@@ -84,7 +84,7 @@ static HHOOK hGetMsgHook = NULL;							// Handle to the GetMsg hook
 static HHOOK hDialogMsgHook = NULL;						// Handle to the DialogMsg hook
 static HHOOK hLLKeyboardHook = NULL;						// Handle to LowLevel kbd hook
 static HHOOK hLLMouseHook = NULL;							// Handle to LowLevel mouse hookT
-static HANDLE filemapping = NULL;
+//static HANDLE filemapping = NULL;
 static BOOL isAttached = FALSE;
 
 

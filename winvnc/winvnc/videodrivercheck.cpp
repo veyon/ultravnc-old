@@ -136,7 +136,7 @@ CheckVideoDriver(bool Box)
 				INT devNum = 0;
 				BOOL result;
 				DriverFound=false;
-				while (result = (*pd)(NULL,devNum, &dd,0))
+				while ((result = (*pd)(NULL,devNum, &dd,0)))
 				{
 					if (strcmp((const char *)&dd.DeviceString[0], driverName) == 0)
 					{

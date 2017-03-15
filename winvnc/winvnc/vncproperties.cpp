@@ -2671,7 +2671,7 @@ void Secure_Plugin_elevated(char *szPlugin)
 	GetModuleFileName(0, exe_file_name, MAX_PATH);
 	SHELLEXECUTEINFO shExecInfo;
 	shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-	shExecInfo.fMask = NULL;
+	shExecInfo.fMask = 0;
 	shExecInfo.hwnd = GetForegroundWindow();
 	shExecInfo.lpVerb = "runas";
 	shExecInfo.lpFile = exe_file_name;

@@ -1736,9 +1736,9 @@ BOOL vncClientThread::AuthSecureVNCPlugin(std::string& auth_message)
 			}		
 			if (bPassphrase==false)
 				{
-					if (memcmp(plain,pResponseData,strlen(plain))!=NULL) auth_ok=false;
+					if (memcmp(plain,pResponseData,strlen(plain))) auth_ok=false;
 				}
-			else if (memcmp(ConfigHelpervar.m_szPassphrase,pResponseData,strlen(ConfigHelpervar.m_szPassphrase))!=NULL) auth_ok=false;
+			else if (memcmp(ConfigHelpervar.m_szPassphrase,pResponseData,strlen(ConfigHelpervar.m_szPassphrase))) auth_ok=false;
 			delete[] pResponseData;
 		}		
 		nSequenceNumber++;
@@ -1905,7 +1905,7 @@ BOOL vncClientThread::AuthVnc(std::string& auth_message)
 
 			auth_ok = TRUE;
 			// Compare them to the response
-			for (int i=0; i<sizeof(challenge); i++)
+			for (size_t i=0; i<sizeof(challenge); i++)
 			{
 				if (challenge[i] != response[i])
 				{
@@ -1929,7 +1929,7 @@ BOOL vncClientThread::AuthVnc(std::string& auth_message)
 					vncEncryptBytes((BYTE *)&challenge2, plain2); //PGM
 
 					// Compare them to the response //PGM
-					for (int i=0; i<sizeof(challenge2); i++) //PGM
+					for (size_t i=0; i<sizeof(challenge2); i++) //PGM
 					{ //PGM
 						if (challenge2[i] != response[i]) //PGM
 						{ //PGM
@@ -3338,7 +3338,7 @@ vncClientThread::run(void *arg)
 					{
 						int index = msg.ke.key - 97;
 						HANDLE		hprconnectevent=NULL;
-						if (-1<index<100)
+						if (index>-1 && index<100)
 						{
 							PreConnectID = m_client->m_encodemgr.m_buffer->m_desktop->sesmsg[index].ID;
 							hprconnectevent = OpenEvent(EVENT_MODIFY_STATE, FALSE, "Global\\SessionEventUltraPreConnect");
@@ -4726,7 +4726,7 @@ vncClientThread::run(void *arg)
 // The vncClient itself
 
 // adzm - 2010-07 - Extended clipboard
-vncClient::vncClient() : Sendinput("USER32", "SendInput"), m_clipboard(ClipboardSettings::defaultServerCaps)
+vncClient::vncClient() : m_clipboard(ClipboardSettings::defaultServerCaps), Sendinput("USER32", "SendInput")
 {
 	vnclog.Print(LL_INTINFO, VNCLOG("vncClient() executing...\n"));
 
@@ -5004,7 +5004,7 @@ bool
 vncClient::NotifyUpdate(rfbFramebufferUpdateRequestMsg fur) 
 {
 		//Fix server viewer crash, when server site scaling is used
-    	//
+    	//,
 	    m_ScaledScreen =m_encodemgr.m_buffer->GetViewerSize();
 
 		rfb::Rect update;
@@ -5015,10 +5015,10 @@ vncClient::NotifyUpdate(rfbFramebufferUpdateRequestMsg fur)
 		update.br.x = update.tl.x + Swap16IfLE(fur.w) * m_nScale;
 		update.br.y = update.tl.y + Swap16IfLE(fur.h) * m_nScale;
 		// Verify max size, scaled changed on server while not pushed to viewer
-		if (update.tl.x< ((m_ScaledScreen.tl.x + m_SWOffsetx) * m_nScale)) update.tl.x = (m_ScaledScreen.tl.x + m_SWOffsetx) * m_nScale;
-		if (update.tl.y < ((m_ScaledScreen.tl.y + m_SWOffsety) * m_nScale)) update.tl.y = (m_ScaledScreen.tl.y + m_SWOffsety) * m_nScale;
-		if (update.br.x > (update.tl.x + (m_ScaledScreen.br.x-m_ScaledScreen.tl.x) * m_nScale)) update.br.x = update.tl.x + (m_ScaledScreen.br.x-m_ScaledScreen.tl.x) * m_nScale;
-		if (update.br.y > (update.tl.y + (m_ScaledScreen.br.y-m_ScaledScreen.tl.y) * m_nScale)) update.br.y = update.tl.y + (m_ScaledScreen.br.y-m_ScaledScreen.tl.y) * m_nScale;
+		if (update.tl.x< (int)((m_ScaledScreen.tl.x + m_SWOffsetx) * m_nScale)) update.tl.x = (m_ScaledScreen.tl.x + m_SWOffsetx) * m_nScale;
+		if (update.tl.y < (int)((m_ScaledScreen.tl.y + m_SWOffsety) * m_nScale)) update.tl.y = (m_ScaledScreen.tl.y + m_SWOffsety) * m_nScale;
+		if (update.br.x > (int)(update.tl.x + (m_ScaledScreen.br.x-m_ScaledScreen.tl.x) * m_nScale)) update.br.x = update.tl.x + (m_ScaledScreen.br.x-m_ScaledScreen.tl.x) * m_nScale;
+		if (update.br.y > (int)(update.tl.y + (m_ScaledScreen.br.y-m_ScaledScreen.tl.y) * m_nScale)) update.br.y = update.tl.y + (m_ScaledScreen.br.y-m_ScaledScreen.tl.y) * m_nScale;
 		rfb::Region2D update_rgn = update;
 
 		//fullscreeen request, make it independed of the incremental rectangle
