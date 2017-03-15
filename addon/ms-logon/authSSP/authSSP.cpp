@@ -74,6 +74,7 @@ BOOL WINAPI SSPLogonUser(LPTSTR szDomain,
 	HMODULE     hModule    = NULL;
 	SEC_WINNT_AUTH_IDENTITY ai;
 
+#undef __try
 #define __try
 #define __leave goto cleanup
 #define __finally cleanup:
