@@ -1438,6 +1438,7 @@ vncProperties::LoadInt(HKEY key, LPCSTR valname, LONG defval)
 	{
 		return out;
 	}
+	return defval;
 #endif
 	if (RegQueryValueEx(key,
 		valname,
