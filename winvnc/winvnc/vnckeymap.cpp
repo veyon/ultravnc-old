@@ -716,6 +716,11 @@ public:
 		// If running under Vista and started from Session0 in Application mode
 		if (vncService::VersionMajor()>=6 && vncService::RunningFromExternalService() )
 		{
+#ifdef ULTRAVNC_ITALC_SUPPORT
+				auto sasEvent = OpenEvent( EVENT_MODIFY_STATE, false, "Global\\ItalcServiceSasEvent" );
+				SetEvent( sasEvent );
+				CloseHandle( sasEvent );
+#else
 			      vnclog.Print(LL_INTINFO,
                  "Vista and runnning as system -> CAD\n");
 
@@ -724,6 +729,7 @@ public:
 				DWORD dwTId;
 				ThreadHandle2 = CreateThread(NULL, 0, Cadthread, NULL, 0, &dwTId);
 				CloseHandle(ThreadHandle2);
+#endif
 		}
 		else if (vncService::VersionMajor()>=6)
 		{
