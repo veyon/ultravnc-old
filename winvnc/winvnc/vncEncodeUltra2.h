@@ -28,7 +28,7 @@ class vncEncodeUltra2;
 #define _WINVNC_EncodeULTRA2
 #pragma once
 #include "vncencoder.h"
-#ifdef ULTRAVNC_ITALC_SUPPORT
+#ifdef ULTRAVNC_VEYON_SUPPORT
 #include <lzo/lzo1x.h>
 #include <jpeglib.h>
 #else

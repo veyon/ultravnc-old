@@ -47,7 +47,7 @@ extern "C"
 #ifdef IPP
 #include "libjpeg/jpeglib.h"
 #else
-#ifdef ULTRAVNC_ITALC_SUPPORT
+#ifdef ULTRAVNC_VEYON_SUPPORT
 #include <jpeglib.h>
 #else
 #include "libjpeg-turbo-win/jpeglib.h"

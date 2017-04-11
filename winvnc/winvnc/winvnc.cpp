@@ -56,7 +56,7 @@ void InitIpp();
 
 // Application instance and name
 HINSTANCE	hAppInstance = NULL;
-const char	*szAppName = "ITALCVNC";
+const char	*szAppName = "VEYONVNC";
 DWORD		mainthreadId = 0;
 BOOL		fRunningFromExternalService=false;
 
@@ -183,7 +183,7 @@ Myinit(HINSTANCE hInstance)
 	}
 #endif
 
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	// Save the application instance and main thread id
 	hAppInstance = hInstance;
 	mainthreadId = GetCurrentThreadId();
@@ -198,7 +198,7 @@ Myinit(HINSTANCE hInstance)
 #endif
 	return 1;
 }
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 //#define CRASHRPT
 #ifdef CRASHRPT
 #ifndef _X64
@@ -1132,7 +1132,7 @@ DWORD WINAPI imp_desktop_thread(LPVOID lpParam)
 
 //	ImpersonateCurrentUser_();
 
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	char m_username[UNLEN+1];
 	HWINSTA station = GetProcessWindowStation();
 	if (station != NULL)
@@ -1212,7 +1212,7 @@ DWORD WINAPI imp_desktop_thread(LPVOID lpParam)
 	}
 	bool Runonce=false;
 	MSG msg;
-#if ULTRAVNC_ITALC_SUPPORT
+#if ULTRAVNC_VEYON_SUPPORT
 	while( fShutdownOrdered == false )
 	{
 		DWORD result = WaitForSingleObject(hShutdownEvent, 100);

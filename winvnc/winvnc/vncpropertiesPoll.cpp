@@ -520,8 +520,8 @@ vncPropertiesPoll::DialogProcPoll(HWND hwnd,
 
 
 
-#ifdef ULTRAVNC_ITALC_SUPPORT
-extern BOOL ultravnc_italc_load_int( LPCSTR valname, LONG *out );
+#ifdef ULTRAVNC_VEYON_SUPPORT
+extern BOOL ultravnc_veyon_load_int( LPCSTR valname, LONG *out );
 #endif
 
 // Functions to load & save the settings
@@ -532,9 +532,9 @@ vncPropertiesPoll::LoadInt(HKEY key, LPCSTR valname, LONG defval)
 	ULONG type = REG_DWORD;
 	ULONG prefsize = sizeof(pref);
 
-#ifdef ULTRAVNC_ITALC_SUPPORT
+#ifdef ULTRAVNC_VEYON_SUPPORT
 	LONG out;
-	if( ultravnc_italc_load_int( valname, &out ) )
+	if( ultravnc_veyon_load_int( valname, &out ) )
 	{
 		return out;
 	}

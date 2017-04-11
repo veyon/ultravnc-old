@@ -88,7 +88,7 @@ extern bool PreConnect;
 int PreConnectID = 0;
 extern BOOL	m_fRunningFromExternalService;
 
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 // take a full path & file name, split it, prepend prefix to filename, then merge it back
 static std::string make_temp_filename(const char *szFullPath)
 {
@@ -246,7 +246,7 @@ void SplitTransferredFileNameAndDate(char *szFileAndDate, char *filetime)
 }
 
 
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 /*
  * File transfer event hooks
  *
@@ -445,7 +445,7 @@ vncClientUpdateThread::EnableUpdates(BOOL enable)
 
 	// give bad results with java
 	//if (enable)
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 		if (!m_sync_sig->wait(5000))
 #else
 		// wait up to 60 seconds e.g. for completing permission dialogs
@@ -981,7 +981,7 @@ vncClientThread::InitGiiVersion()
 BOOL
 vncClientThread::FilterClients_Ask_Permission()
 {
-#ifdef ULTRAVNC_ITALC_SUPPORT
+#ifdef ULTRAVNC_VEYON_SUPPORT
 	return TRUE;
 #else
 	// Verify the peer host name against the AuthHosts string
@@ -1077,7 +1077,7 @@ vncClientThread::FilterClients_Blacklist()
 
 BOOL vncClientThread::CheckEmptyPasswd()
 {
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	char password[MAXPWLEN];
 	m_server->GetPassword(password);
 	vncPasswd::ToText plain(password);
@@ -1119,7 +1119,7 @@ vncClientThread::CheckLoopBack()
 				SendConnFailed("Local loop-back connections are disabled.");
 				return FALSE;
 			}
-#ifdef ULTRAVNC_ITALC_SUPPORT
+#ifdef ULTRAVNC_VEYON_SUPPORT
 			return FALSE;
 #endif
 		}
@@ -1180,7 +1180,7 @@ void vncClientThread::LogAuthResult(bool success)
 	if (!success)
 	{
 		vnclog.Print(LL_CONNERR, VNCLOG("authentication failed\n"));
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 		typedef BOOL (*LogeventFn)(char *machine);
 		LogeventFn Logevent = 0;
 		char szCurrentDir[MAX_PATH];
@@ -1202,7 +1202,7 @@ void vncClientThread::LogAuthResult(bool success)
 	}
 	else
 	{
-#ifdef ULTRAVNC_ITALC_SUPPORT
+#ifdef ULTRAVNC_VEYON_SUPPORT
 		vnclog.Print(LL_INTINFO, VNCLOG("authentication succeeded\n"));
 #else
 		typedef BOOL (*LogeventFn)(char *machine);
@@ -1274,7 +1274,7 @@ vncClientThread::InitAuthenticate()
 				return FALSE;
 			}
 	}
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	// adzm 2010-09
 	if (!(client_ini.flags & clientInitShared) && !m_shared)
 	{
@@ -1358,7 +1358,7 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 		}
 	}
 
-#ifdef ULTRAVNC_ITALC_SUPPORT
+#ifdef ULTRAVNC_VEYON_SUPPORT
 	auth_types.clear();
 	auth_types.push_back(rfbVncAuth);
 #endif
@@ -1869,7 +1869,7 @@ BOOL vncClientThread::AuthVnc(std::string& auth_message)
 {
 	char password[MAXPWLEN];
 	m_server->GetPassword(password);
-#ifdef ULTRAVNC_ITALC_SUPPORT
+#ifdef ULTRAVNC_VEYON_SUPPORT
 	char* plain = password;
 #else
 	vncPasswd::ToText plain(password);
@@ -2332,7 +2332,7 @@ vncClientThread::run(void *arg)
 
 			szInfo[255] = '\0';
 
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 			if (m_client->m_outgoing) vncMenu::NotifyBalloon(szInfo, NULL);
 #endif
 		}
@@ -3732,7 +3732,7 @@ vncClientThread::run(void *arg)
 			break;
 
 
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 		// Modif sf@2002 - TextChat
 		case rfbTextChat:
 			m_client->m_pTextChat->ProcessTextChatMsg(nTO);
@@ -4608,7 +4608,7 @@ vncClientThread::run(void *arg)
 			m_client->cl_connected = FALSE;
 		}
 
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 		// sf@2005 - Cancel FT User impersonation if possible
 		// We do it here to ensure impersonation is cancelled
 		if (m_server->FTUserImpersonation())
@@ -4626,7 +4626,7 @@ vncClientThread::run(void *arg)
 	}
 	
 
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
     if (m_client->m_fFileDownloadRunning)
     {
         m_client->m_fFileDownloadError = true;
@@ -4770,7 +4770,7 @@ vncClient::vncClient() : m_clipboard(ClipboardSettings::defaultServerCaps), Send
 
 	// Modif sf@2002 - FileTransfer
 	m_fFileTransferRunning = FALSE;
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	m_pZipUnZip = new CZipUnZip32(); // Directory FileTransfer utils
 #endif
 
@@ -4821,7 +4821,7 @@ vncClient::vncClient() : m_clipboard(ClipboardSettings::defaultServerCaps), Send
 	m_lLastFTUserImpersonationTime = 0L;
 
 	// Modif sf@2002 - Text Chat
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	m_pTextChat = new TextChat(this); 	
 #endif
 	m_fUltraViewer = true;
@@ -4856,7 +4856,7 @@ vncClient::~vncClient()
 	cl_connected = false;
 	vnclog.Print(LL_INTINFO, VNCLOG("~vncClient() executing...\n"));
 
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	// Modif sf@2002 - Text Chat
 	if (m_pTextChat) 
 	{
@@ -4980,7 +4980,7 @@ vncClient::Kill()
 {
 	// Close the socket
 	vnclog.Print(LL_INTERR, VNCLOG("client Kill() called"));
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	if (m_pTextChat)
         m_pTextChat->KillDialog();
 #endif
@@ -6006,7 +6006,7 @@ void vncClient::TriggerUpdate()
 }
 
 
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 ////////////////////////////////////////////////
 // Asynchronous & Delta File Transfer functions
 ////////////////////////////////////////////////

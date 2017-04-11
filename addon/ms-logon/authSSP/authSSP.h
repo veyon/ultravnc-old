@@ -45,9 +45,9 @@
 
 #define MAXLEN 256
 
-#include "ItalcCore.h"
+#include "VeyonCore.h"
 
-BOOL ITALC_CORE_EXPORT CUPSD2(const char * domainuser, 
+BOOL VEYON_CORE_EXPORT CUPSD2(const char * domainuser, 
 					   const char *password);
 
 BOOL WINAPI SSPLogonUser(LPTSTR szDomain, 

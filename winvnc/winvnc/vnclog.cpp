@@ -170,13 +170,13 @@ void VNCLog::CloseFile() {
     }
 }
 
-#ifdef ULTRAVNC_ITALC_SUPPORT
+#ifdef ULTRAVNC_VEYON_SUPPORT
 #include "Logger.h"
 #endif
 
 inline void VNCLog::ReallyPrintLine(int level, const char* line) 
 {
-#ifdef ULTRAVNC_ITALC_SUPPORT
+#ifdef ULTRAVNC_VEYON_SUPPORT
 	if( level == LL_SOCKERR || level == LL_ERROR )
 	{
 		ilog( Error, line );
@@ -209,7 +209,7 @@ inline void VNCLog::ReallyPrintLine(int level, const char* line)
 
 void VNCLog::ReallyPrint(int level, const char* format, va_list ap) 
 {
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	time_t current = time(0);
 	if (current != m_lastLogTime) {
 		m_lastLogTime = current;

@@ -558,7 +558,7 @@ vncClientId vncServer::AddClient(VSocket *socket,
 
 		if (m_unauthClients.size() > 0) {
 			szInfo[strlen(szInfo) - 2] = '\0';
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 			vncMenu::NotifyBalloon(szInfo, NULL);
 #endif
 		}		
@@ -689,7 +689,7 @@ vncServer::Authenticated(vncClientId clientid)
 
 		szInfo[255] = '\0';
 
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 		vncMenu::NotifyBalloon(szInfo, NULL);
 #endif
 	}
@@ -792,7 +792,7 @@ void vncServer::TextChatClient(LPSTR szClientName)
 				break;
 			}
 			vnclog.Print(LL_INTINFO, VNCLOG("TextChat with client named: %s\n"), szClientName);
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 			pClient->GetTextChatPointer()->OrderTextChat();
 #endif
 			break;

@@ -86,16 +86,16 @@ VNC_OSVersion::SetAeroState()
 	else OS_AERO_ON=false;	
 }
 
-#ifdef ULTRAVNC_ITALC_SUPPORT
-extern BOOL ultravnc_italc_load_int( LPCSTR valname, LONG *out );
+#ifdef ULTRAVNC_VEYON_SUPPORT
+extern BOOL ultravnc_veyon_load_int( LPCSTR valname, LONG *out );
 #endif
 
 bool
 VNC_OSVersion::CaptureAlphaBlending()
 {
-#ifdef ULTRAVNC_ITALC_SUPPORT
+#ifdef ULTRAVNC_VEYON_SUPPORT
 	LONG out;
-	if( ultravnc_italc_load_int( "CaptureAlphaBlending", &out ) )
+	if( ultravnc_veyon_load_int( "CaptureAlphaBlending", &out ) )
 	{
 		return out != 0;
 	}

@@ -35,7 +35,7 @@ class vncEncodeUltra;
 #pragma once
 
 #include "vncencoder.h"
-#ifdef ULTRAVNC_ITALC_SUPPORT
+#ifdef ULTRAVNC_VEYON_SUPPORT
 #include <lzo/lzo1x.h>
 #else
 #include "lzo/minilzo.h"

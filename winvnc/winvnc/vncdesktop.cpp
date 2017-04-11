@@ -91,7 +91,7 @@ extern bool g_update_triggered;
 // 
 // 
 //
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
  extern bool G_USE_PIXEL;
 #endif
 PixelCaptureEngine::~PixelCaptureEngine()
@@ -104,7 +104,7 @@ PixelCaptureEngine::PixelCaptureEngine()
 		else 
 			m_bIsVista=false;
 
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 		if (G_USE_PIXEL)
 			m_bIsVista=false;
 #endif

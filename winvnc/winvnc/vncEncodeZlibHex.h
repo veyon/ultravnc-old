@@ -45,13 +45,13 @@ class vncEncodeZlibHex;
 #ifdef IPP
 #include "..\..\ipp_zlib\src\zlib\zlib.h"
 #else
-#ifdef ULTRAVNC_ITALC_SUPPORT
+#ifdef ULTRAVNC_VEYON_SUPPORT
 #include <zlib.h>
 #else
 #include "zlib-1.2.5/zlib.h"
 #endif
 #endif
-#ifdef ULTRAVNC_ITALC_SUPPORT
+#ifdef ULTRAVNC_VEYON_SUPPORT
 #include <lzo/lzo1x.h>
 #else
 #include "lzo/minilzo.h"

@@ -884,7 +884,7 @@ void vncDesktopThread::do_polling(HANDLE& threadHandle, rfb::Region2D& rgncache,
 		}
 	}
 }
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 extern bool G_USE_PIXEL;
 #endif
 void *
@@ -893,7 +893,7 @@ vncDesktopThread::run_undetached(void *arg)
 	//*******************************************************
 	// INIT
 	//*******************************************************
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	if (VNCOS.OS_VISTA||VNCOS.OS_WIN7||VNCOS.OS_WIN8) 
 	{
 		G_USE_PIXEL=false;

@@ -64,7 +64,7 @@ typedef std::list<vncClientId> vncClientList;
 #include "vncbuffer.h"
 #include "vncencodemgr.h"
 #include "TextChat.h" // sf@2002 - TextChat
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 #include "ZipUnZip32/zipUnZip32.h"
 #endif
 //#include "timer.h"
@@ -268,7 +268,7 @@ public:
 	};
 
 	// sf@2004 - Asynchronous FileTransfer - Delta Transfer
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	int  GenerateFileChecksums(HANDLE hFile, char* lpCSBuffer, int nCSBufferSize);
 	bool ReceiveDestinationFileChecksums(int nSize, int nLen);
 	bool ReceiveFileChunk(int nLen, int nSize);
@@ -508,7 +508,7 @@ protected:
 
 	// Modif sf@2002 - FileTransfer 
 	BOOL m_fFileTransferRunning;
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	CZipUnZip32		*m_pZipUnZip;
 #endif
 

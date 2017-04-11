@@ -190,7 +190,7 @@ vncProperties::Init(vncServer *server)
 void
 vncProperties::ShowAdmin(BOOL show, BOOL usersettings)
 {
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 //	if (Lock_service_helper) return;
 	HANDLE hProcess=NULL;
 	HANDLE hPToken=NULL;
@@ -376,7 +376,7 @@ vncProperties::ShowAdmin(BOOL show, BOOL usersettings)
 				}
 
 				vnclog.Print(LL_INTERR, VNCLOG("warning - empty password\n"));
-#ifdef ULTRAVNC_ITALC_SUPPORT
+#ifdef ULTRAVNC_VEYON_SUPPORT
 					break;
 #endif
 
@@ -418,7 +418,7 @@ vncProperties::ShowAdmin(BOOL show, BOOL usersettings)
 #endif
 }
 
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 BOOL CALLBACK
 vncProperties::DialogProc(HWND hwnd,
 						  UINT uMsg,
@@ -1419,9 +1419,9 @@ vncProperties::InitPortSettings(HWND hwnd)
 		bConnectSock && !bAutoPort && !bValidDisplay);
 }
 
-#ifdef ULTRAVNC_ITALC_SUPPORT
-extern BOOL ultravnc_italc_load_int( LPCSTR valname, LONG *out );
-extern void ultravnc_italc_load_password( char* out, int size );
+#ifdef ULTRAVNC_VEYON_SUPPORT
+extern BOOL ultravnc_veyon_load_int( LPCSTR valname, LONG *out );
+extern void ultravnc_veyon_load_password( char* out, int size );
 #endif
 
 // Functions to load & save the settings
@@ -1432,9 +1432,9 @@ vncProperties::LoadInt(HKEY key, LPCSTR valname, LONG defval)
 	ULONG type = REG_DWORD;
 	ULONG prefsize = sizeof(pref);
 
-#ifdef ULTRAVNC_ITALC_SUPPORT
+#ifdef ULTRAVNC_VEYON_SUPPORT
 	LONG out;
-	if( ultravnc_italc_load_int( valname, &out ) )
+	if( ultravnc_veyon_load_int( valname, &out ) )
 	{
 		return out;
 	}
@@ -1460,8 +1460,8 @@ vncProperties::LoadInt(HKEY key, LPCSTR valname, LONG defval)
 void
 vncProperties::LoadPassword(HKEY key, char *buffer)
 {
-#ifdef ULTRAVNC_ITALC_SUPPORT
-	ultravnc_italc_load_password( buffer, MAXPWLEN );
+#ifdef ULTRAVNC_VEYON_SUPPORT
+	ultravnc_veyon_load_password( buffer, MAXPWLEN );
 #else
 	DWORD type = REG_BINARY;
 	int slen=MAXPWLEN;
@@ -1486,8 +1486,8 @@ vncProperties::LoadPassword(HKEY key, char *buffer)
 void //PGM
 vncProperties::LoadPassword2(HKEY key, char *buffer) //PGM
 { //PGM
-#ifdef ULTRAVNC_ITALC_SUPPORT
-	ultravnc_italc_load_password( buffer, MAXPWLEN );
+#ifdef ULTRAVNC_VEYON_SUPPORT
+	ultravnc_veyon_load_password( buffer, MAXPWLEN );
 #else
 	DWORD type = REG_BINARY; //PGM
 	int slen=MAXPWLEN; //PGM

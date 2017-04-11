@@ -113,7 +113,7 @@ BOOL SHDesktopHTML()
 static 
 HRESULT EnableActiveDesktop(bool enable)
 {
-#ifndef ULTRAVNC_ITALC_SUPPORT
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	CoInitialize(NULL);
 	CComQIPtr<IActiveDesktop, &IID_IActiveDesktop>	pIActiveDesktop;
 	

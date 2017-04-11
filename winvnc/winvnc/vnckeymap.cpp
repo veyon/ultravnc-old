@@ -716,8 +716,8 @@ public:
 		// If running under Vista and started from Session0 in Application mode
 		if (vncService::VersionMajor()>=6 && vncService::RunningFromExternalService() )
 		{
-#ifdef ULTRAVNC_ITALC_SUPPORT
-				auto sasEvent = OpenEvent( EVENT_MODIFY_STATE, false, "Global\\ItalcServiceSasEvent" );
+#ifdef ULTRAVNC_VEYON_SUPPORT
+				auto sasEvent = OpenEvent( EVENT_MODIFY_STATE, false, "Global\\VeyonServiceSasEvent" );
 				SetEvent( sasEvent );
 				CloseHandle( sasEvent );
 #else

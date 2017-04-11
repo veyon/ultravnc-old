@@ -23,7 +23,7 @@
 //
 #include "EventLogging.h"
 
-#ifdef ULTRAVNC_ITALC_SUPPORT
+#ifdef ULTRAVNC_VEYON_SUPPORT
 #include "Logger.h"
 
 #else
@@ -118,7 +118,7 @@ void LOG(long EventID, const TCHAR *format, ...) {
 	va_start(ap, format);
 	_vstprintf(szText, format, ap);
 	va_end(ap);
-#ifdef ULTRAVNC_ITALC_SUPPORT
+#ifdef ULTRAVNC_VEYON_SUPPORT
 	ilog( Info, szText );
 #else
 	ps[0] = szText;
