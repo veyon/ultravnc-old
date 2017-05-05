@@ -181,7 +181,7 @@ inline void VNCLog::ReallyPrintLine(int level, const char* line)
 	{
 		ilog( Error, line );
 	}
-	else if( level == LL_INTWARN || level == LL_CONNERR )
+	else if( level == LL_CONNERR )
 	{
 		ilog( Warning, line );
 	}
