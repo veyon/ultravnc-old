@@ -1313,7 +1313,9 @@ int WinVNCAppMain()
     		vnclog.Print(LL_INTINFO, VNCLOG("%s -- exiting\n"), sz_ID_ANOTHER_INST);
 			// We don't allow multiple instances!
 			if (!fRunningFromExternalService)
-				MessageBoxSecure(NULL, sz_ID_ANOTHER_INST, szAppName, MB_OK);
+				MessageBoxSecure(NULL, "Another VNC server is already running. Please uninstall "
+										"any iTALC or UltraVNC installations or disable the "
+										"correspondig services of these products.", szAppName, MB_OK);
 			if (instancehan != NULL) delete instancehan;
 			return 0;
 		}
