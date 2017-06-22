@@ -47,12 +47,9 @@
 
 #include "VeyonCore.h"
 
-BOOL VEYON_CORE_EXPORT CUPSD2(const char * domainuser, 
-					   const char *password);
-
-BOOL WINAPI SSPLogonUser(LPTSTR szDomain, 
-						 LPTSTR szUser, 
-						 LPTSTR szPassword);
+BOOL VEYON_CORE_EXPORT WINAPI SSPLogonUser(LPTSTR szDomain,
+                                           LPTSTR szUser,
+                                           LPTSTR szPassword);
 
 BOOL Impersonate(PCtxtHandle phContext);
 

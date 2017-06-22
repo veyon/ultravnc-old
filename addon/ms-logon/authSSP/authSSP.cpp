@@ -31,31 +31,6 @@
 
 Fn fn;
 
-BOOL CUPSD2(const char * domainuser, 
-		  const char *password)	// returns bitmask with accessrights
-{
-	char domain[MAXLEN];
-	const char *user = 0;
-	domain[0] = '\0';
-	TCHAR user2[MAXLEN];
-	TCHAR domain2[MAXLEN];
-	TCHAR password2[MAXLEN];
-
-	user = SplitString(domainuser,'\\',domain);
-
-#if defined (_UNICODE) || defined (UNICODE)
-	mbstowcs(user2, user, MAXLEN);
-	mbstowcs(domain2, domain, MAXLEN);
-	mbstowcs(password2, password, MAXLEN);
-#else
-	strcpy(user2, user);
-	strcpy(domain2, domain);
-	strcpy(password2, password);
-#endif
-
-	return SSPLogonUser(domain2, user2, password2);
-}
-
 
 BOOL WINAPI SSPLogonUser(LPTSTR szDomain, 
 						 LPTSTR szUser, 
@@ -85,7 +60,7 @@ BOOL WINAPI SSPLogonUser(LPTSTR szDomain,
 			__leave;
 		
 		// Get max token size
-		fn._QuerySecurityPackageInfo((SEC_CHAR *)_T("NTLM"), &pSPI);
+		fn._QuerySecurityPackageInfo((SEC_WCHAR *) L"NTLM", &pSPI);
 		cbMaxToken = pSPI->cbMaxToken;
 		
 		// Allocate buffers for client and server messages

@@ -205,7 +205,7 @@ BOOL GenClientContext(PAUTH_SEQ pAS, PSEC_WINNT_AUTH_IDENTITY pAuthIdentity,
    ULONG           fContextAttr;
 
    if (!pAS->fInitialized) {
-      ss = fn._AcquireCredentialsHandle(NULL, (SEC_CHAR *) _T("NTLM"), 
+	  ss = fn._AcquireCredentialsHandle(NULL, (SEC_WCHAR *) L"NTLM",
             SECPKG_CRED_OUTBOUND, NULL, pAuthIdentity, NULL, NULL,
             &pAS->hcred, &tsExpiry);
       if (ss < 0) {
@@ -301,7 +301,7 @@ BOOL GenServerContext(PAUTH_SEQ pAS, PVOID pIn, DWORD cbIn, PVOID pOut,
 
    if (!pAS->fInitialized)  {
       
-      ss = fn._AcquireCredentialsHandle(NULL, (SEC_CHAR *) _T("NTLM"), 
+	  ss = fn._AcquireCredentialsHandle(NULL, (SEC_WCHAR *) L"NTLM",
             SECPKG_CRED_INBOUND, NULL, NULL, NULL, NULL, &pAS->hcred, 
             &tsExpiry);
       if (ss < 0) {
