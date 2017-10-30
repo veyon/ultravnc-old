@@ -42,10 +42,12 @@
 #include <rdr/MemInStream.h>
 #include <rdr/ZlibOutStream.h>
 #include <rdr/ZlibInStream.h>
+#ifndef ULTRAVNC_VEYON_SUPPORT
 #ifdef IPP
 #include "..\..\ipp_zlib\src\zlib\zlib.h"
 #else
 #include <zlib-1.2.5/zlib.h>
+#endif
 #endif
 
 

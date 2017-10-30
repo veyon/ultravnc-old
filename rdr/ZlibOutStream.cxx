@@ -18,10 +18,14 @@
 
 #include "ZlibOutStream.h"
 #include "Exception.h"
+#ifdef ULTRAVNC_VEYON_SUPPORT
+#include <zlib.h>
+#else
 #ifdef IPP
 #include "../ipp_zlib/src/zlib-1.2.5/zlib.h"
 #else
 #include "../zlib-1.2.5/zlib.h"
+#endif
 #endif
 
 using namespace rdr;
