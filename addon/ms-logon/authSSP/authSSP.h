@@ -45,11 +45,9 @@
 
 #define MAXLEN 256
 
-#include "VeyonCore.h"
-
-BOOL VEYON_CORE_EXPORT WINAPI SSPLogonUser(LPTSTR szDomain,
-                                           LPTSTR szUser,
-                                           LPTSTR szPassword);
+BOOL WINAPI SSPLogonUser(LPTSTR szDomain,
+						 LPTSTR szUser,
+						 LPTSTR szPassword);
 
 BOOL Impersonate(PCtxtHandle phContext);
 
