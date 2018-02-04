@@ -52,6 +52,7 @@ public:
 	HWND				hWnd;
 	bool				m_fAbort;
     bool                m_fUserAbortedFileTransfer; // 21 April 2008 jdp 
+	bool                m_fUserForcedAbortedFileTransfer; // 21 April 2008 jdp 
 	bool				m_fAborted;		// Async Reception file only
 	int					m_nDeleteCount; // Grouped file deletion trick
 
@@ -150,7 +151,7 @@ public:
 	static int CALLBACK ListViewLocalCompareProc(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort); /*TAW*/
 	static int CALLBACK ListViewRemoteCompareProc(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort); /*TAW*/
 
-	void DisableButtons(HWND hWnd);
+	void DisableButtons(HWND hWnd, bool X = true);
 	void EnableButtons(HWND hWnd);
     void CheckButtonState(HWND hWnd);
 

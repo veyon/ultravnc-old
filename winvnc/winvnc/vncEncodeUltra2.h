@@ -33,7 +33,11 @@ class vncEncodeUltra2;
 #include <jpeglib.h>
 #else
 #include "lzo/minilzo.h"
+#ifdef _INTERNALLIB
+#include <jpeglib.h>
+#else
 #include "libjpeg-turbo-win/jpeglib.h"
+#endif
 #endif
 
 // Class definition

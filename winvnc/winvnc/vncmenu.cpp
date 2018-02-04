@@ -118,12 +118,6 @@ extern char dnsname[255];
 HWND G_MENU_HWND = NULL;
 extern in6_addr G_LPARAM_IN6;
 
-#ifdef IPV6V4
-const char *inet_ntop2(int af, const void *src, char *dst, socklen_t size);
-int inet_pton2(int af, const char *src, void *dst);
-#endif
-
-
 
 static inline VOID UnloadDM(VOID) 
  { 
@@ -263,11 +257,11 @@ vncMenu::vncMenu(vncServer *server)
 	pfnFilter =(CHANGEWINDOWMESSAGEFILTER)GetProcAddress(hUser32,"ChangeWindowMessageFilter");
 	if (pfnFilter) 
 		{	
-			pfnFilter(MENU_ADD_CLIENT_MSG, MSGFLT_ADD);
-			pfnFilter(MENU_ADD_CLIENT_MSG_INIT, MSGFLT_ADD);
+			//pfnFilter(MENU_ADD_CLIENT_MSG, MSGFLT_ADD);
+			//pfnFilter(MENU_ADD_CLIENT_MSG_INIT, MSGFLT_ADD);
 #ifdef IPV6V4
-			pfnFilter(MENU_ADD_CLIENT6_MSG, MSGFLT_ADD);
-			pfnFilter(MENU_ADD_CLIENT6_MSG_INIT, MSGFLT_ADD);
+			//pfnFilter(MENU_ADD_CLIENT6_MSG, MSGFLT_ADD);
+			//pfnFilter(MENU_ADD_CLIENT6_MSG_INIT, MSGFLT_ADD);
 #endif
 			pfnFilter(MENU_AUTO_RECONNECT_MSG, MSGFLT_ADD);
 			pfnFilter(MENU_STOP_RECONNECT_MSG, MSGFLT_ADD);
@@ -1746,9 +1740,9 @@ LRESULT CALLBACK vncMenu::WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lP
 
 			if (vncService::CurrentUser((char *) &newuser, sizeof(newuser)))
 			{
-				vnclog.Print(LL_INTINFO,
-					VNCLOG("############### Usernames change: old=\"%s\", new=\"%s\"\n"),
-					_this->m_username, newuser);
+				//vnclog.Print(LL_INTINFO,
+				//	VNCLOG("############### Usernames change: old=\"%s\", new=\"%s\"\n"),
+				//	_this->m_username, newuser);
 
 				// Check whether the user name has changed!
 				if (_stricmp(newuser, _this->m_username) != 0)
@@ -1884,7 +1878,7 @@ LRESULT CALLBACK vncMenu::WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lP
 					VCard32 ipaddress = VSocket::Resolve6(_this->m_server->AutoReconnectAdr(), &address);
 					char straddr[INET6_ADDRSTRLEN];
 					memset(straddr, 0, INET6_ADDRSTRLEN);
-					PCSTR test = inet_ntop2(AF_INET6, &address, straddr, sizeof(straddr));
+					PCSTR test = inet_ntop(AF_INET6, &address, straddr, sizeof(straddr));
 					if (strlen(straddr) == 0) return 0;
 					nameDup = _strdup(straddr);
 					if (nameDup == 0)
@@ -1901,7 +1895,7 @@ LRESULT CALLBACK vncMenu::WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lP
 					char straddr[INET6_ADDRSTRLEN];
 					memset(straddr, 0, INET6_ADDRSTRLEN);
 					memcpy(&address, &G_LPARAM_IN6, sizeof(in6_addr));
-					PCSTR test = inet_ntop2(AF_INET6, &address, straddr, sizeof(straddr));
+					PCSTR test = inet_ntop(AF_INET6, &address, straddr, sizeof(straddr));
 					if (strlen(straddr)== 0) return 0;
 					nameDup = _strdup(straddr);
 					if (nameDup == 0) return 0;

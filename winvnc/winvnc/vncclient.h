@@ -147,14 +147,14 @@ public:
 	//     AND no changed or copied updates intersect it
 	virtual BOOL UpdateWanted() {
 		omni_mutex_lock l(GetUpdateLock(),324);
-#ifdef _DEBUG
+/*#ifdef _DEBUG
 										char			szText[256];
 										sprintf(szText," UpdateWanted %i %i %i %i \n",!m_incr_rgn.is_empty(),
 											m_incr_rgn.intersect(m_update_tracker.get_changed_region()).is_empty() ,
 											m_incr_rgn.intersect(m_update_tracker.get_cached_region()).is_empty() ,
 											m_incr_rgn.intersect(m_update_tracker.get_copied_region()).is_empty());
 										OutputDebugString(szText);		
-#endif
+#endif*/
 		BOOL value =!m_incr_rgn.is_empty() &&m_incr_rgn.intersect(m_update_tracker.get_changed_region()).is_empty() &&
 			m_incr_rgn.intersect(m_update_tracker.get_cached_region()).is_empty() &&
 			m_incr_rgn.intersect(m_update_tracker.get_copied_region()).is_empty();
@@ -307,7 +307,9 @@ public:
 	// adzm 2010-09 - Notify streaming DSM plugin support
 	void NotifyPluginStreamingSupport();
 	bool cl_connected;
-
+	int filetransferrequestPart2(int nDirZipRet);
+	char m_szSrcFileName[MAX_PATH + 64]; // Path + timestring
+	HANDLE ThreadHandleCompressFolder;
 	// sf@2002 
 	// Update routines
 protected:
@@ -340,7 +342,7 @@ protected:
 	bool m_want_update_state; 
 	int unlockcounter;
 
-
+	int filetransferrequestPart1(rfbClientToServerMsg msg, bool fUserOk);	
 	// Specialised client-side UpdateTracker
 protected:
 
@@ -428,6 +430,8 @@ public:
 	//int Totalsend;
 	BOOL client_settings_passed;
 	bool		m_Autoreconnect;
+	// The socket
+	VSocket			*m_socket;
 
 	// Internal stuffs
 protected:
@@ -445,9 +449,7 @@ protected:
 
 	// The server
 	vncServer		*m_server;
-
-	// The socket
-	VSocket			*m_socket;
+	
 	char			*m_client_name;
 
 	// The client thread
@@ -528,7 +530,7 @@ protected:
 
     // 8 April 2008 jdp
     bool m_fUserAbortedFileTransfer;
-	char m_szSrcFileName[MAX_PATH + 64]; // Path + timestring
+	
 	HANDLE m_hSrcFile;
 	bool m_fEof;
 	DWORD m_dwNbBytesRead;
@@ -564,6 +566,7 @@ protected:
 
 	// sf@2005 - FTUserImpersonation
 	bool m_fFTUserImpersonatedOk;
+	char m_szTempDir[MAX_PATH];
 	DWORD m_lLastFTUserImpersonationTime;
 
 	//stats

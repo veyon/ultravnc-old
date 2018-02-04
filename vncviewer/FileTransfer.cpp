@@ -49,10 +49,10 @@
 #include "Exception.h"
 #include "commctrl.h"
 #include "shlobj.h"
-#ifdef IPP
-#include "../ipp_zlib/src/zlib-1.2.5/zlib.h"
+#ifdef _INTERNALLIB
+#include <zlib.h>
 #else
-#include "zlib-1.2.5/zlib.h"
+#include "../zlib-1.2.5/zlib.h"
 #endif
 #include "Log.h"
 #include <string>
@@ -173,7 +173,7 @@ typedef BOOL (WINAPI *PGETDISKFREESPACEEX)(LPCSTR,PULARGE_INTEGER, PULARGE_INTEG
 
 static FileTransfer* g_FileTransferSingleton = NULL;
 
-static HWND hFTWnd = 0;
+HWND hFTWnd = 0;
 static std::string make_temp_filename(const char *szRemoteFileName)
 {
     // don't add prefix for directory transfers.
@@ -337,12 +337,12 @@ FileTransfer::~FileTransfer()
 
 
 void FileTransfer::InitFTTimer()
-{
+{	
 #ifdef FT_USE_MMTIMER
 	if (m_mmRes != -1) return;
 
 	m_fSendFileChunk = false;
-	m_mmRes = timeSetEvent( 1, 0, (LPTIMECALLBACK)fpTimer, (DWORD_PTR)this, TIME_PERIODIC );
+	m_mmRes = timeSetEvent( 10, 0, (LPTIMECALLBACK)fpTimer, (DWORD_PTR)this, TIME_PERIODIC );
 #else
 
 	if (m_timerID != 0xFFFFFFFF) {
@@ -399,31 +399,7 @@ void FileTransfer::TimerCallback(FileTransfer* ft)
 	if (!ft->m_fSendFileChunk)
 	{
 		ft->m_fSendFileChunk = true;
-
-		//ft->m_dwLastChunkTime = timeGetTime();
-		ft->m_dwLastChunkTime = GetTickCount();
-
-		DWORD Result = 0;
-		#if _MSC_VER >= 1400 && defined (_M_X64)
-		SendMessageTimeout(ft->m_pCC->m_hwndMain, FileTransferSendPacketMessage, (WPARAM) 0, (LPARAM) 0,SMTO_ABORTIFHUNG,500,(PDWORD_PTR)&Result);
-		#else
-		SendMessageTimeout(ft->m_pCC->m_hwndMain, FileTransferSendPacketMessage, (WPARAM) 0, (LPARAM) 0,SMTO_ABORTIFHUNG,500,&Result);
-		#endif
-		// sf@2005 - FileTransfer Temporization
-		// - Prevents the windows message stack to be blocked too much when transfering over slow connection
-		// - Gives more priority to screen updates during asynchronous filetransfer
-		//long lDelta = timeGetTime() - ft->m_dwLastChunkTime;
-		long lDelta = GetTickCount() - ft->m_dwLastChunkTime;
-		if (lDelta > 200)
-		{
-			//if (lDelta < 3000)
-			//	Sleep(lDelta);
-			//else
-				Sleep(150);
-		}
-		else if (!ft->m_fVisible && !ft->UsingOldProtocol() && !ft->m_pCC->IsDormant())
-			Sleep(50);
-
+		ft->SendFileChunk();
 		ft->m_fSendFileChunk = false;
 	}
 	LeaveCriticalSection(&ft->crit);
@@ -699,8 +675,9 @@ bool FileTransfer::TestPermission(long lSize, int nVersion)
 		SetDlgItemText(hWnd, IDC_CURR_REMOTE, sz_H1);
 		SetDlgItemText(hWnd, IDC_REMOTE_STATUS, sz_H2);
 		SetStatus(sz_H3);
-		DisableButtons(hWnd);
+		DisableButtons(hWnd, false);
 		ShowWindow(GetDlgItem(hWnd, IDCANCEL), SW_SHOW);
+		ShowWindow(GetDlgItem(hWnd, IDCANCEL2), SW_SHOW);
 	}
 	else
 	{
@@ -2392,8 +2369,10 @@ bool FileTransfer::FinishFileReception()
 
     // hide the stop button
     ShowWindow(GetDlgItem(hWnd, IDC_ABORT_B), SW_HIDE);
+	ShowWindow(GetDlgItem(hWnd, IDC_ABORT_B2), SW_HIDE);
 	bool bWasDir = UnzipPossibleDirectory(m_szDestFileName);
     ShowWindow(GetDlgItem(hWnd, IDC_ABORT_B), SW_SHOW);
+	ShowWindow(GetDlgItem(hWnd, IDC_ABORT_B2), SW_SHOW);
 
     if (!m_fFileDownloadError && !bWasDir)
     {
@@ -2618,7 +2597,7 @@ bool FileTransfer::OfferLocalFile(LPSTR szSrcFileName)
 
     // show the stop button
     ShowWindow(GetDlgItem(hWnd, IDC_ABORT_B), SW_SHOW);
-
+	ShowWindow(GetDlgItem(hWnd, IDC_ABORT_B2), SW_SHOW);
     m_pCC->SetSendTimeout();
 	return true;
 }
@@ -2810,143 +2789,135 @@ bool FileTransfer::SendFile(long lSize, int nLen)
 // 
 bool FileTransfer::SendFileChunk()
 {
-//	vnclog.Print(0, _T("SendFilechunk\n"));
-	if (! m_fFileUploadRunning) return false;
-
-	if ( m_fEof || m_fFileUploadError)
+	bool connected = true;
+	do
 	{
-		FinishFileSending();
-		return true;
-	}
+		m_dwLastChunkTime = GetTickCount();
+		connected = true;		
 
-	m_pCC->CheckFileChunkBufferSize(m_nBlockSize + 1024);
-
-	int nRes = ReadFile(m_hSrcFile, m_pCC->m_filechunkbuf, m_nBlockSize, &m_dwNbBytesRead, NULL);
-	if (!nRes && m_dwNbBytesRead != 0)
-	{
-		m_fFileUploadError = true;
-	}
-
-	if (nRes && m_dwNbBytesRead == 0)
-	{
-		m_fEof = true;
-	}
-	else
-	{
-		// sf@2004 - Delta Transfer
-		bool fAlreadyThere = false;
-		unsigned long nCS = 0;
-		// if Checksums are available for this file
-		if (m_lpCSBuffer != NULL)
+		if ( m_fEof || m_fFileUploadError)
 		{
-			if (m_nCSOffset < m_nCSBufferSize)
-			{
-				memcpy(&nCS, &m_lpCSBuffer[m_nCSOffset], 4);
-				if (nCS != 0)
-				{
-					m_nCSOffset += 4;
-					unsigned long cs = adler32(0L, Z_NULL, 0);
-					cs = adler32(cs, m_pCC->m_filechunkbuf, (int)m_dwNbBytesRead);
-					if (cs == nCS)
-						fAlreadyThere = true;
-				}
-			}
+			FinishFileSending();
+			return true;
 		}
 
-		if (fAlreadyThere)
+		m_pCC->CheckFileChunkBufferSize(m_nBlockSize + 1024);
+
+		int nRes = ReadFile(m_hSrcFile, m_pCC->m_filechunkbuf, m_nBlockSize, &m_dwNbBytesRead, NULL);
+		if (!nRes && m_dwNbBytesRead != 0)
 		{
-			// Send the FileTransferMsg with empty rfbFilePacket
-			rfbFileTransferMsg ft;
-			ft.type = rfbFileTransfer;
-			ft.contentType = rfbFilePacket;
-			ft.size = Swap32IfLE(2); // Means "Empty packet"// Swap32IfLE(nCS); 
-			ft.length = Swap32IfLE(m_dwNbBytesRead);
-			m_pCC->WriteExact((char *)&ft, sz_rfbFileTransferMsg, rfbFileTransfer);
-			// m_nNotSent += m_dwNbBytesRead;
+			m_fFileUploadError = true;
+		}
+
+		if (nRes && m_dwNbBytesRead == 0)
+		{
+			m_fEof = true;
 		}
 		else
 		{
-			// Compress the data
-			// (Compressed data can be longer if it was already compressed)
-			unsigned int nMaxCompSize = m_nBlockSize + 1024; // TODO: Improve this...
-			bool fCompressed = false;
-			if (m_fCompress && !UsingOldProtocol())
+			// sf@2004 - Delta Transfer
+			bool fAlreadyThere = false;
+			unsigned long nCS = 0;
+			// if Checksums are available for this file
+			if (m_lpCSBuffer != NULL)
 			{
-				m_pCC->CheckFileZipBufferSize(nMaxCompSize);
-				int nRetC = compress((unsigned char*)(m_pCC->m_filezipbuf),
-											(unsigned long*)&nMaxCompSize,	
-											(unsigned char*)m_pCC->m_filechunkbuf,
-											m_dwNbBytesRead
-											);
-				if (nRetC != 0)
+				if (m_nCSOffset < m_nCSBufferSize)
 				{
-					// Todo: send data uncompressed instead
-					m_fFileUploadError = true;
-					return false;
+					memcpy(&nCS, &m_lpCSBuffer[m_nCSOffset], 4);
+					if (nCS != 0)
+					{
+						m_nCSOffset += 4;
+						unsigned long cs = adler32(0L, Z_NULL, 0);
+						cs = adler32(cs, m_pCC->m_filechunkbuf, (int)m_dwNbBytesRead);
+						if (cs == nCS)
+							fAlreadyThere = true;
+					}
 				}
-				Sleep(5);
-				fCompressed = true;
 			}
 
-			// If data compressed is larger, we're presumably dealing with already compressed data.
-			if (nMaxCompSize > m_dwNbBytesRead)
-				fCompressed = false;
-				// m_fCompress = false;
-
-
-
-			// Send the FileTransferMsg with rfbFilePacket
-			rfbFileTransferMsg ft;
-			ft.type = rfbFileTransfer;
-			ft.contentType = rfbFilePacket;
-			ft.size = fCompressed ? Swap32IfLE(1) : Swap32IfLE(0); 
-			ft.length = fCompressed ? Swap32IfLE(nMaxCompSize) : Swap32IfLE(m_dwNbBytesRead);
-			//adzm 2010-09
-			if(UsingOldProtocol())
-				m_pCC->WriteExactQueue((char *)&ft, sz_rfbFileTransferMsg);
+			if (fAlreadyThere)
+			{
+				// Send the FileTransferMsg with empty rfbFilePacket
+				rfbFileTransferMsg ft;
+				ft.type = rfbFileTransfer;
+				ft.contentType = rfbFilePacket;
+				ft.size = Swap32IfLE(2); // Means "Empty packet"// Swap32IfLE(nCS); 
+				ft.length = Swap32IfLE(m_dwNbBytesRead);
+				m_pCC->WriteExact((char *)&ft, sz_rfbFileTransferMsg, rfbFileTransfer);
+				// m_nNotSent += m_dwNbBytesRead;
+			}
 			else
-				m_pCC->WriteExactQueue((char *)&ft, sz_rfbFileTransferMsg, rfbFileTransfer);
+			{
+				// Compress the data
+				// (Compressed data can be longer if it was already compressed)
+				unsigned int nMaxCompSize = m_nBlockSize + 1024; // TODO: Improve this...
+				bool fCompressed = false;
+				if (m_fCompress && !UsingOldProtocol())
+				{
+					m_pCC->CheckFileZipBufferSize(nMaxCompSize);
+					int nRetC = compress((unsigned char*)(m_pCC->m_filezipbuf),
+												(unsigned long*)&nMaxCompSize,	
+												(unsigned char*)m_pCC->m_filechunkbuf,
+												m_dwNbBytesRead
+												);
+					if (nRetC != 0)
+					{
+						// Todo: send data uncompressed instead
+						m_fFileUploadError = true;
+						return false;
+					}					
+					fCompressed = true;
+				}
 
-			if (fCompressed)
-				m_pCC->WriteExact((char *)m_pCC->m_filezipbuf, nMaxCompSize);
-			else
-				m_pCC->WriteExact((char *)m_pCC->m_filechunkbuf, m_dwNbBytesRead);
+				// If data compressed is larger, we're presumably dealing with already compressed data.
+				if (nMaxCompSize > m_dwNbBytesRead)
+					fCompressed = false;
+					// m_fCompress = false;
+
+
+
+				// Send the FileTransferMsg with rfbFilePacket
+				rfbFileTransferMsg ft;
+				ft.type = rfbFileTransfer;
+				ft.contentType = rfbFilePacket;
+				ft.size = fCompressed ? Swap32IfLE(1) : Swap32IfLE(0); 
+				ft.length = fCompressed ? Swap32IfLE(nMaxCompSize) : Swap32IfLE(m_dwNbBytesRead);
+				//adzm 2010-09
+				if(UsingOldProtocol())
+					m_pCC->WriteExactQueue((char *)&ft, sz_rfbFileTransferMsg);
+				else
+					m_pCC->WriteExactQueue((char *)&ft, sz_rfbFileTransferMsg, rfbFileTransfer);
+
+				if (fCompressed)
+					m_pCC->WriteExact((char *)m_pCC->m_filezipbuf, nMaxCompSize);
+				else
+					m_pCC->WriteExact((char *)m_pCC->m_filechunkbuf, m_dwNbBytesRead);
+			}
+
+			m_dwTotalNbBytesRead += m_dwNbBytesRead;
+
+			// Refresh progress bar
+			SetGauge(hWnd, m_dwTotalNbBytesRead);
+			PseudoYield(GetParent(hWnd));
+		
+			if (m_fAbort)
+			{
+				m_fFileUploadError = true;
+				FinishFileSending();
+				return false;
+			}
 		}
+		long lDelta = GetTickCount() - m_dwLastChunkTime;
 
-		m_dwTotalNbBytesRead += m_dwNbBytesRead;
-
-		// Refresh progress bar
-		SetGauge(hWnd, m_dwTotalNbBytesRead);
-		PseudoYield(GetParent(hWnd));
-	
-		if (m_fAbort)
+		if (lDelta > 1000)
 		{
-			m_fFileUploadError = true;
-			FinishFileSending();
-			return false;
+				Sleep(150);
 		}
-	}
+		else if (!m_fVisible && !UsingOldProtocol() && !m_pCC->IsDormant())
+			Sleep(50);
 
-	// Order next asynchronous packet sending
-	// If Gui is visible or old blocking FT protocole : no screen updates, more speed
-	/*
-	if (m_fVisible || m_fOldFTProtocole)
-	{
-		// SendFileChunk(); // Fixme: Beware call stack...
-		// if (m_pCC->kbitsPerSecond <= 2048) 
-		PostMessage(m_pCC->m_hwndMain, FileTransferSendPacketMessage, (WPARAM) 0, (LPARAM) 0);
-	}
-	else
-	{
-		//if (m_pCC->kbitsPerSecond <= 2048) 
-		//else
-		//	Sleep(50);
-
-		PostMessage(m_pCC->m_hwndMain, FileTransferSendPacketMessage, (WPARAM) 0, (LPARAM) 0);
-	}
-	// PostMessage(hWnd, FileTransferSendPacketMessage, (WPARAM) 0, (LPARAM) 0);
-	*/
-
+	} while (connected && m_fFileUploadRunning);
+	if (!m_fFileUploadRunning) return false;
 	return true;
 }
 
@@ -3011,6 +2982,7 @@ bool FileTransfer::FinishFileSending()
 
     // hide the stop button
     ShowWindow(GetDlgItem(hWnd, IDC_ABORT_B), SW_HIDE);
+	ShowWindow(GetDlgItem(hWnd, IDC_ABORT_B2), SW_HIDE);
 	// Sound notif
 	//MessageBeep(-1);
 
@@ -3357,13 +3329,15 @@ BOOL CALLBACK FileTransfer::FileTransferDlgProc(  HWND hWnd,  UINT uMsg,  WPARAM
 			// DWORD lTime = timeGetTime();
 			// DWORD lLastTime = _this->m_pCC->m_lLastRfbRead;
 			// DWORD lDelta = abs(timeGetTime() - _this->m_pCC->m_lLastRfbRead);
-			if (true/*meGetTime() - _this->m_pCC->m_lLastRfbRead) > 1000 */)
+			if (true && wParam != 100/*meGetTime() - _this->m_pCC->m_lLastRfbRead) > 1000 */)
 			{
 				_this->m_fFileCommandPending = true;
 				_this->RequestPermission();
 				if (KillTimer(hWnd, _this->m_timer))
 					_this->m_timer = 0;
 			}
+			else
+				_this->m_pCC->SendKeepAlive(false, true);
 		break;
 		}
 
@@ -3372,6 +3346,7 @@ BOOL CALLBACK FileTransfer::FileTransferDlgProc(  HWND hWnd,  UINT uMsg,  WPARAM
             helper::SafeSetWindowUserData(hWnd, lParam);
 
             FileTransfer *l_this = (FileTransfer *) lParam;
+			SetTimer(hWnd, 100, 5000, NULL);
             // CentreWindow(hWnd);
 			l_this->hWnd = hWnd;
 			hFTWnd = hWnd;
@@ -3603,7 +3578,7 @@ BOOL CALLBACK FileTransfer::FileTransferDlgProc(  HWND hWnd,  UINT uMsg,  WPARAM
 			// Disable buttons
 			_this->DisableButtons(_this->hWnd);
 			ShowWindow(GetDlgItem(hWnd, IDC_ABORT_B), SW_SHOW);
-
+			ShowWindow(GetDlgItem(hWnd, IDC_ABORT_B2), SW_SHOW);
 			// Get the fisrt selected file name
 			_this->m_iFile = _this->m_FilesList.begin();
 			Item.iItem = *_this->m_iFile;
@@ -3706,7 +3681,7 @@ BOOL CALLBACK FileTransfer::FileTransferDlgProc(  HWND hWnd,  UINT uMsg,  WPARAM
 			// Disable buttons
 			_this->DisableButtons(_this->hWnd);
 			ShowWindow(GetDlgItem(_this->hWnd, IDC_ABORT_B), SW_SHOW);
-
+			ShowWindow(GetDlgItem(_this->hWnd, IDC_ABORT_B2), SW_SHOW);
 			// Get the fisrt selected file name
 			_this->m_iFile = _this->m_FilesList.begin();
 			Item.iItem = *_this->m_iFile;
@@ -3772,6 +3747,15 @@ BOOL CALLBACK FileTransfer::FileTransferDlgProc(  HWND hWnd,  UINT uMsg,  WPARAM
 		case IDC_ABORT_B:
 			_this->m_fAbort = true;
             _this->m_fUserAbortedFileTransfer = true;
+			ShowWindow(GetDlgItem(_this->hWnd, IDC_ABORT_B), SW_HIDE);
+			break;
+		
+		case IDCANCEL2:
+		case IDC_ABORT_B2:
+			_this->m_fAbort = true;
+			_this->m_fUserAbortedFileTransfer = true;
+			_this->m_fUserForcedAbortedFileTransfer = true;
+			closesocket(_this->m_pCC->m_sock);
 			ShowWindow(GetDlgItem(_this->hWnd, IDC_ABORT_B), SW_HIDE);
 			break;
 
@@ -4265,6 +4249,7 @@ BOOL CALLBACK FileTransfer::FileTransferDlgProc(  HWND hWnd,  UINT uMsg,  WPARAM
 		MoveWindow(GetDlgItem(hWnd, IDC_UPLOAD_B),     lf_an+10+2,  icy-15-20-6-20-5-20, 90, 20, TRUE);
 		MoveWindow(GetDlgItem(hWnd, IDC_DOWNLOAD_B),   lf_an+10+2,       icy-15-20-6-20, 90, 20, TRUE);
 		MoveWindow(GetDlgItem(hWnd, IDC_ABORT_B),      lf_an+10+2,            icy-15-20, 90, 20, TRUE);
+		MoveWindow(GetDlgItem(hWnd, IDC_ABORT_B2),	   lf_an + 10 + 2, icy - 10, 90, 20, TRUE);
 		MoveWindow(GetDlgItem(hWnd, IDC_DELETE_B),     lf_an+10+2,               icy+15, 90, 20, TRUE);
 		MoveWindow(GetDlgItem(hWnd, IDC_NEWFOLDER_B),  lf_an+10+2,          icy+15+20+6, 90, 20, TRUE);
 		MoveWindow(GetDlgItem(hWnd, IDC_RENAME_B),     lf_an+10+2,     icy+15+20+6+20+6, 90, 20, TRUE);
@@ -4371,6 +4356,7 @@ BOOL CALLBACK FileTransfer::FileTransferDlgProc(  HWND hWnd,  UINT uMsg,  WPARAM
 
 	case WM_DESTROY:
 		if (_this->m_timer != 0) KillTimer(hWnd, _this->m_timer);
+		KillTimer(hWnd, 100);
 		EndDialog(hWnd, FALSE);
 		return TRUE;
 
@@ -4464,7 +4450,7 @@ BOOL CALLBACK FileTransfer::FTParamDlgProc(  HWND hwnd,  UINT uMsg, WPARAM wPara
 			return TRUE;
 		}
 		break;
-	case WM_DESTROY:
+	case WM_DESTROY:		
 		EndDialog(hwnd, FALSE);
 		return TRUE;
 	}
@@ -4536,7 +4522,7 @@ BOOL CALLBACK FileTransfer::FTConfirmDlgProc(  HWND hwnd,  UINT uMsg, WPARAM wPa
 		}
 		break;
 
-	case WM_DESTROY:
+	case WM_DESTROY:		
 		EndDialog(hwnd, FALSE);
 		return TRUE;
 	}
@@ -4546,7 +4532,7 @@ BOOL CALLBACK FileTransfer::FTConfirmDlgProc(  HWND hwnd,  UINT uMsg, WPARAM wPa
 //
 //
 //
-void FileTransfer::DisableButtons(HWND hWnd)
+void FileTransfer::DisableButtons(HWND hWnd, bool X)
 {
 	ShowWindow(GetDlgItem(hWnd, IDC_UPLOAD_B), SW_HIDE);
 	ShowWindow(GetDlgItem(hWnd, IDC_DOWNLOAD_B), SW_HIDE);
@@ -4554,6 +4540,7 @@ void FileTransfer::DisableButtons(HWND hWnd)
 	ShowWindow(GetDlgItem(hWnd, IDC_NEWFOLDER_B), SW_HIDE);
 	ShowWindow(GetDlgItem(hWnd, IDC_RENAME_B), SW_HIDE);
 	ShowWindow(GetDlgItem(hWnd, IDCANCEL), SW_HIDE);
+	ShowWindow(GetDlgItem(hWnd, IDCANCEL2), SW_HIDE);
 	ShowWindow(GetDlgItem(hWnd, IDC_HIDE_B), SW_SHOW);
 	EnableWindow(GetDlgItem(hWnd, IDC_LOCAL_FILELIST), FALSE);
 	EnableWindow(GetDlgItem(hWnd, IDC_LOCAL_DRIVECB), FALSE);
@@ -4565,10 +4552,12 @@ void FileTransfer::DisableButtons(HWND hWnd)
 	EnableWindow(GetDlgItem(hWnd, IDC_REMOTE_UPB), FALSE);
 
 	// Disable Close Window in in title bar
-	HMENU hMenu = GetSystemMenu(hWnd, 0);
-	int nCount = GetMenuItemCount(hMenu);
-	EnableMenuItem(hMenu, nCount-1, MF_DISABLED|MF_GRAYED | MF_BYPOSITION);
-	EnableMenuItem(hMenu, nCount-2, MF_DISABLED|MF_GRAYED | MF_BYPOSITION);
+	if (X == true) {
+		HMENU hMenu = GetSystemMenu(hWnd, 0);
+		int nCount = GetMenuItemCount(hMenu);
+		EnableMenuItem(hMenu, nCount - 1, MF_DISABLED | MF_GRAYED | MF_BYPOSITION);
+		EnableMenuItem(hMenu, nCount - 2, MF_DISABLED | MF_GRAYED | MF_BYPOSITION);
+	}
 	DrawMenuBar(hWnd);
 
 }
@@ -4599,9 +4588,11 @@ void FileTransfer::CheckButtonState(HWND hWnd)
 void FileTransfer::EnableButtons(HWND hWnd)
 {
 	ShowWindow(GetDlgItem(hWnd, IDC_ABORT_B), SW_HIDE);
+	ShowWindow(GetDlgItem(hWnd, IDC_ABORT_B2), SW_HIDE);
 	ShowWindow(GetDlgItem(hWnd, IDC_UPLOAD_B), SW_SHOW);
 	ShowWindow(GetDlgItem(hWnd, IDC_DOWNLOAD_B), SW_SHOW);
 	ShowWindow(GetDlgItem(hWnd, IDCANCEL), SW_SHOW);
+	ShowWindow(GetDlgItem(hWnd, IDCANCEL2), SW_SHOW);
 	ShowWindow(GetDlgItem(hWnd, IDC_DELETE_B), SW_SHOW);
 	ShowWindow(GetDlgItem(hWnd, IDC_NEWFOLDER_B), SW_SHOW);
 	if (!UsingOldProtocol())

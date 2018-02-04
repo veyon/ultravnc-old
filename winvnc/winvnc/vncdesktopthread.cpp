@@ -32,7 +32,6 @@ BOOL StopW8();
 #endif
 
 bool g_DesktopThread_running;
-bool g_update_triggered;
 DWORD WINAPI hookwatch(LPVOID lpParam);
 extern bool stop_hookwatch;
 void testBench();
@@ -927,11 +926,7 @@ vncDesktopThread::run_undetached(void *arg)
 
 	// sf@2003 - Done here to take into account if the driver is actually activated
 	m_desktop->InitHookSettings(); 
-	initialupdate=false;
-
-	// We set a flag inside the desktop handler here, to indicate it's now safe
-	// to handle clipboard messages
-	m_desktop->SetClipboardActive(TRUE);
+	initialupdate=false;	
 
 	// All changes in the state of the display are stored in a local
 	// UpdateTracker object, and are flushed to the vncServer whenever
@@ -1029,6 +1024,10 @@ vncDesktopThread::run_undetached(void *arg)
 	else first_run=false;
 	int waittime=0;
 
+	// We set a flag inside the desktop handler here, to indicate it's now safe
+	// to handle clipboard messages
+	m_desktop->SetClipboardActive(TRUE);
+
 	while (looping && !fShutdownOrdered)
 	{		
 		DWORD result;
@@ -1068,13 +1067,13 @@ vncDesktopThread::run_undetached(void *arg)
 		oldtick2 = newtick;
 
 
-#ifdef _DEBUG
+/*#ifdef _DEBUG
 		char			szText[256];
 		DWORD error = GetLastError();
 		sprintf(szText, "waittime %i  \n",waittime);
 		SetLastError(0);
 		OutputDebugString(szText);
-#endif
+#endif*/
 
 		result=WaitForMultipleObjects(6,m_desktop->trigger_events,FALSE,waittime);
 		{
@@ -1099,6 +1098,7 @@ vncDesktopThread::run_undetached(void *arg)
 				waiting_update=0;
 				ResetEvent(m_desktop->trigger_events[0]);
 							{
+								m_desktop->m_update_triggered = FALSE;
 								//measure current cpu usage of winvnc
 								if ((fullpollcounter==10 || fullpollcounter==0 || fullpollcounter==5)&& (m_server->MaxCpu()!=100)) cpuUsage = usage.GetUsage();
 								if (cpuUsage > m_server->MaxCpu()) 
@@ -1126,9 +1126,7 @@ vncDesktopThread::run_undetached(void *arg)
 										OutputDebugString(szText);		
 								#endif*/
 								//oldtick=newtick;
-								if (m_desktop->VideoBuffer() && m_desktop->m_hookdriver) handle_driver_changes(rgncache,updates);
-								m_desktop->m_update_triggered = FALSE;
-								g_update_triggered = FALSE;
+								if (m_desktop->VideoBuffer() && m_desktop->m_hookdriver) handle_driver_changes(rgncache,updates);								
 								//if (m_desktop->m_timerid==NULL) m_desktop->m_timerid = SetTimer(m_desktop->m_hwnd, 1, 100, NULL);
 
 								//*******************************************************

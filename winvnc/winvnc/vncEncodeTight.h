@@ -37,20 +37,16 @@ class vncEncodeTight;
 
 #include "vncencoder.h"
 
-#ifdef ULTRAVNC_VEYON_SUPPORT
+#ifdef _INTERNALLIB
 #include <zlib.h>
 #else
-#ifdef IPP
-#include "..\..\ipp_zlib\src\zlib\zlib.h"
-#else
-#include "zlib-1.2.5/zlib.h"
-#endif
+#include <zlib-1.2.5/zlib.h>
 #endif
 
 extern "C"
 {
-#ifdef IPP
-#include "libjpeg/jpeglib.h"
+#ifdef _INTERNALLIB
+#include <jpeglib.h>
 #else
 #ifdef ULTRAVNC_VEYON_SUPPORT
 #include <jpeglib.h>
