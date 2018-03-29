@@ -43,7 +43,7 @@
 #include "vncservice.h"
 // Modif rdv@2002 - v1.1.x - videodriver
 #include "vncOSVersion.h"
-#include "DeskDupEngine.h"
+#include "DeskdupEngine.h"
 
 #include "mmsystem.h" // sf@2002
 #include "TextChat.h" // sf@2002
