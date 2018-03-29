@@ -393,7 +393,7 @@ vncProperties::ShowAdmin(BOOL show, BOOL usersettings)
 				}
 
 				// If we reached here then OK was used & there is no password!
-				MessageBoxSecure(NULL, sz_ID_NO_PASSWORD_WARN,
+				int result2 = MessageBoxSecure(NULL, sz_ID_NO_PASSWORD_WARN,
 				    sz_ID_WINVNC_WARNIN, MB_OK | MB_ICONEXCLAMATION);
 
 				omni_thread::sleep(4);
@@ -2672,7 +2672,7 @@ void Secure_Plugin_elevated(char *szPlugin)
 	GetModuleFileName(0, exe_file_name, MAX_PATH);
 	SHELLEXECUTEINFO shExecInfo;
 	shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-	shExecInfo.fMask = 0;
+	shExecInfo.fMask = NULL;
 	shExecInfo.hwnd = GetForegroundWindow();
 	shExecInfo.lpVerb = "runas";
 	shExecInfo.lpFile = exe_file_name;

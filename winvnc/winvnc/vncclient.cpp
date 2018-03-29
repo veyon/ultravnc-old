@@ -67,7 +67,6 @@
 #else
 #include <zlib-1.2.5/zlib.h>
 #endif
-
 #include "mmsystem.h" // sf@2002
 #include "sys/types.h"
 #include "sys/stat.h"
@@ -1845,7 +1844,7 @@ BOOL vncClientThread::AuthVnc(std::string& auth_message)
 
 			auth_ok = TRUE;
 			// Compare them to the response
-			for (size_t i=0; i<sizeof(challenge); i++)
+			for (int i=0; i<sizeof(challenge); i++)
 			{
 				if (challenge[i] != response[i])
 				{
@@ -1869,7 +1868,7 @@ BOOL vncClientThread::AuthVnc(std::string& auth_message)
 					vncEncryptBytes((BYTE *)&challenge2, plain2); //PGM
 
 					// Compare them to the response //PGM
-					for (size_t i=0; i<sizeof(challenge2); i++) //PGM
+					for (int i=0; i<sizeof(challenge2); i++) //PGM
 					{ //PGM
 						if (challenge2[i] != response[i]) //PGM
 						{ //PGM
@@ -4652,7 +4651,7 @@ vncClientThread::run(void *arg)
 	m_server->RemoveClient(m_client->GetClientId());
 
 	// sf@2003 - AutoReconnection attempt if required
-
+	testautoreconnect:
 	if (!fShutdownOrdered) {
 		if (m_client->m_Autoreconnect)
 		{
@@ -4956,7 +4955,7 @@ bool
 vncClient::NotifyUpdate(rfbFramebufferUpdateRequestMsg fur) 
 {
 		//Fix server viewer crash, when server site scaling is used
-    	//,
+    	//
 	    m_ScaledScreen =m_encodemgr.m_buffer->GetViewerSize();
 
 		rfb::Rect update;
@@ -6950,4 +6949,3 @@ int  vncClient::filetransferrequestPart2(int nDirZipRet)
 	return 0;
 }
 #endif
-

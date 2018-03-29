@@ -50,7 +50,7 @@ bool Shellexecuteforuiaccess()
 		SHELLEXECUTEINFO shExecInfo;
 		memset(&shExecInfo,0,sizeof(shExecInfo));
 		shExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-		shExecInfo.fMask = 0;
+		shExecInfo.fMask = NULL;
 		shExecInfo.hwnd = NULL;
 		shExecInfo.lpVerb = "runas";
 		shExecInfo.lpFile = WORKDIR;
@@ -91,21 +91,12 @@ void keepalive()
 	return;
 	// This disable the keyboard helper, better to have something
 	error:
-	if (keyEventFn)
-	{
-		delete keyEventFn;
-		keyEventFn=NULL;
-	}
-	if (StopeventFn)
-	{
-		delete StopeventFn;
-		StopeventFn=NULL;
-	}
-	if (StarteventFn)
-	{
-		delete StarteventFn;
-		StarteventFn=NULL;
-	}
+	if (keyEventFn)delete keyEventFn;
+			keyEventFn=NULL;
+	if (StopeventFn)delete StopeventFn;
+			StopeventFn=NULL;
+	if (StarteventFn)delete StarteventFn;
+			StarteventFn=NULL;
 	LeaveCriticalSection(&keyb_crit);
 }
 
@@ -169,21 +160,12 @@ void keybd_initialize_no_crit()
 	return;
 }
 error:
-	if (keyEventFn)
-	{
-		delete keyEventFn;
-		keyEventFn=NULL;
-	}
-	if (StopeventFn)
-	{
-		delete StopeventFn;
-		StopeventFn=NULL;
-	}
-	if (StarteventFn)
-	{
-		delete StarteventFn;
-		StarteventFn=NULL;
-	}
+	if (keyEventFn)delete keyEventFn;
+			keyEventFn=NULL;
+	if (StopeventFn)delete StopeventFn;
+			StopeventFn=NULL;
+	if (StarteventFn)delete StarteventFn;
+			StarteventFn=NULL;
 	return;
 }
 
@@ -216,21 +198,12 @@ void keybd_initialize()
 	return;
 }
 error:
-	if (keyEventFn)
-	{
-		delete keyEventFn;
-		keyEventFn=NULL;
-	}
-	if (StopeventFn)
-	{
-		delete StopeventFn;
-		StopeventFn=NULL;
-	}
-	if (StarteventFn)
-	{
-		delete StarteventFn;
-		StarteventFn=NULL;
-	}
+	if (keyEventFn)delete keyEventFn;
+			keyEventFn=NULL;
+	if (StopeventFn)delete StopeventFn;
+			StopeventFn=NULL;
+	if (StarteventFn)delete StarteventFn;
+			StarteventFn=NULL;
 	LeaveCriticalSection(&keyb_crit);
 	return;
 }

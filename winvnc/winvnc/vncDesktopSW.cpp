@@ -185,6 +185,8 @@ vncDesktop::GetSize()
 				switch (nr_monitors) {
 				case 2:
 					{
+					//nWidth=mymonitor[0].Width+mymonitor[1].Width;
+					//nHeight=max(mymonitor[0].Height, mymonitor[1].Height);
 					nWidth = m_Cliprect.br.x;
 					nHeight = m_Cliprect.br.y;
 					} break;

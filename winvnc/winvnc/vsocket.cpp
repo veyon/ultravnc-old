@@ -2054,7 +2054,7 @@ VSocket::ReadExact(char *buff, const VCard bufflen)
 		int nRestDataLen = 0;
 		nTransDataLen = nTransDataLenSave;
 		//adzm 2009-06-20
-		RestoreBufferStep2((BYTE*)buff, nTransDataLen, &nRestDataLen);
+		BYTE* pPipo = RestoreBufferStep2((BYTE*)buff, nTransDataLen, &nRestDataLen);
 
 		// Check if we actually get the real original data length
 		if ((VCard)nRestDataLen != bufflen)

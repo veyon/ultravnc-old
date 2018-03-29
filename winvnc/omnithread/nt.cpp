@@ -187,8 +187,8 @@ omni_condition::wait(DWORD dwTimeout)
 
     mutex->lock();
 
-	if (result != WAIT_OBJECT_0 && result != WAIT_TIMEOUT)
-		throw omni_thread_fatal(GetLastError());
+    if (result != WAIT_OBJECT_0 && result != WAIT_TIMEOUT)
+	throw omni_thread_fatal(GetLastError());
 
 	return result==WAIT_TIMEOUT?FALSE:TRUE;
 }

@@ -1365,9 +1365,7 @@ vncDesktop::SetPalette()
 	// Lock the current display palette into the memory DC we're holding
 	// *** CHECK THIS FOR LEAKS!
 	if (VideoBuffer())
-	{
 		return TRUE;
-	}
 	if (!m_bminfo.truecolour)
 	{
 		if (!m_DIBbits)
@@ -1507,9 +1505,7 @@ vncDesktop::EnableOptimisedBlits()
 			vnclog.Print(LL_INTINFO, VNCLOG("enabled slow blits OK\n"));
 	}
 	else
-	{
 		vnclog.Print(LL_INTINFO, VNCLOG("enabled fast DIBsection blits OK\n"));
-	}
 
 	// Delete the old memory bitmap
 	if (m_membitmap != NULL) {

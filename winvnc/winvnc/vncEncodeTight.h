@@ -42,7 +42,6 @@ class vncEncodeTight;
 #else
 #include <zlib-1.2.5/zlib.h>
 #endif
-
 extern "C"
 {
 #ifdef _INTERNALLIB

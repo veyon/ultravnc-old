@@ -27,9 +27,7 @@
 // This code originally just mapped between X keysyms and local Windows
 // virtual keycodes.  Now it actually does the local-end simulation of
 // key presses, to keep this messy code on one place!
-#ifndef __GNUC__
 #pragma warning(disable : 4786)
-#endif
 #include "vncservice.h"
 #include "vnckeymap.h"
 #include <rdr/types.h>
@@ -417,7 +415,7 @@ class Keymapper {
 public:
   Keymapper()
   {
-    for (size_t i = 0; i < sizeof(keymap) / sizeof(keymap_t); i++) {
+    for (int i = 0; i < sizeof(keymap) / sizeof(keymap_t); i++) {
       vkMap[keymap[i].keysym] = keymap[i].vk;
       extendedMap[keymap[i].keysym] = keymap[i].extended;
     }
@@ -426,7 +424,7 @@ public:
   // XXX how could we handle the keyboard layout changing?
   BYTE keystate[256];
   memset(keystate, 0, 256);
-  for (size_t j = 0; j < sizeof(latin1DeadChars); j++) {
+  for (int j = 0; j < sizeof(latin1DeadChars); j++) {
     SHORT s = VkKeyScan(latin1DeadChars[j]);
     if (s != -1) {
       BYTE vkCode = LOBYTE(s);

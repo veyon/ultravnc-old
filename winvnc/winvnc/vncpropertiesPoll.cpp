@@ -89,7 +89,7 @@ vncPropertiesPoll::Show(BOOL show, BOOL usersettings)
 {
 	HANDLE hProcess=NULL;
 	HANDLE hPToken=NULL;
-	//DWORD id=GetExplorerLogonPid();
+	DWORD id=GetExplorerLogonPid();
 	int iImpersonateResult=0;
 	{
 		char WORKDIR[MAX_PATH];
