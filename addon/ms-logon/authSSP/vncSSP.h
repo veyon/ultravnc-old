@@ -35,6 +35,7 @@
 #endif
 
 #include <tchar.h>
+#include "vncAccessControl.h"
 
 typedef BOOL (*CheckUserPasswordSDFn)(const char * domainuser,
 									  const char *password,
@@ -44,8 +45,8 @@ typedef BOOL (*CheckUserPasswordSDFn)(const char * domainuser,
 
 #define MAXSTRING 254
 
-extern "C" AUTHSSP_API int CUPSD(const char * userin, const char *password, const char *machine);
+AUTHSSP_API int CUPSD(const char * userin, const char *password, const char *machine);
 void LOG(long EvenID, const TCHAR *format, ...);
 TCHAR * AddToModuleDir(TCHAR *filename, int length);
 
-extern BOOL CUPSD2(const char*userin, const char *password);
+extern BOOL CUPSD2(const char*userin, const char *password, PSECURITY_DESCRIPTOR psdSD, PBOOL pisAuthenticated, PDWORD pdwAccessGranted);

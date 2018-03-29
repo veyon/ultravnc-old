@@ -31,6 +31,43 @@
 
 Fn fn;
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
+BOOL CUPSD2(const char * domainuser, 
+		  const char *password, 
+		  PSECURITY_DESCRIPTOR psdSD,
+		  PBOOL isAuthenticated,
+		  PDWORD pdwAccessGranted)	// returns bitmask with accessrights
+{
+	char domain[MAXLEN];
+	const char *user = 0;
+	domain[0] = '\0';
+	TCHAR user2[MAXLEN];
+	TCHAR domain2[MAXLEN];
+	TCHAR password2[MAXLEN];
+	TCHAR *prefix = NULL;
+
+	user = SplitString(domainuser,'\\',domain);
+
+#if defined (_UNICODE) || defined (UNICODE)
+	mbstowcs(user2, user, MAXLEN);
+	mbstowcs(domain2, domain, MAXLEN);
+	mbstowcs(password2, password, MAXLEN);
+#else
+	strcpy(user2, user);
+	strcpy(domain2, domain);
+	strcpy(password2, password);
+#endif
+
+	// On NT4, prepend computer- or domainname if username is unqualified.
+	if (isNT4() && _tcscmp(domain2, _T("")) == 0) {
+		if (!QualifyName(user2, domain2)) {
+			_tcscpy(domain2, _T("\0"));
+		}
+	}
+	return SSPLogonUser(domain2, user2, password2, psdSD, isAuthenticated, pdwAccessGranted);
+}
+#endif
+
 
 BOOL WINAPI SSPLogonUser(LPTSTR szDomain, 
 						 LPTSTR szUser, 
@@ -49,8 +86,6 @@ BOOL WINAPI SSPLogonUser(LPTSTR szDomain,
 	HMODULE     hModule    = NULL;
 	SEC_WINNT_AUTH_IDENTITY ai;
 
-#undef __try
-#define __try
 #define __leave goto cleanup
 #define __finally cleanup:
 	__try {
@@ -150,17 +185,38 @@ BOOL WINAPI SSPLogonUser(LPTSTR szDomain,
 	return fResult;
 }
 
-BOOL Impersonate(PCtxtHandle phContext) {
+BOOL ImpersonateAndCheckAccess(PCtxtHandle phContext, 
+							   PSECURITY_DESCRIPTOR psdSD, 
+							   PDWORD pdwAccessGranted) {
+	HANDLE hToken = NULL;
 	
 	// AccessCheck() variables
+	DWORD           dwAccessDesired = MAXIMUM_ALLOWED;
+	PRIVILEGE_SET   PrivilegeSet;
+	DWORD           dwPrivSetSize = sizeof(PRIVILEGE_SET);
 	BOOL            fAccessGranted = FALSE;
+	GENERIC_MAPPING GenericMapping = { vncGenericRead, vncGenericWrite, 
+									   vncGenericExecute, vncGenericAll };
 	
-	if (fn._ImpersonateSecurityContext(phContext) == SEC_E_OK) {
-		fAccessGranted = TRUE;
+	// This only does something if we want to use generic access
+	// rights, like GENERIC_ALL, in our call to AccessCheck().
+	MapGenericMask(&dwAccessDesired, &GenericMapping);
+	
+	// AccessCheck() requires an impersonation token.
+	if ((fn._ImpersonateSecurityContext(phContext) == SEC_E_OK)
+		&& OpenThreadToken(GetCurrentThread(), TOKEN_QUERY, TRUE, &hToken)
+		&& AccessCheck(psdSD, hToken, dwAccessDesired, &GenericMapping,
+		&PrivilegeSet, &dwPrivSetSize, pdwAccessGranted, &fAccessGranted)) {
+		// Restrict access to relevant rights only
+		fAccessGranted = AreAnyAccessesGranted(*pdwAccessGranted, ViewOnly | Interact);
 	}
 	
 	// End impersonation
 	fn._RevertSecurityContext(phContext);
+	
+	// Close handles
+	if (hToken)
+		CloseHandle(hToken);
 	
 	return fAccessGranted;
 }
@@ -249,3 +305,17 @@ bool QualifyName(const TCHAR *user, LPTSTR DomName) {
 	return isNameQualified;
 }
 
+bool isNT4() {
+	OSVERSIONINFO VerInfo;
+
+	VerInfo.dwOSVersionInfoSize = sizeof (OSVERSIONINFO);
+	if (!GetVersionEx (&VerInfo))   // If this fails, something has gone wrong
+		return false;
+	
+	if (VerInfo.dwPlatformId == VER_PLATFORM_WIN32_NT &&
+		VerInfo.dwMajorVersion == 4 &&
+		VerInfo.dwMinorVersion == 0)
+		return true;
+	else
+		return false;
+}

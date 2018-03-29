@@ -37,9 +37,7 @@
 #include <time.h>
 #endif
 #include <aclapi.h>
-#ifndef __GNUC__
 #pragma hdrstop
-#endif
 
 #define MAXLEN 256
 #define MAX_PREFERRED_LENGTH    ((DWORD) -1)
