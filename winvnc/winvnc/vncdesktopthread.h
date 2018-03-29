@@ -57,7 +57,6 @@ public:
 	vncDesktopThread() {
 		/* BEGIN: Tobias Junghans, 2011/11 */
 		capture = false;
-		first_run = false;
 		initialupdate = false;
 		XRichCursorEnabled = false;
 		m_screen_moved = false;
