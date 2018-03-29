@@ -109,19 +109,14 @@ vncDesktop::GetNrMonitors()
 {
 	int i;
     int j=0;
-    
-    helper::DynamicFn<pEnumDisplayDevices> pd("USER32","EnumDisplayDevicesA");
 
-    if (pd.isValid())
-    {
-        DISPLAY_DEVICE dd;
-        ZeroMemory(&dd, sizeof(dd));
-        dd.cb = sizeof(dd);
-        for (i=0; (*pd)(NULL, i, &dd, 0); i++)
-			{
-				if (dd.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP)
-					if (!(dd.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER))j++;
-			}
+    DISPLAY_DEVICE dd;
+    ZeroMemory(&dd, sizeof(dd));
+    dd.cb = sizeof(dd);
+    for (i=0; EnumDisplayDevicesA(NULL, i, &dd, 0); i++) {
+		if (dd.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP)
+		if (!(dd.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER))
+			j++;
 	}
 	return j;
 }
@@ -130,24 +125,17 @@ void
 vncDesktop::GetPrimaryDevice()
 {
 	int i;
-    helper::DynamicFn<pEnumDisplayDevices> pd("USER32","EnumDisplayDevicesA");
+    int j=0;
+    DISPLAY_DEVICE dd;
+    ZeroMemory(&dd, sizeof(dd));
+    dd.cb = sizeof(dd);
+    for (i=0; EnumDisplayDevicesA(NULL, i, &dd, 0); i++) {
+		if (dd.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP && dd.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE 
+				&& !(dd.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER)) {
+			strcpy(mymonitor[0].device,(char *)dd.DeviceName);
+			break;
+		}
 
-    if (pd.isValid())
-    {
-        DISPLAY_DEVICE dd;
-        ZeroMemory(&dd, sizeof(dd));
-        dd.cb = sizeof(dd);
-        for (i=0; (*pd)(NULL, i, &dd, 0); i++)
-			{
-				if (dd.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP)
-					if (dd.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE)
-						if (!(dd.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER))
-						{
-							strcpy(mymonitor[0].device,(char *)dd.DeviceName);
-							break;
-						}
-
-			}
 	}
 }
 
@@ -155,23 +143,15 @@ void
 vncDesktop::GetSecondaryDevice()
 {
 	int i;
-    helper::DynamicFn<pEnumDisplayDevices> pd("USER32","EnumDisplayDevicesA");
-
-    if (pd.isValid())
-    {
-        DISPLAY_DEVICE dd;
-        ZeroMemory(&dd, sizeof(dd));
-        dd.cb = sizeof(dd);
-        for (i=0; (*pd)(NULL, i, &dd, 0); i++)
-			{
-				if (dd.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP)
-					if (!(dd.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE))
-						if (!(dd.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER))
-						{
-							strcpy(mymonitor[1].device,(char *)dd.DeviceName);
-							break;
-						}
-
+    int j=0;
+    DISPLAY_DEVICE dd;
+    ZeroMemory(&dd, sizeof(dd));
+    dd.cb = sizeof(dd);
+    for (i=0; EnumDisplayDevicesA(NULL, i, &dd, 0); i++) {
+		if (dd.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP && !(dd.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE)
+				&& !(dd.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER)) {
+			strcpy(mymonitor[1].device,(char *)dd.DeviceName);
+			break;
 			}
 	}
 }
@@ -181,26 +161,18 @@ vncDesktop::GetThirdDevice()
 {
 	int i;
     int j=0;
-    helper::DynamicFn<pEnumDisplayDevices> pd("USER32","EnumDisplayDevicesA");
-
-    if (pd.isValid())
-    {
-        DISPLAY_DEVICE dd;
-        ZeroMemory(&dd, sizeof(dd));
-        dd.cb = sizeof(dd);
-        for (i=0; (*pd)(NULL, i, &dd, 0); i++)
-			{
-				if (dd.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP)
-					if (!(dd.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE)) {
-						j++;
-						if (!(dd.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER))
-						{
-							if (j == 3) {
-								strcpy(mymonitor[2].device,(char *)dd.DeviceName);
-								break;
-							}
-						}
-					}
+    DISPLAY_DEVICE dd;
+    ZeroMemory(&dd, sizeof(dd));
+    dd.cb = sizeof(dd);
+    for (i=0; EnumDisplayDevicesA(NULL, i, &dd, 0); i++) {
+		if (dd.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP && !(dd.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE)) {
+			j++;
+			if (!(dd.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER)) {
+				if (j == 3) {
+					strcpy(mymonitor[2].device,(char *)dd.DeviceName);
+					break;
+				}
 			}
+		}
 	}
 }

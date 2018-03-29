@@ -287,14 +287,7 @@ int FdInStream::readWithTimeoutOrCallback(void* buf, int len)
 		fAlreadyCounted = true;
 	}
 	else
-	{
-		while (n == 0) {
-			n = checkReadable(fd, 30000);
-			if ( n == 0  && !FT)
-				throw TimedOut();
-		}
 		n = ::read(fd, buf, len);
-	}
 
     if (n != -1 || errno != EINTR)
       break;

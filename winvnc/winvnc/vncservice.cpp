@@ -675,7 +675,8 @@ vncService::InputDesktopSelected()
 		if (inputdesktop == NULL)
 		{
 			//Running as SC we want to keep the viewer open in case UAC or screensaver jump in
-			if (!m_fRunningFromExternalService)return 2;
+			if (!m_fRunningFromExternalService)
+				return 2;
 			DWORD lasterror;
 			lasterror=GetLastError();
 			vnclog.Print(LL_INTERR, VNCLOG("OpenInputDesktop %i I\n"),lasterror);
@@ -694,7 +695,8 @@ vncService::InputDesktopSelected()
 				vnclog.Print(LL_INTERR, VNCLOG("failed to close input desktop\n"));
 			vnclog.Print(LL_INTERR, VNCLOG("!GetUserObjectInformation(threaddesktop\n"));
 			//Running as SC we want to keep the viewer open in case UAC or screensaver jump in
-			if (!m_fRunningFromExternalService)return 2;
+			if (!m_fRunningFromExternalService)
+				return 2;
 			return 0;
 		}
 		assert(dummy <= 256);
@@ -703,7 +705,8 @@ vncService::InputDesktopSelected()
 				vnclog.Print(LL_INTERR, VNCLOG("failed to close input desktop\n"));
 			vnclog.Print(LL_INTERR, VNCLOG("!GetUserObjectInformation(inputdesktop\n"));
 			//Running as SC we want to keep the viewer open in case UAC or screensaver jump in
-			if (!m_fRunningFromExternalService)return 2;
+			if (!m_fRunningFromExternalService)
+				return 2;
 			return 0;
 		}
 		assert(dummy <= 256);
@@ -715,7 +718,8 @@ vncService::InputDesktopSelected()
 		{
 			vnclog.Print(LL_INTERR, VNCLOG("threadname, inputname differ\n"));
 			//Running as SC we want to keep the viewer open in case UAC or screensaver jump in
-			if (!m_fRunningFromExternalService)return 2;
+			if (!m_fRunningFromExternalService)
+				return 2;
 		   return 0;
 		}	
 	}

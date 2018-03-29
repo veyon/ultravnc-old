@@ -702,7 +702,7 @@ vncClientUpdateThread::run_undetached(void *arg)
 			if (bShouldFlush) 
 				m_client->m_socket->ClearQueue();
 			}
-
+			
 			// SEND AN UPDATE
 			// We do this without holding locks, to avoid network problems
 			// stalling the server.
@@ -724,9 +724,10 @@ vncClientUpdateThread::run_undetached(void *arg)
 			}
 			else
 				clipregion.clear();
-
-		}//end omni_mutex_lock l(m_client->GetUpdateLock(),82);
+			}//end omni_mutex_lock l(m_client->GetUpdateLock(),82);
 		yield();
+
+		
 	}
 
 	vnclog.Print(LL_INTINFO, VNCLOG("stopping update thread\n"));	
@@ -805,16 +806,16 @@ vncClientThread::InitVersion()
 				// removed SPECIAL_SC_PROMPT
 				int Send_OK = 0;
 				int Recv_OK = 0;
-				vnclog.Print(LL_STATE, VNCLOG("Repeater connect\n"));
+				vnclog.Print(LL_STATE, VNCLOG("Send protocolMsg\n"));
 				Send_OK = m_socket->SendExact((char *)&protocolMsg, sz_rfbProtocolVersionMsg);				
 				if (Send_OK == 1)
 				{
-					vnclog.Print(LL_STATE, VNCLOG("Repeater connected, waiting viewer\n"));
+					vnclog.Print(LL_STATE, VNCLOG("Send_OK\n"));
 					Recv_OK = m_socket->ReadExact((char *)&protocol_ver, sz_rfbProtocolVersionMsg);					
 				}
 				// Send our protocol version, and get the client's protocol version
 				if (!Send_OK || !Recv_OK) {
-					if (!Recv_OK) vnclog.Print(LL_STATE, VNCLOG("Reconnect to repeater\n"));
+					if (!Recv_OK) vnclog.Print(LL_STATE, VNCLOG("!Send_OK || !Recv_OK\n"));
 					bReady = false;
 					// we need to reconnect!
 
@@ -2428,6 +2429,7 @@ vncClientThread::run(void *arg)
 	BOOL need_to_disable_input = m_server->LocalInputsDisabled();
     bool need_to_clear_keyboard = true;
     bool need_first_keepalive = false;
+	bool need_keepalive = false;
 	bool need_first_idletime = false;
 	bool firstrun=true;
     bool need_ft_version_msg =  false;
@@ -2479,6 +2481,10 @@ vncClientThread::run(void *arg)
             m_client->SendKeepAlive(true);
             need_first_keepalive = false;
         }
+		if (need_keepalive) {
+			m_client->SendKeepAlive(true);
+			need_keepalive = false;
+		}
 
 		if (need_first_idletime)
 		{
@@ -2561,7 +2567,7 @@ vncClientThread::run(void *arg)
 
                     }
 #endif
-					m_client->SendKeepAlive(true);
+					need_keepalive = true;
             break;
 
 		case rfbSetPixelFormat:
@@ -4983,12 +4989,6 @@ vncClient::NotifyUpdate(rfbFramebufferUpdateRequestMsg fur)
 
 		update_rgn=update;
 		}
-/*#ifdef _DEBUG
-										char			szText[256];
-										sprintf(szText,"Update asked for region %i %i %i %i %i \n",update.tl.x,update.tl.y,update.br.x,update.br.y,m_client->m_SWOffsetx);
-										OutputDebugString(szText);		
-#endif*/
-//				vnclog.Print(LL_SOCKERR, VNCLOG("Update asked for region %i %i %i %i %i\n"),update.tl.x,update.tl.y,update.br.x,update.br.y,m_client->m_SWOffsetx);
 
 		// RealVNC 336
 		if (update_rgn.is_empty()) {
@@ -5001,27 +5001,29 @@ vncClient::NotifyUpdate(rfbFramebufferUpdateRequestMsg fur)
 				return FALSE;
 		}
 
-		{
-			// lock removed, clipregion solve unwanted m_incr_rgn clear
-			//omni_mutex_lock l(GetUpdateLock(),92);
+#ifdef _DEBUG
+		char			szText[256];
+		sprintf(szText, " ++++++ rfbFramebufferUpdateRequestMsg\n");
+		OutputDebugString(szText);
+#endif
+	// Add the requested area to the incremental update cliprect
+	m_incr_rgn.assign_union(update_rgn);
+	// Is this request for a full update?
+	//Generate Black updates
+	if (!fur.incremental)
+	{
+		// Yes, so add the region to the update tracker
+		m_update_tracker.add_changed(update_rgn);// <<< Black updates
+			
+		// Tell the desktop grabber to fetch the region's latest state
+		m_encodemgr.m_buffer->m_desktop->QueueRect(update);
+	}
 
-	     	// Add the requested area to the incremental update cliprect
-			m_incr_rgn.assign_union(update_rgn);
-			// Is this request for a full update?
-			if (!fur.incremental)
-			{
-				// Yes, so add the region to the update tracker
-				m_update_tracker.add_changed(update_rgn);
-					
-				// Tell the desktop grabber to fetch the region's latest state
-				m_encodemgr.m_buffer->m_desktop->QueueRect(update);
-			}					
+    // Kick the update thread (and create it if not there already)
+	m_encodemgr.m_buffer->m_desktop->TriggerUpdate();
+	TriggerUpdateThread();
 
-		    // Kick the update thread (and create it if not there already)
-			m_encodemgr.m_buffer->m_desktop->TriggerUpdate();
-			TriggerUpdateThread();
-		}
-		return TRUE;
+	return TRUE;
 }
 
 void
@@ -5390,7 +5392,7 @@ vncClient::SendUpdate(rfb::SimpleUpdateTracker &update)
 	header.nRects = Swap16IfLE(updates);
 	//adzm 2010-09 - minimize packets. SendExact flushes the queue.
 	if (!SendRFBMsgQueue(rfbFramebufferUpdate, (BYTE *) &header, sz_rfbFramebufferUpdateMsg))
-		return TRUE;
+		return FALSE;
 	
 	// CURSOR HANDLING
 	if (m_cursor_update_pending) {
@@ -5518,11 +5520,11 @@ vncClient::SendRectangle(const rfb::Rect &rect)
 	ScaledRect.br.y = rect.br.y / m_nScale;
 	ScaledRect.tl.x = rect.tl.x / m_nScale;
 	ScaledRect.br.x = rect.br.x / m_nScale;
-	#ifdef _DEBUG
+	/*#ifdef _DEBUG
 	char			szText[256];
 	sprintf(szText,"++++++++++++++++++++++++++++++++++++++++++++++REct1 %i %i %i %i  \n",rect.tl.x,rect.br.x,rect.tl.y,rect.br.y);
 	OutputDebugString(szText);
-	#endif
+	#endif*/
 
 	//	Totalsend+=(ScaledRect.br.x-ScaledRect.tl.x)*(ScaledRect.br.y-ScaledRect.tl.y);
 
@@ -6119,7 +6121,6 @@ void vncClient::FinishFileReception()
 
 	m_fFileDownloadRunning = false;
 	m_socket->SetRecvTimeout(m_server->AutoIdleDisconnectTimeout()*1000);
-    SendKeepAlive(true);
 
 	// sf@2004 - Delta transfer
 	SetEndOfFile(m_hDestFile);
