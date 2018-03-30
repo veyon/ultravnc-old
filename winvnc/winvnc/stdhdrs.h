@@ -70,7 +70,7 @@
 #include <process.h>
 #include <crtdbg.h>
 
-#include <QtCore/QString>
+#include <QString>
 
 //#include "dpi.h"
 
@@ -109,7 +109,7 @@ extern VNCLog vnclog;
 #include "ultravnc-rfbproto.h"
 
 // Macros for sticking in the current file name
-#define VNCLOG(s)	(QString("%1 : %2").arg(__PRETTY_FUNCTION__).arg(s).toUtf8().constData())
+#define VNCLOG(s)	(QStringLiteral("%1 : %2").arg(__PRETTY_FUNCTION__).arg(s).toUtf8().constData())
 #if MSC_VER > 12
 #ifndef _X64
 #pragma comment(linker,"/manifestdependency:\"type='Win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
