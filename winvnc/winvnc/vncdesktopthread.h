@@ -89,7 +89,7 @@ public:
 		MIN_UPDATE_INTERVAL_MAX=500;
 		MIN_UPDATE_INTERVAL_MIN=33;
 		// replaced by macpu ini setting
-		MAX_CPU_USAGE=20;
+		//MAX_CPU_USAGE=20;
 		monitor_sleep_timer=0;
 	};
 protected:
@@ -136,7 +136,7 @@ protected:
 	DWORD MIN_UPDATE_INTERVAL;
 	DWORD MIN_UPDATE_INTERVAL_MAX;
 	DWORD MIN_UPDATE_INTERVAL_MIN;
-	DWORD MAX_CPU_USAGE;
+	//DWORD MAX_CPU_USAGE;
 	bool capture;
 	bool initialupdate;
 	DWORD monitor_sleep_timer;

@@ -636,7 +636,7 @@ vncDesktop::~vncDesktop()
 
 // Tell the desktop hooks to grab & update a particular rectangle
 void
-vncDesktop::QueueRect(const rfb::Rect &rect)
+vncDesktop::UpdateFullScreen()
 {
 	//Full screen Update
 	SetEvent(trigger_events[4]);
@@ -2034,7 +2034,7 @@ vncDesktop::SetCursor(HCURSOR cursor)
 }
 
 // Manipulation of the clipboard
-void vncDesktop::SetClipText(char* rfbStr)
+void vncDesktop::SetClipText(LPSTR rfbStr)
 {
 	// Open the system clipboard
 	if (OpenClipboard(m_hwnd))
