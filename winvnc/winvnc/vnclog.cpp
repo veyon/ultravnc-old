@@ -170,29 +170,25 @@ void VNCLog::CloseFile() {
     }
 }
 
-#ifdef ULTRAVNC_VEYON_SUPPORT
-#include "Logger.h"
-#endif
-
 inline void VNCLog::ReallyPrintLine(int level, const char* line) 
 {
 #ifdef ULTRAVNC_VEYON_SUPPORT
 	if( level == LL_SOCKERR || level == LL_ERROR )
 	{
-		ilog( Error, line );
+		qCritical( line );
 	}
 	else if( level == LL_CONNERR )
 	{
-		ilog( Warning, line );
+		qWarning( line );
 	}
 	else if( level == LL_STATE ||
 				level == LL_CLIENTS || level == LL_INTERR )
 	{
-		ilog( Info, line );
+		qInfo( line );
 	}
 	else
 	{
-		ilog( Debug, line );
+		qDebug( line );
 	}
 #else
     if (m_todebug) OutputDebugString(line);
