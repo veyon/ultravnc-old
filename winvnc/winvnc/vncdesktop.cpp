@@ -1649,7 +1649,7 @@ vncDesktop::WriteMessageOnScreenPreConnect(BYTE *scrBuff, UINT scrBuffSize)
 	{
 		if (sesmsg[i].ID != 65536 && sesmsg[i].ID != 0)
 		{
-			sprintf(bigstring, "%c) session%i %s user=%s  status=%s", 97 + i, sesmsg[i].ID, sesmsg[i].name, sesmsg[i].username, sesmsg[i].type);
+			sprintf(bigstring, "%c) session%i %s user=%s  status=%s", static_cast<char>(97 + i), static_cast<int>(sesmsg[i].ID), sesmsg[i].name, sesmsg[i].username, sesmsg[i].type);
 			strcat(menustring, bigstring);
 			strcat(menustring, "\n");
 		}

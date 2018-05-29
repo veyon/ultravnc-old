@@ -569,7 +569,7 @@ char *vncDeskThreadError(DWORD code)
 {
     // create default message
     static char msg[255];
-    _snprintf(msg, sizeof msg, "Unknown error %u", code);
+    _snprintf(msg, sizeof msg, "Unknown error %u", static_cast<unsigned int>(code));
     msg[sizeof msg - 1] = 0;
 
     switch (code)
