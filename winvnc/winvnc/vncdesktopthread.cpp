@@ -743,7 +743,7 @@ vncDesktopThread::run_undetached(void *arg)
 	//*******************************************************
 #ifndef ULTRAVNC_VEYON_SUPPORT
 	if (m_server->AutoCapt() == 1) {
-		if (VNCOS.OS_VISTA||VNCOS.OS_WIN7||VNCOS.OS_WIN8) 
+		if (VNCOS.OS_VISTA||VNCOS.OS_WIN7||VNCOS.OS_WIN8||VNCOS.OS_WIN10) 
 			G_USE_PIXEL=false;
 		else 
 			G_USE_PIXEL=true;//testBench();
@@ -799,7 +799,9 @@ vncDesktopThread::run_undetached(void *arg)
 	// The previous cursor position is stored, to allow us to erase the
 	// old instance whenever it moves.
 	rfb::Point oldcursorpos;
-
+	POINT tempcursorpos;
+	GetCursorPos(&tempcursorpos);
+	oldcursorpos = rfb::Point(tempcursorpos);
 	// The driver gives smaller rectangles to check
 	// if Accuracy is 4 you eliminate pointer updates
 	if (m_desktop->VideoBuffer() && m_desktop->m_hookdriver)
@@ -850,11 +852,11 @@ vncDesktopThread::run_undetached(void *arg)
 	rgncache.assign_union(rfb::Region2D(m_desktop->m_Cliprect));
 
 	if (!PreConnect) {
-		if (m_desktop->VideoBuffer() && m_desktop->m_hookdriver && !VNCOS.OS_WIN8)
+		if (m_desktop->VideoBuffer() && m_desktop->m_hookdriver && !VNCOS.OS_WIN8 && !VNCOS.OS_WIN10)
 		{
 			m_desktop->m_buffer.GrabRegion(rgncache,true,true);
 		}
-		else if (!VNCOS.OS_WIN8)
+		else if (!VNCOS.OS_WIN8 && !VNCOS.OS_WIN10)
 		{
 			m_desktop->m_buffer.GrabRegion(rgncache,false,true);
 		}
@@ -878,7 +880,7 @@ vncDesktopThread::run_undetached(void *arg)
 		if (waittime != 1000) 
 			waittime = 33;
 		//MIRROR DRIVER
-		if (m_desktop->VideoBuffer() && m_desktop->m_hookdriver && !VNCOS.OS_WIN8)
+		if (m_desktop->VideoBuffer() && m_desktop->m_hookdriver && !VNCOS.OS_WIN8 && !VNCOS.OS_WIN10)
 		{
 			strcpy_s(g_hookstring,"driver");
 			int fastcounter=0;
@@ -896,7 +898,7 @@ vncDesktopThread::run_undetached(void *arg)
 			waittime=0;
 		}
 		//DDENGINE
-		else if (m_desktop->VideoBuffer() && m_desktop->m_hookdriver && VNCOS.OS_WIN8)
+		else if (m_desktop->VideoBuffer() && m_desktop->m_hookdriver && (VNCOS.OS_WIN8||VNCOS.OS_WIN10))
 		{
 			strcpy_s(g_hookstring,"ddengine");
 			waittime = 1000;
@@ -1204,24 +1206,37 @@ vncDesktopThread::run_undetached(void *arg)
 												m_desktop->m_screenCapture->Unlock();
 										}
 
-/*#ifdef _DEBUG
+										m_server->initialCapture_done();
+
+
+
+#ifdef _DEBUG
 			char			szText[256];
-			sprintf(szText,"checkrgn, change, cache  %i %i %i \n",!checkrgn.is_empty(),!changedrgn.is_empty() , !cachedrgn.is_empty());
-			OutputDebugString(szText);
 			rfb::RectVector rects;
 			rfb::RectVector::iterator i;
+		checkrgn.get_rects(rects, 1, 1);
+		for (i = rects.begin(); i != rects.end(); i++)
+			{
+				rfb::Rect rect = *i;				
+				sprintf(szText,"RECT checkrgn  %i %i %i %i \n",rect.tl.x,
+				rect.tl.y,
+				rect.br.x,
+				rect.br.y);
+				OutputDebugString(szText);
+			}
+
 			changedrgn.get_rects(rects, 1, 1);
 		for (i = rects.begin(); i != rects.end(); i++)
 			{
 				rfb::Rect rect = *i;				
-				sprintf(szText,"RECT m_desktop->m_Cliprect  %i %i %i %i \n",m_desktop->m_Cliprect.tl.x,
-				m_desktop->m_Cliprect.tl.y,
-				m_desktop->m_Cliprect.br.x,
-				m_desktop->m_Cliprect.br.y);
+				sprintf(szText,"RECT changedrgn  %i %i %i %i \n",rect.tl.x,
+				rect.tl.y,
+				rect.br.x,
+				rect.br.y);
 				OutputDebugString(szText);
 			}
 
-#endif*/
+#endif
 
 										if (!initialupdate) {
 											m_server->InitialUpdate(true);
