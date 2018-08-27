@@ -65,6 +65,7 @@ const char szDesktopSink[] = "WinVNC desktop sink";
 
 bool g_Desktop_running;
 extern bool g_DesktopThread_running;
+extern char g_hookstring[16];
 
 //
 // // Modif sf@2002 - v1.1.0 - Optimization
@@ -91,9 +92,7 @@ extern bool g_DesktopThread_running;
 // 
 // 
 //
-#ifndef ULTRAVNC_VEYON_SUPPORT
 extern bool G_USE_PIXEL;
-#endif
 PixelCaptureEngine::~PixelCaptureEngine()
 {
 }
@@ -105,10 +104,8 @@ PixelCaptureEngine::PixelCaptureEngine()
 	else
 		m_bIsVista = false;
 
-#ifndef ULTRAVNC_VEYON_SUPPORT
 	if (G_USE_PIXEL)
 		m_bIsVista = false;
-#endif
 }
 void
 PixelCaptureEngine::PixelCaptureEngineInit(HDC rootdc, HDC memdc, HBITMAP membitmap, bool bCaptureAlpha, void *dibbits, int bpp, int bpr, int offsetx, int offsety)
@@ -153,12 +150,10 @@ PixelCaptureEngine::CaptureRect(const rfb::Rect& rect)
 			m_bCaptureAlpha ? (CAPTUREBLT | SRCCOPY) : SRCCOPY);
 
 #ifdef _DEBUG
-			char			szText[256];
-			sprintf(szText,"BitBlt  %i %i %i %i \n",rect.tl.x,
+			OutputDevMessage("BitBlt  %i %i %i %i",rect.tl.x,
 			rect.tl.y,
 			rect.br.x,
 			rect.br.y);
-			OutputDebugString(szText);
 #endif
 		return blitok ? true : false;
 	}
@@ -420,18 +415,14 @@ bool vncDesktop::FastDetectChanges(rfb::Region2D &rgn, rfb::Rect &rect, int nZon
 	if (change_found)
 	{
 #ifdef _DEBUG
-		char			szText[256];
-		sprintf(szText, "Change found %d\n", GetTickCount());
-		OutputDebugString(szText);
+		OutputDevMessage("Change found %d", GetTickCount());
 #endif
 		idle_counter = 0;
 	}
 	else
 	{
 #ifdef _DEBUG
-		char			szText[256];
-		sprintf(szText, "Change idle %d\n", GetTickCount());
-		OutputDebugString(szText);
+		OutputDevMessage("Change idle %d", GetTickCount());
 #endif
 		idle_counter = idle_counter + 5;
 	}
@@ -473,7 +464,6 @@ vncDesktop::vncDesktop()
 	m_hOldcursor = NULL; // sf@2002
 
 	m_displaychanged = FALSE;
-	m_update_triggered = FALSE;
 
 	m_hrootdc_Desktop = NULL;
 	m_hmemdc = NULL;
@@ -528,6 +518,8 @@ vncDesktop::vncDesktop()
 	trigger_events[3] = CreateEvent(NULL, TRUE, FALSE, "user1");
 	trigger_events[4] = CreateEvent(NULL, TRUE, FALSE, "user2");
 	trigger_events[5] = CreateEvent(NULL, TRUE, FALSE, "quit");
+	trigger_events[6] = eventPlaceholder1 = CreateEvent(NULL, TRUE, FALSE, "placeholder1");
+	trigger_events[7] = eventPlaceholder2 = CreateEvent(NULL, TRUE, FALSE, "placeholder2");
 	restart_event = CreateEvent(NULL, TRUE, TRUE, "restart");
 	rgnpump.clear();
 	lock_region_add = false;
@@ -559,6 +551,7 @@ vncDesktop::vncDesktop()
 
 vncDesktop::~vncDesktop()
 {
+	strcpy_s(g_hookstring, "");
 	vnclog.Print(LL_INTINFO, VNCLOG("~vncDesktop \n"));
 
 	// If we created a thread then here we delete it
@@ -618,6 +611,8 @@ vncDesktop::~vncDesktop()
 	for (int i = 0; i < 6; i++)
 		CloseHandle(trigger_events[i]);
 	CloseHandle(restart_event);
+	CloseHandle(eventPlaceholder1);
+	CloseHandle(eventPlaceholder2);
 	//problems, sync could be restarted in the little time the desktop thread was still running
 	//then this doesn't exist on desktop close and sink window crash
 	// Fix E. SAG
@@ -654,12 +649,8 @@ vncDesktop::TriggerUpdate()
 	// Note that we should really lock the update lock here,
 	// but there are periodic timer updates anyway, so
 	// we don't actually need to.  Something to think about.
-	/*if (!m_update_triggered) {
-		m_update_triggered = TRUE;
+	if (m_screenCapture == NULL)
 		SetEvent(trigger_events[0]);
-	}*/
-	//if (m_screenCapture)
-	//	m_screenCapture->Unlock();
 }
 
 DWORD
@@ -1752,12 +1743,16 @@ vncDesktop::CaptureScreen(const rfb::Rect &rect, BYTE *scrBuff, UINT scrBuffSize
 		}
 		else
 		{
+
+			int xoffset = mymonitor[m_current_monitor - 1].offsetx;
+			int yoffset = mymonitor[m_current_monitor - 1].offsety;
+
 			blitok = BitBlt(m_hmemdc,
 				rect.tl.x,
 				rect.tl.y,
 				(rect.br.x - rect.tl.x),
 				(rect.br.y - rect.tl.y),
-				m_hrootdc_Desktop, rect.tl.x, rect.tl.y, (VNCOS.CaptureAlphaBlending() && !m_Black_window_active) ? (CAPTUREBLT | SRCCOPY) : SRCCOPY);
+				m_hrootdc_Desktop, rect.tl.x + xoffset, rect.tl.y + yoffset, (VNCOS.CaptureAlphaBlending() && !m_Black_window_active) ? (CAPTUREBLT | SRCCOPY) : SRCCOPY);
 		}
 		/*#if defined(_DEBUG)
 			DWORD e = timeGetTime() - t;
@@ -2245,29 +2240,43 @@ void vncDesktop::SetSW(int x, int y)
 		} break;
 		case 3:
 		{
-			if (m_current_monitor == MULTI_MON_PRIMARY) {
-				m_current_monitor = MULTI_MON_SECOND;
-				m_buffer.MultiMonitors(1);
+			if(m_screenCapture)
+			{
+				if (m_current_monitor == MULTI_MON_PRIMARY) {
+					m_current_monitor = MULTI_MON_SECOND;
+					m_buffer.MultiMonitors(1);
+				}
+				else if (m_current_monitor == MULTI_MON_SECOND) {
+					m_current_monitor = MULTI_MON_THIRD;
+					m_buffer.MultiMonitors(1);
+				}
+				else if (m_current_monitor == MULTI_MON_THIRD) {
+					/*m_current_monitor = MULTI_MON_FIRST_TWO; //TODO: first two , last two
+					m_buffer.MultiMonitors(2);
+				}
+				else if (m_current_monitor == MULTI_MON_FIRST_TWO) {
+					m_current_monitor = MULTI_MON_LAST_TWO;
+					m_buffer.MultiMonitors(2);
+				}
+				else if (m_current_monitor == MULTI_MON_LAST_TWO) {*/
+					m_current_monitor = MULTI_MON_ALL;
+					m_buffer.MultiMonitors(2);
+				}
+				else if (m_current_monitor == MULTI_MON_ALL) {
+					m_current_monitor = MULTI_MON_PRIMARY;
+					m_buffer.MultiMonitors(1);
+				} 
 			}
-			else if (m_current_monitor == MULTI_MON_SECOND) {
-				m_current_monitor = MULTI_MON_THIRD;
-				m_buffer.MultiMonitors(1);
-			}
-			else if (m_current_monitor == MULTI_MON_THIRD) {
-				m_current_monitor = MULTI_MON_FIRST_TWO;
-				m_buffer.MultiMonitors(2);
-			}
-			else if (m_current_monitor == MULTI_MON_FIRST_TWO) {
-				m_current_monitor = MULTI_MON_LAST_TWO;
-				m_buffer.MultiMonitors(2);
-			}
-			else if (m_current_monitor == MULTI_MON_LAST_TWO) {
-				m_current_monitor = MULTI_MON_ALL;
-				m_buffer.MultiMonitors(2);
-			}
-			else if (m_current_monitor == MULTI_MON_ALL) {
-				m_current_monitor = MULTI_MON_PRIMARY;
-				m_buffer.MultiMonitors(1);
+			else
+			{
+				if (m_current_monitor == MULTI_MON_PRIMARY) {
+					m_current_monitor = MULTI_MON_ALL;
+					m_buffer.MultiMonitors(2);
+				}
+				else if (m_current_monitor == MULTI_MON_ALL) {
+					m_current_monitor = MULTI_MON_PRIMARY;
+					m_buffer.MultiMonitors(1);
+				}
 			}
 		} break;
 		}
@@ -2378,6 +2387,8 @@ BOOL vncDesktop::InitVideoDriver()
 			HookWanted = m_server->Hook();
 			m_server->Driver(false);
 			m_server->Hook(true);
+			m_server->PollFullScreen(true);
+			m_server->TurboMode(true);
 			return false;
 		}
 

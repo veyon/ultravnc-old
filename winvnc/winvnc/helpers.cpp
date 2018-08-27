@@ -119,6 +119,7 @@ LONG RemoveAero=0;
 
 LONG QuerySetting=1;
 LONG QueryTimeout=10;
+LONG QueryDisableTime=0;
 LONG QueryAccept;
 LONG QueryIfNoLogon;
 
@@ -170,6 +171,10 @@ if (!myIniFile_Out.WriteInt("admin", "UseRegistry", BUseRegistry))
 		MessageBoxSecure(NULL,"Permission denied:Uncheck [_] Protect my computer... in run as dialog or use user with write permission." ,myIniFile_Out.myInifile,MB_ICONERROR);
 		return;
 }
+
+BOOL setextramouse = myIniFile_In.ReadInt("admin", "SendExtraMouse", 1);
+myIniFile_Out.WriteInt("admin", "SendExtraMouse", setextramouse);
+
 
 MSLogonRequired=myIniFile_In.ReadInt("admin", "MSLogonRequired", false);
 myIniFile_Out.WriteInt("admin", "MSLogonRequired", MSLogonRequired);
@@ -277,10 +282,12 @@ myIniFile_Out.WriteInt("admin", "RemoveAero", RemoveAero);
 	// Connection querying settings
 QuerySetting=myIniFile_In.ReadInt("admin", "QuerySetting", 0);
 QueryTimeout=myIniFile_In.ReadInt("admin", "QueryTimeout", 0);
+QueryDisableTime=myIniFile_In.ReadInt("admin", "QueryDisableTime", 0);
 QueryAccept=myIniFile_In.ReadInt("admin", "QueryAccept", 0);
 QueryIfNoLogon=myIniFile_In.ReadInt("admin", "QueryIfNoLogon", 0);
 myIniFile_Out.WriteInt("admin", "QuerySetting", QuerySetting);
 myIniFile_Out.WriteInt("admin", "QueryTimeout", QueryTimeout);
+myIniFile_Out.WriteInt("admin", "QueryDisableTime", QueryDisableTime);
 myIniFile_Out.WriteInt("admin", "QueryAccept", QueryAccept);
 myIniFile_Out.WriteInt("admin", "QueryIfNoLogon", QueryIfNoLogon);
 

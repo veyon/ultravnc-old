@@ -78,6 +78,8 @@
 #include "common/win32_helpers.h"
 #include "uvncUiAccess.h"
 
+#define DWEXTRA_VNC_REMOTE  0x564e4300
+
 bool isDirectoryTransfer(const char *szFileName);
 extern BOOL SPECIAL_SC_PROMPT;
 extern BOOL SPECIAL_SC_EXIT;
@@ -520,7 +522,7 @@ vncClientUpdateThread::run_undetached(void *arg)
 						if (!m_client->cl_connected) return 0;
 						if(m_signal->wait(UPDATE_INTERVAL*100)==false) {
 							//do forcefull update after 4 seconds
-							m_client->m_encodemgr.m_buffer->m_desktop->TriggerUpdate();
+							m_client->TriggerUpdate();
 							m_client->TriggerUpdateThread();						
 						}
 						else 
@@ -720,6 +722,12 @@ vncClientUpdateThread::run_undetached(void *arg)
 					updates_sent++;
 					//m_client->m_incr_rgn.clear();
 					clipregion.clear();
+#ifdef _DEBUG
+					static DWORD sNotifyLastCopy1 = GetTickCount();
+					DWORD now = GetTickCount();;
+					OutputDevMessage("==================== SendUpdate %4d =======================", now - sNotifyLastCopy1);
+					sNotifyLastCopy1 = now;
+#endif
 				}
 			}
 			//else
@@ -2328,6 +2336,11 @@ vncClientThread::run(void *arg)
 			omni_mutex_lock l(m_client->GetUpdateLock(),84);
 			m_client->m_encodemgr.m_buffer->SetScale(m_server->GetDefaultScale()); // v1.1.2
 		}
+	else
+	{
+		m_client->SetScreenOffset(m_server->m_desktop->m_ScreenOffsetx, m_server->m_desktop->m_ScreenOffsety, m_server->m_desktop->nr_monitors);
+		m_client->SetBufferOffset(m_server->m_desktop->m_SWOffsetx, m_server->m_desktop->m_SWOffsety);
+	}
 	m_client->m_ScaledScreen = m_client->m_encodemgr.m_buffer->GetViewerSize();
 	m_client->m_nScale = m_client->m_encodemgr.m_buffer->GetScale();
 
@@ -3300,7 +3313,7 @@ vncClientThread::run(void *arg)
 					}
 				}
 			}
-			m_client->m_encodemgr.m_buffer->m_desktop->TriggerUpdate();
+			m_client->TriggerUpdate();
 			break;
 
 		case rfbPointerEvent:
@@ -3395,7 +3408,7 @@ vncClientThread::run(void *arg)
 							unsigned long x = ((msg.pe.x + (m_client->monitor_Offsetx)) *  65535) / (screenX-1);
 							unsigned long y = ((msg.pe.y + (m_client->monitor_Offsety))* 65535) / (screenY-1);
 							// Do the pointer event
-							::mouse_event(flags, (DWORD) x, (DWORD) y, wheel_movement, 0);
+							::mouse_event(flags, (DWORD) x, (DWORD) y, wheel_movement, m_server->SendExtraMouse() ? DWEXTRA_VNC_REMOTE : 0);
 //							vnclog.Print(LL_INTINFO, VNCLOG("########mouse_event :%i %i \n"),x,y);
 						}
 					else
@@ -3406,10 +3419,15 @@ vncClientThread::run(void *arg)
 								evt.type = INPUT_MOUSE;
 								int xx=msg.pe.x-GetSystemMetrics(SM_XVIRTUALSCREEN)+ (m_client->monitor_Offsetx+m_client->m_ScreenOffsetx);
 								int yy=msg.pe.y-GetSystemMetrics(SM_YVIRTUALSCREEN)+ (m_client->monitor_Offsety+m_client->m_ScreenOffsety);
+								if (m_server->Driver()) //chris
+								{
+									xx = msg.pe.x + m_client->monitor_Offsetx;
+									yy = msg.pe.y + m_client->monitor_Offsety;
+								}
 								evt.mi.dx = (xx * 65535) / (GetSystemMetrics(SM_CXVIRTUALSCREEN)-1);
 								evt.mi.dy = (yy* 65535) / (GetSystemMetrics(SM_CYVIRTUALSCREEN)-1);
 								evt.mi.dwFlags = flags | MOUSEEVENTF_VIRTUALDESK;
-								evt.mi.dwExtraInfo = 0;
+								evt.mi.dwExtraInfo = m_server->SendExtraMouse() ? DWEXTRA_VNC_REMOTE : 0;
 								evt.mi.mouseData = wheel_movement;
 								evt.mi.time = 0;
 								(*m_client->Sendinput)(1, &evt, sizeof(evt));
@@ -3428,7 +3446,7 @@ vncClientThread::run(void *arg)
 										SystemParametersInfo(SPI_SETMOUSESPEED, 0, &newSpeed, 0);
 										SystemParametersInfo(SPI_SETMOUSE, 0, &idealMouseInfo, 0);
 									}
-								::mouse_event(flags, msg.pe.x-cursorPos.x, msg.pe.y-cursorPos.y, wheel_movement, 0);
+								::mouse_event(flags, msg.pe.x-cursorPos.x, msg.pe.y-cursorPos.y, wheel_movement, m_server->SendExtraMouse() ? DWEXTRA_VNC_REMOTE : 0);
 								if (flags & MOUSEEVENTF_MOVE) 
 									{
 										SystemParametersInfo(SPI_SETMOUSE, 0, &mouseInfo, 0);
@@ -3446,7 +3464,7 @@ vncClientThread::run(void *arg)
 					// removed, terrible performance
 					// Why do we grap the screen after any inch a mouse move
 					// Removing it doesn't seems to have any missing update 
-					 m_client->m_encodemgr.m_buffer->m_desktop->TriggerUpdate();
+					 m_client->TriggerUpdate();
 				}
 			}	
 			break;
@@ -4816,9 +4834,7 @@ vncClient::NotifyUpdate(rfbFramebufferUpdateRequestMsg fur)
 		if (!fur.incremental)
 		{
 #ifdef _DEBUG
-			char			szText[256];
-			sprintf(szText,"FULL update request \n");
-			OutputDebugString(szText);		
+			OutputDevMessage("FULL update request");	
 #endif
 
 		update.tl.x = (m_ScaledScreen.tl.x + monitor_Offsetx) * m_nScale;
@@ -4826,8 +4842,12 @@ vncClient::NotifyUpdate(rfbFramebufferUpdateRequestMsg fur)
 		update.br.x = update.tl.x + (m_ScaledScreen.br.x-m_ScaledScreen.tl.x) * m_nScale;
 		update.br.y = update.tl.y + (m_ScaledScreen.br.y-m_ScaledScreen.tl.y) * m_nScale;
 
+		
+
 		update_rgn=update;
 		}
+
+		OutputDevMessage("Update Rect %i %i %i %i", update.tl.x, update.tl.y, update.br.x - update.tl.x, update.br.y - update.tl.y);
 
 		// RealVNC 336
 		if (update_rgn.is_empty()) {
@@ -4841,9 +4861,7 @@ vncClient::NotifyUpdate(rfbFramebufferUpdateRequestMsg fur)
 		}
 
 #ifdef _DEBUG
-		char			szText[256];
-		sprintf(szText, " ++++++ rfbFramebufferUpdateRequestMsg\n");
-		OutputDebugString(szText);
+		OutputDevMessage("++++++ rfbFramebufferUpdateRequestMsg");
 #endif
 	// Add the requested area to the incremental update cliprect
 	m_incr_rgn.assign_union(update_rgn);
@@ -4859,8 +4877,15 @@ vncClient::NotifyUpdate(rfbFramebufferUpdateRequestMsg fur)
 	}
 
     // Kick the update thread (and create it if not there already)
-	m_encodemgr.m_buffer->m_desktop->TriggerUpdate();
+	TriggerUpdate();
 	TriggerUpdateThread();
+
+#ifdef _DEBUG
+	static DWORD sNotifyLastCopy = GetTickCount();
+	DWORD now = GetTickCount();;
+	OutputDevMessage("%4d", now - sNotifyLastCopy);
+	sNotifyLastCopy = now;
+#endif
 
 	return TRUE;
 }

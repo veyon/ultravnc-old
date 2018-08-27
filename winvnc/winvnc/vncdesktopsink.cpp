@@ -161,9 +161,7 @@ DesktopWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	vncDesktop *_this = (vncDesktop*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 #endif
 	#ifdef _DEBUG
-										char			szText[256];
-										sprintf(szText,"Message %i\n",iMsg );
-										OutputDebugString(szText);
+										OutputDevMessage("Message %i",iMsg );
 										//vnclog.Print(LL_INTERR, VNCLOG("%i  \n"),iMsg);
 			#endif
 	switch (iMsg)
@@ -347,9 +345,15 @@ DesktopWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			_this->m_screenCapture->setBlocked(true);
 		break;
 	case WM_APP + 11:
+#ifdef _DEBUG
+		OutputDevMessage("ddengine NotifyPointerChange()");
+#endif
 		SetEvent(_this->trigger_events[3]);
 		break;
 	case WM_APP + 12:
+#ifdef _DEBUG
+		OutputDevMessage("ddengine NotifyScreenChange()");
+#endif
 		SetEvent(_this->trigger_events[0]);
 		break;
 	case WM_DISPLAYCHANGE:
@@ -597,8 +601,7 @@ vncDesktop::InitWindow()
 	hModule = LoadLibrary(szCurrentDir);
 	hSCModule = LoadLibrary(szCurrentDirSC);//TOFIX resource leak
 	if (hModule)
-		{
-			strcpy_s(g_hookstring,"vnchook");
+		{			
 			UnSetHooks = (UnSetHooksFn) GetProcAddress( hModule, "UnSetHooks" );
 			SetMouseFilterHook  = (SetMouseFilterHookFn) GetProcAddress( hModule, "SetMouseFilterHook" );
 			SetKeyboardFilterHook  = (SetKeyboardFilterHookFn) GetProcAddress( hModule, "SetKeyboardFilterHook" );
@@ -637,6 +640,7 @@ vncDesktop::InitWindow()
 				}
 			else if (msg.message==RFB_SCREEN_UPDATE)
 				{
+					strcpy_s(g_hookstring,"vnchook");
 					if (can_be_hooked)
 					{
 #ifndef ULTRAVNC_VEYON_SUPPORT

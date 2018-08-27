@@ -215,6 +215,7 @@ Myinit(HINSTANCE hInstance)
 #endif
 #endif
 
+
 // WinMain parses the command line and either calls the main App
 // routine or, under NT, the main service routine.
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow)
@@ -361,6 +362,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		if (szCmdLine[i] <= ' ')
 			continue;
 		argfound = TRUE;
+        if (strncmp(&szCmdLine[i], winvncinipath, strlen(winvncinipath)) == 0)
+        {
+            char filepath[MAX_PATH];
+            i += strlen(winvncinipath);
+            char Drv[_MAX_PATH];
+            char Path[_MAX_PATH];
+            char FileName[_MAX_PATH];
+            char FileExt[_MAX_PATH];
+            _splitpath(&(szCmdLine[i + 1]), Drv, Path, FileName, FileExt);
+            char *p = strchr(FileExt, ' ');
+            if (p) *p = 0;
+            _makepath(filepath, Drv, Path, FileName, FileExt);
+            g_szIniFile = strdup(filepath);
+            i += strlen(filepath);
+#ifdef CRASHRPT
+            crUninstall();
+#endif
+            continue;
+        }
 
 		if (strncmp(&szCmdLine[i], winvncSettingshelper, strlen(winvncSettingshelper)) == 0)
 		{

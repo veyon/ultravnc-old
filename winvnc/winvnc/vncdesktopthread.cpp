@@ -25,13 +25,13 @@
 #include "vncdesktopthread.h"
 #include "vncOSVersion.h"
 #include "uvncUiAccess.h"
+extern bool G_USE_PIXEL;
 
 bool g_DesktopThread_running;
 DWORD WINAPI hookwatch(LPVOID lpParam);
 extern bool stop_hookwatch;
 void testBench();
 char g_hookstring[16]="";
-
 bool PreConnect = false;
 
 inline bool
@@ -68,11 +68,18 @@ vncDesktopThread::copy_bitmaps_to_buffer(ULONG i,rfb::Region2D &rgncache,rfb::Up
 		//vnclog.Print(LL_INTINFO, VNCLOG("Driver ************* %i %i %i %i \n"),x,y,w,h);
 
 		if (!ClipRect(&x, &y, &w, &h, 0,0,m_desktop->m_bmrect.br.x, m_desktop->m_bmrect.br.y)) return;
-/*#ifdef _DEBUG
+#ifdef _DEBUG
+		static DWORD sLastCopy = GetTickCount();
+		DWORD now = GetTickCount();
+#if 1
+		OutputDevMessage("%4d REct1 %i %i %i %i", now - sLastCopy, x, y, w, h);
+#else
 					char			szText[256];
-					sprintf(szText,"REct1 %i %i %i %i  \n",x,y,w,h);
+		sprintf(szText, "%4d REct1 %i %i %i %i  \n", now - sLastCopy, x, y, w, h);
 					OutputDebugString(szText);		
-#endif*/
+#endif
+		sLastCopy = now;
+#endif
 		rect.tl.x = x;
 		rect.br.x = x+w;
 		rect.tl.y = y;
@@ -300,7 +307,6 @@ bool vncDesktopThread::handle_display_change(HANDLE& threadHandle, rfb::Region2D
 	BOOL screensize_changed=false;
 	int inputDesktopSelected = vncService::InputDesktopSelected();
 	if (inputDesktopSelected == 2) {
-		vnclog.Print(LL_INTERR, VNCLOG("WriteMessageOnScreenSOEMTHING CETECTED \n"));
 		m_desktop->m_buffer.WriteMessageOnScreen("UltraVVNC running as application doesn't \nhave permission to acces \nUAC protected windows.\n\nScreen is locked until the remote user \nunlock this window");
 		rfb::Rect rect;
 		rect.tl = rfb::Point(0,0);
@@ -324,7 +330,6 @@ bool vncDesktopThread::handle_display_change(HANDLE& threadHandle, rfb::Region2D
 					Sleep(30);
 					vnclog.Print(LL_INTERR, VNCLOG("Wait for viewer init \n"));
 		}
-		vnclog.Print(LL_INTERR, VNCLOG("SOEMTHING CETECTED \n"));
 		//logging
 		if (m_desktop->m_displaychanged)								
 			vnclog.Print(LL_INTERR, VNCLOG("++++Screensize changed \n"));
@@ -499,6 +504,26 @@ bool vncDesktopThread::handle_display_change(HANDLE& threadHandle, rfb::Region2D
 									mon[1] = 3;
 									if (m_desktop->nr_monitors > 2)
 										SetFirstMonitorNummers();
+#if 0
+									int actmonx = m_desktop->mymonitor[mon[0]].offsetx < m_desktop->mymonitor[mon[1]].offsetx ? mon[0] : mon[1];
+									int actmony = m_desktop->mymonitor[mon[0]].offsety < m_desktop->mymonitor[mon[1]].offsety ? mon[0] : mon[1];
+
+									m_desktop->m_SWOffsetx = m_desktop->mymonitor[actmonx].offsetx - m_desktop->mymonitor[3].offsetx;
+									m_desktop->m_SWOffsety = m_desktop->mymonitor[actmony].offsety - m_desktop->mymonitor[3].offsety;
+
+									m_desktop->m_ScreenOffsetx = m_desktop->mymonitor[actmonx].offsetx;
+									m_desktop->m_ScreenOffsety = m_desktop->mymonitor[actmony].offsety;
+									m_server->SetScreenOffset(m_desktop->m_ScreenOffsetx, m_desktop->m_ScreenOffsety, m_desktop->nr_monitors);
+
+									m_desktop->m_Cliprect.tl.x = m_desktop->mymonitor[actmonx].offsetx - m_desktop->mymonitor[3].offsetx;
+									m_desktop->m_Cliprect.tl.y = m_desktop->mymonitor[actmony].offsety - m_desktop->mymonitor[3].offsety;
+									m_desktop->m_Cliprect.br.x = m_desktop->mymonitor[actmonx].offsetx + m_desktop->mymonitor[mon[0]].Width + m_desktop->mymonitor[mon[1]].Width - m_desktop->mymonitor[3].offsetx;
+									m_desktop->m_Cliprect.br.y = m_desktop->mymonitor[actmony].offsety + m_desktop->mymonitor[mon[0]].Height - m_desktop->mymonitor[3].offsety; //TODO: monitor on top
+
+
+									rc.right = m_desktop->mymonitor[actmonx].Width;
+									rc.bottom = m_desktop->mymonitor[actmony].Height;
+#else
 									m_desktop->m_SWOffsetx=std::min(m_desktop->mymonitor[mon[0]].offsetx, m_desktop->mymonitor[mon[1]].offsetx);
 									m_desktop->m_SWOffsety=std::min(m_desktop->mymonitor[mon[0]].offsety, m_desktop->mymonitor[mon[1]].offsety);
 									m_server->SetBufferOffset(m_desktop->m_SWOffsetx,m_desktop->m_SWOffsety);
@@ -511,7 +536,7 @@ bool vncDesktopThread::handle_display_change(HANDLE& threadHandle, rfb::Region2D
 									m_desktop->m_Cliprect.br.y = std::max(m_desktop->mymonitor[mon[0]].Height,m_desktop->mymonitor[mon[1]].Height);
 									rc.right = m_desktop->m_Cliprect.br.x - m_desktop->m_Cliprect.tl.x;
 									rc.bottom = m_desktop->m_Cliprect.br.y;
-
+#endif
 									vnclog.Print(LL_INTINFO, VNCLOG("First two Monitor: width = %d height = %d\n"), rc.right, rc.bottom);
 								} break;
 
@@ -571,10 +596,15 @@ bool vncDesktopThread::handle_display_change(HANDLE& threadHandle, rfb::Region2D
 							m_desktop->m_SWOffsety=m_desktop->mymonitor[nCurrentMon].offsety-m_desktop->mymonitor[3].offsety;
 							m_server->SetBufferOffset(m_desktop->m_SWOffsetx,m_desktop->m_SWOffsety);
 
-							m_desktop->m_Cliprect.tl.x = m_desktop->mymonitor[nCurrentMon].offsetx;//-m_desktop->mymonitor[3].offsetx;
-							m_desktop->m_Cliprect.tl.y = m_desktop->mymonitor[nCurrentMon].offsety;//-m_desktop->mymonitor[3].offsety;
-							m_desktop->m_Cliprect.br.x = m_desktop->mymonitor[nCurrentMon].offsetx+m_desktop->mymonitor[nCurrentMon].Width;//-m_desktop->mymonitor[3].offsetx;
-							m_desktop->m_Cliprect.br.y = m_desktop->mymonitor[nCurrentMon].offsety+m_desktop->mymonitor[nCurrentMon].Height;//-m_desktop->mymonitor[3].offsety;
+							m_desktop->m_ScreenOffsetx = m_desktop->mymonitor[nCurrentMon].offsetx;
+							m_desktop->m_ScreenOffsety = m_desktop->mymonitor[nCurrentMon].offsety;
+							m_server->SetScreenOffset(m_desktop->m_ScreenOffsetx, m_desktop->m_ScreenOffsety, m_desktop->nr_monitors);
+
+							m_desktop->m_Cliprect.tl.x = m_desktop->mymonitor[nCurrentMon].offsetx - m_desktop->mymonitor[3].offsetx;
+							m_desktop->m_Cliprect.tl.y = m_desktop->mymonitor[nCurrentMon].offsety - m_desktop->mymonitor[3].offsety;
+							m_desktop->m_Cliprect.br.x = m_desktop->mymonitor[nCurrentMon].offsetx + m_desktop->mymonitor[nCurrentMon].Width - m_desktop->mymonitor[3].offsetx;
+							m_desktop->m_Cliprect.br.y = m_desktop->mymonitor[nCurrentMon].offsety + m_desktop->mymonitor[nCurrentMon].Height - m_desktop->mymonitor[3].offsety;
+
 							
 							rc.right = m_desktop->mymonitor[nCurrentMon].Width;
 							rc.bottom = m_desktop->mymonitor[nCurrentMon].Height;
@@ -735,16 +765,44 @@ void vncDesktopThread::do_polling(HANDLE& threadHandle, rfb::Region2D& rgncache,
 		}
 	}
 }
-#ifndef ULTRAVNC_VEYON_SUPPORT
-extern bool G_USE_PIXEL;
-#endif
+
+
+DWORD WINAPI ThreadCheckMirrorDriverUpdates(LPVOID lpParam)
+{
+	vncDesktopThread *dt = (vncDesktopThread *)lpParam;
+	while (dt->looping)
+	{	
+			if  (dt->m_desktop->m_screenCapture && dt->m_desktop->m_screenCapture->getPreviousCounter() != dt->m_desktop->pchanges_buf->counter)
+			{
+				strcpy_s(g_hookstring,"driver");
+				SetEvent(dt->m_desktop->trigger_events[0]);				
+			}
+		Sleep(5);
+	}
+	return 0;
+}
+
+DWORD WINAPI ThreadCheckCursorUpdates(LPVOID lpParam)
+{
+	vncDesktopThread *dt = (vncDesktopThread *)lpParam;
+	POINT cursorpos;
+	while (dt->looping)
+	{
+		if (GetCursorPos(&cursorpos) &&  ((cursorpos.x != dt->oldcursorpos.x) || (cursorpos.y != dt->oldcursorpos.y)))
+				SetEvent(dt->m_desktop->trigger_events[0]);		
+		Sleep(50);
+	}
+	return 0;
+}
+
+
+
 void *
 vncDesktopThread::run_undetached(void *arg)
 {		
 	//*******************************************************
 	// INIT
 	//*******************************************************
-#ifndef ULTRAVNC_VEYON_SUPPORT
 	if (m_server->AutoCapt() == 1) {
 		if (VNCOS.OS_VISTA||VNCOS.OS_WIN7||VNCOS.OS_WIN8||VNCOS.OS_WIN10) 
 			G_USE_PIXEL=false;
@@ -755,7 +813,6 @@ vncDesktopThread::run_undetached(void *arg)
 		G_USE_PIXEL=true;
 	else
 		G_USE_PIXEL=false;
-#endif
 
 
 	
@@ -798,17 +855,20 @@ vncDesktopThread::run_undetached(void *arg)
 	// is triggered, and the changed areas are passed to the UpdateTracker
 	rgncache = m_desktop->m_Cliprect;
 	m_server->SetScreenOffset(m_desktop->m_ScreenOffsetx,m_desktop->m_ScreenOffsety,m_desktop->nr_monitors);
+	
 
 	// The previous cursor position is stored, to allow us to erase the
-	// old instance whenever it moves.
-	rfb::Point oldcursorpos;
+	// old instance whenever it moves.	
 	POINT tempcursorpos;
 	GetCursorPos(&tempcursorpos);
 	oldcursorpos = rfb::Point(tempcursorpos);
 	// The driver gives smaller rectangles to check
 	// if Accuracy is 4 you eliminate pointer updates
 	if (m_desktop->VideoBuffer() && m_desktop->m_hookdriver)
+	{
+		m_server->SetBufferOffset(m_desktop->m_SWOffsetx, m_desktop->m_SWOffsety);
 		m_desktop->m_buffer.SetAccuracy(4);
+	}
 
 	//init vars
 	m_desktop->Hookdll_Changed = true;
@@ -847,11 +907,10 @@ vncDesktopThread::run_undetached(void *arg)
 	// We use a dynmiac value based on cpu usage
     //DWORD MIN_UPDATE_INTERVAL=33;
 	/////////////////////
-	bool looping=true;
+	looping=true;
 	int waiting_update=0;
 	SetEvent(m_desktop->restart_event);
-	///
-	//Sleep(1000);
+	
 	rgncache.assign_union(rfb::Region2D(m_desktop->m_Cliprect));
 
 	if (!PreConnect) {
@@ -864,59 +923,53 @@ vncDesktopThread::run_undetached(void *arg)
 			m_desktop->m_buffer.GrabRegion(rgncache,false,true);
 		}
 	}
-	//telling running viewers to wait until first update, done
-	/*if  (m_server->MaxCpu() <50)
-		{
-			MIN_UPDATE_INTERVAL_MIN=50;
-			MIN_UPDATE_INTERVAL_MAX=1000;
-		}*/
+	
 	int waittime=0;
 
 	// We set a flag inside the desktop handler here, to indicate it's now safe
 	// to handle clipboard messages
 	m_desktop->SetClipboardActive(TRUE);
 
+	HANDLE ThreadHandleCheckMirrorDriverUpdates = NULL;
+	HANDLE ThreadHandleCheckCursorUpdates = NULL;
+	
+	if (m_desktop->VideoBuffer() && m_desktop->m_hookdriver && !VNCOS.OS_WIN8 && !VNCOS.OS_WIN10)
+		{
+			//MIRROR DRIVER....still to check if this works			
+			DWORD dw;
+			if (ThreadHandleCheckMirrorDriverUpdates == NULL)
+				ThreadHandleCheckMirrorDriverUpdates = CreateThread(NULL, 0, ThreadCheckMirrorDriverUpdates, this, 0, &dw);
+			DWORD dw2;
+			if (ThreadHandleCheckCursorUpdates == NULL)
+				ThreadHandleCheckCursorUpdates = CreateThread(NULL, 0, ThreadCheckCursorUpdates, this, 0, &dw2);
+			waittime = 1000;
+		}
+	else if (m_desktop->VideoBuffer() && m_desktop->m_hookdriver && (VNCOS.OS_WIN8||VNCOS.OS_WIN10))
+		{
+			//DDENGINE
+			m_desktop->trigger_events[6] = m_desktop->m_screenCapture->getHScreenEvent();
+			m_desktop->trigger_events[7] = m_desktop->m_screenCapture->getHPointerEvent();			
+			waittime = 1000;
+			DWORD dw;
+			if (XRichCursorEnabled && m_desktop->m_screenCapture && ThreadHandleCheckCursorUpdates == NULL)
+				ThreadHandleCheckCursorUpdates = CreateThread(NULL, 0, ThreadCheckCursorUpdates, this, 0, &dw);
+
+		}
+	else {
+			// BLIT
+			DWORD dw;
+			if (ThreadHandleCheckCursorUpdates == NULL)
+				ThreadHandleCheckCursorUpdates = CreateThread(NULL, 0, ThreadCheckCursorUpdates, this, 0, &dw);
+			waittime = 33; // possible this need to be higher to lower cpu usage
+		}
+			   
 	while (looping && !fShutdownOrdered)
 	{		
 		DWORD result;
-		newtick = timeGetTime();
-		if (waittime != 1000) 
-			waittime = 33;
-		//MIRROR DRIVER
-		if (m_desktop->VideoBuffer() && m_desktop->m_hookdriver && !VNCOS.OS_WIN8 && !VNCOS.OS_WIN10)
+	
+		result=WaitForMultipleObjects(8, m_desktop->trigger_events, FALSE, waittime);
 		{
-			strcpy_s(g_hookstring,"driver");
-			int fastcounter=0;
-			POINT cursorpos;
-			while (m_desktop->m_screenCapture && m_desktop->m_screenCapture->getPreviousCounter() == m_desktop->pchanges_buf->counter)
-			{
-				Sleep(5);
-				fastcounter++;
-				if (fastcounter>20)
-					break;
-				if (GetCursorPos(&cursorpos) && 
-										((cursorpos.x != oldcursorpos.x) ||
-										(cursorpos.y != oldcursorpos.y))) break;
-			}
-			waittime=0;
-		}
-		//DDENGINE
-		else if (m_desktop->VideoBuffer() && m_desktop->m_hookdriver && (VNCOS.OS_WIN8||VNCOS.OS_WIN10))
-		{
-			strcpy_s(g_hookstring,"ddengine");
-			waittime = 1000;
-		}
-		else if (waittime == 33)
-		{
-			int testvalue = 33 - (newtick - oldtick);
-			if (testvalue > 0 && testvalue < 33) waittime = testvalue;
-			oldtick2 = newtick;
-		}
-		
-
-		result=WaitForMultipleObjects(6,m_desktop->trigger_events,FALSE,waittime);
-		{
-			waittime = 0;
+			
 			// We need to wait until restart is done
 			// else wait_timeout goes in to looping while sink window is not ready
 			// if no window could be started in 10 seconds something went wrong, close
@@ -927,11 +980,21 @@ vncDesktopThread::run_undetached(void *arg)
 			switch(result)
 			{
 				case WAIT_TIMEOUT:
+				case WAIT_OBJECT_0+6:
+					ResetEvent(m_desktop->trigger_events[6]);
+					strcpy_s(g_hookstring,"ddengine");
 				case WAIT_OBJECT_0: {
 					waiting_update=0;
 					ResetEvent(m_desktop->trigger_events[0]);
 							{
-								m_desktop->m_update_triggered = FALSE;
+#ifdef _DEBUG
+						static DWORD sLastCopy3 = GetTickCount();
+						DWORD now = GetTickCount();
+						OutputDevMessage("WaitForMultipleObjects result . %d last call delta %4d ms", result, now - sLastCopy3);
+						sLastCopy3 = now;
+#endif
+						// The cpu overhead in debugmode, don't use throttle
+#ifndef _DEBUG
 								//measure current cpu usage of winvnc
 								if ((fullpollcounter==10 || fullpollcounter==0 || fullpollcounter==5)&& (m_server->MaxCpu()!=100))
 									cpuUsage = usage.GetUsage();
@@ -940,7 +1003,7 @@ vncDesktopThread::run_undetached(void *arg)
 								else MIN_UPDATE_INTERVAL-=10;
 								if (MIN_UPDATE_INTERVAL<MIN_UPDATE_INTERVAL_MIN) MIN_UPDATE_INTERVAL=MIN_UPDATE_INTERVAL_MIN;
 								if (MIN_UPDATE_INTERVAL>MIN_UPDATE_INTERVAL_MAX) MIN_UPDATE_INTERVAL=MIN_UPDATE_INTERVAL_MAX;
-
+#endif
 								// MAX 30fps
 								newtick = timeGetTime(); 
 								if ((newtick-oldtick)<MIN_UPDATE_INTERVAL)
@@ -1210,37 +1273,6 @@ vncDesktopThread::run_undetached(void *arg)
 										}
 
 										m_server->initialCapture_done();
-
-
-
-/*#ifdef _DEBUG
-			char			szText[256];
-			rfb::RectVector rects;
-			rfb::RectVector::iterator i;
-		checkrgn.get_rects(rects, 1, 1);
-		for (i = rects.begin(); i != rects.end(); i++)
-			{
-				rfb::Rect rect = *i;				
-				sprintf(szText,"RECT checkrgn  %i %i %i %i \n",rect.tl.x,
-				rect.tl.y,
-				rect.br.x,
-				rect.br.y);
-				OutputDebugString(szText);
-			}
-
-			changedrgn.get_rects(rects, 1, 1);
-		for (i = rects.begin(); i != rects.end(); i++)
-			{
-				rfb::Rect rect = *i;				
-				sprintf(szText,"RECT changedrgn  %i %i %i %i \n",rect.tl.x,
-				rect.tl.y,
-				rect.br.x,
-				rect.br.y);
-				OutputDebugString(szText);
-			}
-
-#endif*/
-
 										if (!initialupdate) {
 											m_server->InitialUpdate(true);
 											initialupdate=true;
@@ -1282,6 +1314,8 @@ vncDesktopThread::run_undetached(void *arg)
 				case WAIT_OBJECT_0+2:
 					ResetEvent(m_desktop->trigger_events[2]);
 					break;
+				case WAIT_OBJECT_0+7:
+					ResetEvent(m_desktop->trigger_events[7]);
 				case WAIT_OBJECT_0+3:
 					if (MyGetCursorInfo)
 					{
@@ -1305,7 +1339,7 @@ vncDesktopThread::run_undetached(void *arg)
 		}
 		
 	}//while
-
+	looping = false;
 	m_server->KillAuthClients();
 
 	stop_hookwatch=true;
@@ -1313,6 +1347,19 @@ vncDesktopThread::run_undetached(void *arg)
 	{
 		WaitForSingleObject( threadHandle, 5000 );
 		CloseHandle(threadHandle);
+		threadHandle = NULL;
+	}
+	if (ThreadHandleCheckMirrorDriverUpdates)
+	{
+		WaitForSingleObject( ThreadHandleCheckMirrorDriverUpdates, 5000 );
+		CloseHandle(ThreadHandleCheckMirrorDriverUpdates);
+		ThreadHandleCheckMirrorDriverUpdates = NULL;
+	}
+	if (ThreadHandleCheckCursorUpdates)
+	{
+		WaitForSingleObject( ThreadHandleCheckCursorUpdates, 5000 );
+		CloseHandle(ThreadHandleCheckCursorUpdates);
+		ThreadHandleCheckCursorUpdates = NULL;
 	}
 	
 	m_desktop->SetClipboardActive(FALSE);
@@ -1335,4 +1382,26 @@ vncDesktopThread::run_undetached(void *arg)
 	m_desktop->Shutdown();
 	vnclog.Print(LL_INTINFO, VNCLOG("quitting desktop server thread:m_desktop->Shutdown\n"));
 	return NULL;
+}
+
+void writeLog(char *sender, char *text)
+{
+#ifdef _DEBUG
+	char mess[3000];
+	SYSTEMTIME st;
+	GetSystemTime(&st);       // get current time
+	int len = sprintf(mess, "%04d-%02d-%02d %02d:%02d:%02d.%03d %40s %s\r\n", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds, sender, text);
+
+	OutputDebugString(mess);
+#endif
+}
+
+void WriteLog(char* sender, char *format, ...)
+{
+	char temp[1000];
+	va_list args;
+	va_start(args, format);
+	vsprintf(temp, format, args);
+	va_end(args);
+	writeLog(sender, temp);
 }

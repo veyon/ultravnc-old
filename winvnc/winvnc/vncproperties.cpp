@@ -690,8 +690,13 @@ vncProperties::DialogProc(HWND hwnd,
 			HWND hQuery = GetDlgItem(hwnd, IDQUERY);
 			BOOL queryEnabled = (_this->m_server->QuerySetting() == 4);
 			SendMessage(hQuery, BM_SETCHECK, queryEnabled, 0);
+
 			HWND hQueryTimeout = GetDlgItem(hwnd, IDQUERYTIMEOUT);
 			EnableWindow(hQueryTimeout, queryEnabled);
+
+			HWND hQueryDisableTime = GetDlgItem(hwnd, IDC_QUERYDISABLETIME);
+			EnableWindow(hQueryDisableTime, queryEnabled);
+
 			EnableWindow(GetDlgItem(hwnd, IDC_DREFUSE), queryEnabled);
 			EnableWindow(GetDlgItem(hwnd, IDC_DACCEPT), queryEnabled);
 
@@ -700,6 +705,12 @@ vncProperties::DialogProc(HWND hwnd,
 			UINT t = _this->m_server->QueryTimeout();
 			sprintf(timeout, "%d", (int)t);
 		    SetDlgItemText(hwnd, IDQUERYTIMEOUT, (const char *) timeout);
+
+			char disableTime[128];
+			UINT tt = _this->m_server->QueryDisableTime();
+			sprintf(disableTime, "%d", (int)tt);
+		    SetDlgItemText(hwnd, IDC_QUERYDISABLETIME, (const char *) disableTime);
+
 			SetForegroundWindow(hwnd);
 
 			return FALSE; // Because we've set the focus
@@ -959,6 +970,15 @@ vncProperties::DialogProc(HWND hwnd,
 				    _this->m_server->SetQueryTimeout(atoi(timeout));
 				else
 				    _this->m_server->SetQueryTimeout(atoi(timeout));
+
+				char disabletime[256];
+				strcpy(disabletime,"5");
+				if (GetDlgItemText(hwnd, IDC_QUERYDISABLETIME, (LPSTR) &disabletime, 256) == 0)
+				    _this->m_server->SetQueryDisableTime(atoi(disabletime));
+				else
+				    _this->m_server->SetQueryDisableTime(atoi(disabletime));
+
+
 				HWND hQuery = GetDlgItem(hwnd, IDQUERY);
 				_this->m_server->SetQuerySetting((SendMessage(hQuery, BM_GETCHECK, 0, 0) == BST_CHECKED) ? 4 : 2);
 
@@ -1166,6 +1186,7 @@ vncProperties::DialogProc(HWND hwnd,
 				HWND hQuery = GetDlgItem(hwnd, IDQUERY);
 				BOOL queryon = (SendMessage(hQuery, BM_GETCHECK, 0, 0) == BST_CHECKED);
 				EnableWindow(GetDlgItem(hwnd, IDQUERYTIMEOUT), queryon);
+				EnableWindow(GetDlgItem(hwnd, IDC_QUERYDISABLETIME), queryon);
 				EnableWindow(GetDlgItem(hwnd, IDC_DREFUSE), queryon);
 				EnableWindow(GetDlgItem(hwnd, IDC_DACCEPT), queryon);
 			}
@@ -1748,6 +1769,7 @@ LABELUSERSETTINGS:
 	}
 	m_pref_QuerySetting=2;
 	m_pref_QueryTimeout=10;
+	m_pref_QueryDisableTime=0;
 	m_pref_QueryAccept=0;
 	m_pref_IdleTimeout=0;
 	m_pref_EnableRemoteInputs=TRUE;
@@ -1887,6 +1909,8 @@ vncProperties::LoadUserPrefs(HKEY appkey)
 	m_server->SetQuerySetting(m_pref_QuerySetting);
 	m_pref_QueryTimeout=LoadInt(appkey, "QueryTimeout", m_pref_QueryTimeout);
 	m_server->SetQueryTimeout(m_pref_QueryTimeout);
+	m_pref_QueryDisableTime=LoadInt(appkey, "QueryDisableTime", m_pref_QueryDisableTime);
+	m_server->SetQueryDisableTime(m_pref_QueryDisableTime);
 	m_pref_QueryAccept=LoadInt(appkey, "QueryAccept", m_pref_QueryAccept);
 	m_server->SetQueryAccept(m_pref_QueryAccept);
 
@@ -1925,6 +1949,7 @@ vncProperties::ApplyUserPrefs()
 	// Update the connection querying settings
 	m_server->SetQuerySetting(m_pref_QuerySetting);
 	m_server->SetQueryTimeout(m_pref_QueryTimeout);
+	m_server->SetQueryDisableTime(m_pref_QueryDisableTime);
 	m_server->SetQueryAccept(m_pref_QueryAccept);
 	m_server->SetAutoIdleDisconnectTimeout(m_pref_IdleTimeout);
 	m_server->EnableRemoveWallpaper(m_pref_RemoveWallpaper);
@@ -2185,6 +2210,7 @@ vncProperties::SaveUserPrefs(HKEY appkey)
 	// Connection querying settings
 	SaveInt(appkey, "QuerySetting", m_server->QuerySetting());
 	SaveInt(appkey, "QueryTimeout", m_server->QueryTimeout());
+	SaveInt(appkey, "QueryDisableTime", m_server->QueryDisableTime());
 	SaveInt(appkey, "QueryAccept", m_server->QueryAccept());
 
 	// Lock settings
@@ -2307,6 +2333,7 @@ void vncProperties::LoadFromIniFile()
 	}
 	m_pref_QuerySetting=2;
 	m_pref_QueryTimeout=10;
+	m_pref_QueryDisableTime=0;
 	m_pref_QueryAccept=0;
 	m_pref_IdleTimeout=0;
 	m_pref_EnableRemoteInputs=TRUE;
@@ -2400,6 +2427,8 @@ void vncProperties::LoadUserPrefsFromIniFile()
 	m_server->SetQuerySetting(m_pref_QuerySetting);
 	m_pref_QueryTimeout=myIniFile.ReadInt("admin", "QueryTimeout", m_pref_QueryTimeout);
 	m_server->SetQueryTimeout(m_pref_QueryTimeout);
+	m_pref_QueryDisableTime=myIniFile.ReadInt("admin", "QueryDisableTime", m_pref_QueryDisableTime);
+	m_server->SetQueryDisableTime(m_pref_QueryDisableTime);	
 	m_pref_QueryAccept=myIniFile.ReadInt("admin", "QueryAccept", m_pref_QueryAccept);
 	m_server->SetQueryAccept(m_pref_QueryAccept);
 
@@ -2537,6 +2566,7 @@ void vncProperties::SaveUserPrefsToIniFile()
 	// Connection querying settings
 	myIniFile.WriteInt("admin", "QuerySetting", m_server->QuerySetting());
 	myIniFile.WriteInt("admin", "QueryTimeout", m_server->QueryTimeout());
+	myIniFile.WriteInt("admin", "QueryDisableTime", m_server->QueryDisableTime());
 	myIniFile.WriteInt("admin", "QueryAccept", m_server->QueryAccept());
 
 	// Lock settings

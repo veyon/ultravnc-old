@@ -250,6 +250,8 @@ public:
 public:
 	// Make the desktop thread & window proc friends
 	friend class vncDesktopThread;
+	friend class vncServer;
+	friend class vncClientThread;
 	friend LRESULT CALLBACK DesktopWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
 
 	// Create/Destroy methods
@@ -337,7 +339,9 @@ public:
     bool GetBlockInputState() { return m_bIsInputDisabledByClient; }
     bool block_input(bool state);
 	BOOL InitWindow();
-	HANDLE trigger_events[6];
+	HANDLE trigger_events[8];
+	HANDLE eventPlaceholder1;
+	HANDLE eventPlaceholder2;
 	HANDLE restart_event;
 	DWORD pumpID;
 	rfb::Region2D rgnpump;
@@ -351,6 +355,7 @@ public:
 	sessionmsg *sesmsg ;
 	int aantal_session;
 	vncServer 		*m_server;
+	ScreenCapture *m_screenCapture;
 	// Implementation
 protected:
 
@@ -442,10 +447,6 @@ protected:
 	// Boolean flag to indicate when the display resolution has changed
 	BOOL			m_displaychanged;
 
-	// Boolean flag to indicate whether or not an update trigger message
-	// is already in the desktop thread message queue
-	BOOL			m_update_triggered;
-
 	// Extra vars used for the DIBsection optimisation
 	VOID			*m_DIBbits;
 	BOOL			m_formatmunged;
@@ -464,8 +465,7 @@ protected:
 
 	//DDIHOOK
 
-	// Modif rdv@2002 - v1.1.x - videodriver
-	ScreenCapture *m_screenCapture;
+	// Modif rdv@2002 - v1.1.x - videodriver	
 	BOOL InitVideoDriver();
  	void ShutdownVideoDriver();
 	omni_mutex		m_screenCapture_lock;

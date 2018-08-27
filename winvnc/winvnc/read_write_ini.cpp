@@ -73,6 +73,7 @@ LONG RemoveAero=0;
 
 LONG QuerySetting=1;
 LONG QueryTimeout=10;
+LONG QueryDisableTime=0;
 LONG QueryAccept=4;
 LONG QueryIfNoLogon=1;
 
@@ -118,6 +119,9 @@ if (!myIniFile_Out.WriteInt("admin", "UseRegistry", BUseRegistry))
 		MessageBoxSecure(NULL,myIniFile_Out.myInifile,_itoa(error,temp,10),MB_ICONERROR);
 		return false;
 }
+
+BOOL setextramouse = myIniFile_In.ReadInt("admin", "SendExtraMouse", 1);
+myIniFile_Out.WriteInt("admin", "SendExtraMouse", setextramouse);
 
 MSLogonRequired=myIniFile_In.ReadInt("admin", "MSLogonRequired", false);
 myIniFile_Out.WriteInt("admin", "MSLogonRequired", MSLogonRequired);
@@ -225,10 +229,12 @@ myIniFile_Out.WriteInt("admin", "RemoveAero", RemoveAero);
 	// Connection querying settings
 QuerySetting=myIniFile_In.ReadInt("admin", "QuerySetting", QuerySetting);
 QueryTimeout=myIniFile_In.ReadInt("admin", "QueryTimeout", QueryTimeout);
+QueryTimeout=myIniFile_In.ReadInt("admin", "QueryDisableTime", QueryDisableTime);
 QueryAccept=myIniFile_In.ReadInt("admin", "QueryAccept", QueryAccept);
 QueryIfNoLogon=myIniFile_In.ReadInt("admin", "QueryIfNoLogon", QueryIfNoLogon);
 myIniFile_Out.WriteInt("admin", "QuerySetting", QuerySetting);
 myIniFile_Out.WriteInt("admin", "QueryTimeout", QueryTimeout);
+myIniFile_Out.WriteInt("admin", "QueryDisableTime", QueryDisableTime);
 myIniFile_Out.WriteInt("admin", "QueryAccept", QueryAccept);
 myIniFile_Out.WriteInt("admin", "QueryIfNoLogon", QueryIfNoLogon);
 
