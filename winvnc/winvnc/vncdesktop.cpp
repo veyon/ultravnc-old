@@ -2526,6 +2526,7 @@ void vncDesktop::SetBlockInputState(bool newstate)
 	{
 		if (!m_server->BlankInputsOnly())
 		{
+#ifndef ULTRAVNC_VEYON_SUPPORT
 			if ((blankmonitorstate == newstate) && (newstate == 1))
 			{
 				SetBlankMonitor(0);
@@ -2536,6 +2537,7 @@ void vncDesktop::SetBlockInputState(bool newstate)
 				SetBlankMonitor(newstate);
 				blankmonitorstate = newstate;
 			}
+#endif
 		}
 		m_bIsInputDisabledByClient = newstate;
 		state = !block_input(false);
