@@ -784,6 +784,7 @@ void vncServer::TextChatClient(LPSTR szClientName)
 		pClient = GetClient(*i);
 		if (!_stricmp(pClient->GetClientName(), szClientName))
 		{
+#ifndef ULTRAVNC_VEYON_SUPPORT
 			if (!pClient->IsUltraViewer())
 			{
 				vnclog.Print(LL_INTINFO, VNCLOG("Client %s is not Ultra. Doesn't know TextChat\n"), szClientName);
@@ -795,7 +796,6 @@ void vncServer::TextChatClient(LPSTR szClientName)
 				break;
 			}
 			vnclog.Print(LL_INTINFO, VNCLOG("TextChat with client named: %s\n"), szClientName);
-#ifndef ULTRAVNC_VEYON_SUPPORT
 			pClient->GetTextChatPointer()->OrderTextChat();
 #endif
 			break;
