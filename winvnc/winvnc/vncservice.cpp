@@ -730,6 +730,7 @@ vncService::InputDesktopSelected()
 }
 
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 // Static routine used to fool Winlogon into thinking CtrlAltDel was pressed
 
 void *
@@ -797,6 +798,7 @@ vncService::SimulateCtrlAltDel()
 
 	return TRUE;
 }
+#endif
 
 // Static routine to lock a 2K or above workstation
 

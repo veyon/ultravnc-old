@@ -167,6 +167,7 @@ bool ISUACENabled();
 extern HANDLE hShutdownEventcad;
 
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 DWORD WINAPI Cadthread(LPVOID lpParam)
 {
 	OSVERSIONINFO OSversion;	
@@ -329,3 +330,4 @@ DWORD WINAPI Cadthread(LPVOID lpParam)
 	if (desktop) CloseDesktop(desktop);
 	return 0;
 }
+#endif

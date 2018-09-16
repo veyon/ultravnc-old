@@ -711,14 +711,14 @@ public:
       {
 		vnclog.Print(LL_INTINFO,
                  "CAD\n");
+#ifdef ULTRAVNC_VEYON_SUPPORT
+		auto sasEvent = OpenEvent( EVENT_MODIFY_STATE, false, "Global\\VeyonServiceSasEvent" );
+		SetEvent( sasEvent );
+		CloseHandle( sasEvent );
+#else
 		// If running under Vista and started from Session0 in Application mode
 		if (vncService::VersionMajor()>=6 && vncService::RunningFromExternalService() )
 		{
-#ifdef ULTRAVNC_VEYON_SUPPORT
-				auto sasEvent = OpenEvent( EVENT_MODIFY_STATE, false, "Global\\VeyonServiceSasEvent" );
-				SetEvent( sasEvent );
-				CloseHandle( sasEvent );
-#else
 			      vnclog.Print(LL_INTINFO,
                  "Vista and runnning as system -> CAD\n");
 
@@ -727,7 +727,6 @@ public:
 				DWORD dwTId;
 				ThreadHandle2 = CreateThread(NULL, 0, Cadthread, NULL, 0, &dwTId);
 				CloseHandle(ThreadHandle2);
-#endif
 		}
 		else if (vncService::VersionMajor()>=6)
 		{
@@ -747,6 +746,7 @@ public:
                  "Not Vista and runnning as user -> Taskmgr\n");
 			WinExec("taskmgr.exe", SW_SHOWNORMAL);
 		}
+#endif
         return;
       }
 
