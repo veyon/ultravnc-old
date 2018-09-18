@@ -1198,10 +1198,8 @@ DWORD WINAPI imp_desktop_thread(LPVOID lpParam)
 	}
 #else
 	vncProperties   m_properties;
-	vncPropertiesPoll   m_propertiesPoll;
 
 	m_properties.Init(server);
-	m_propertiesPoll.Init(server);
 #endif
 
 	// This is a good spot to handle the old PostAdd messages

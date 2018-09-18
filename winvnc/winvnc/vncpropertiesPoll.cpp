@@ -72,7 +72,7 @@ vncPropertiesPoll::Init(vncServer *server)
 	m_server = server;	
 
 	// sf@2007 - Registry mode can still be forced for backward compatibility and OS version < Vista
-	m_fUseRegistry = TRUE;//((myIniFile.ReadInt("admin", "UseRegistry", 0) == 1) ? TRUE : FALSE);
+	m_fUseRegistry = ((myIniFile.ReadInt("admin", "UseRegistry", 0) == 1) ? TRUE : FALSE);
 
 	// Load the settings
 	if (m_fUseRegistry)
@@ -114,7 +114,7 @@ vncPropertiesPoll::Show(BOOL show, BOOL usersettings)
 			strcat(m_Tempfile,INIFILE_NAME);
 		}
 	}
-/*	if (id!=0) 
+	if (id!=0) 
 			{
 				hProcess = OpenProcess(MAXIMUM_ALLOWED,FALSE,id);
 				if(OpenProcessToken(hProcess,TOKEN_ADJUST_PRIVILEGES|TOKEN_QUERY
@@ -130,7 +130,7 @@ vncPropertiesPoll::Show(BOOL show, BOOL usersettings)
 						strcat(m_Tempfile,INIFILE_NAME);
 					}
 				}
-			}*/
+			}
 
 	if (show)
 	{
@@ -516,9 +516,6 @@ vncPropertiesPoll::DialogProcPoll(HWND hwnd,
 
 
 
-#ifdef ULTRAVNC_VEYON_SUPPORT
-extern BOOL ultravnc_veyon_load_int( LPCSTR valname, LONG *out );
-#endif
 
 // Functions to load & save the settings
 LONG
@@ -528,14 +525,6 @@ vncPropertiesPoll::LoadInt(HKEY key, LPCSTR valname, LONG defval)
 	ULONG type = REG_DWORD;
 	ULONG prefsize = sizeof(pref);
 
-#ifdef ULTRAVNC_VEYON_SUPPORT
-	LONG out;
-	if( ultravnc_veyon_load_int( valname, &out ) )
-	{
-		return out;
-	}
-	return defval;
-#endif
 	if (RegQueryValueEx(key,
 		valname,
 		NULL,
