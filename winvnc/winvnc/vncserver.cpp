@@ -921,7 +921,7 @@ bool vncServer::IsThereASlowClient()
 	{
 		if (GetClient(*i)->IsSlowEncoding())
 		{
-			if (timeGetTime() - GetClient(*i)->GetConnectTime() > 10000) 
+			if (GetTimeFunction() - GetClient(*i)->GetConnectTime() > 10000) 
 			{
 				fFound = true;
 				break;

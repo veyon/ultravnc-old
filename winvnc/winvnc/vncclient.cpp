@@ -949,49 +949,20 @@ vncClientThread::FilterClients_Ask_Permission()
             // 10 Dec 2008 jdp reject/accept all incoming connections if the workstation is locked
             if (vncService::IsWSLocked() && !m_server->QueryIfNoLogon()) {
 				if (m_server->QueryAcceptLocked())
-				{
-					verified = m_server->QueryAccept() == 1 ? vncServer::aqrAccept : vncServer::aqrReject;
-				}
+					verified = m_server->QueryAccept() == 1 ? vncServer::aqrAccept : vncServer::aqrReject;				
 				else
-				{
 					//m_queryaccept==2, new method to allow accept on locked user
 					verified = vncServer::aqrAccept;
-				}
             } else {
-
-			vncAcceptDialog *acceptDlg = new vncAcceptDialog(m_server->QueryTimeout(),m_server->QueryAccept(), m_socket->GetPeerName());
-	
-			if (acceptDlg == NULL) 
-				{
+				vncAcceptDialog *acceptDlg = new vncAcceptDialog(m_server->QueryTimeout(),m_server->QueryAccept(), m_socket->GetPeerName());
+				if (acceptDlg == NULL) {
 					if (m_server->QueryAccept()==1) 
-					{
 						verified = vncServer::aqrAccept;
-					}
 					else 
-					{
 						verified = vncServer::aqrReject;
-					}
 				}
-			else 
-				{
-						HDESK desktop;
-						desktop = OpenInputDesktop(0, FALSE,
-													DESKTOP_CREATEMENU | DESKTOP_CREATEWINDOW |
-													DESKTOP_ENUMERATE | DESKTOP_HOOKCONTROL |
-													DESKTOP_WRITEOBJECTS | DESKTOP_READOBJECTS |
-													DESKTOP_SWITCHDESKTOP | GENERIC_WRITE
-													);
-
-						HDESK old_desktop = GetThreadDesktop(GetCurrentThreadId());
-						
-					
-						SetThreadDesktop(desktop);
-
-						if ( !(acceptDlg->DoDialog()) ) verified = vncServer::aqrReject;
-
-						SetThreadDesktop(old_desktop);
-						CloseDesktop(desktop);
-				}
+				else if ( !(acceptDlg->DoDialog()) ) 
+						verified = vncServer::aqrReject;						
             }
 		}
     }
@@ -2323,7 +2294,7 @@ vncClientThread::run(void *arg)
 	vnclog.Print(LL_INTINFO, VNCLOG("authenticated connection\n"));
 
 	// Set Client Connect time
-	m_client->SetConnectTime(timeGetTime());
+	m_client->SetConnectTime(GetTimeFunction());
 
 	// INIT PIXEL FORMAT
 
@@ -6537,7 +6508,7 @@ bool vncClient::DoFTUserImpersonation()
 	}
 
 	if (fUserOk)
-		m_lLastFTUserImpersonationTime = timeGetTime();
+		m_lLastFTUserImpersonationTime = GetTimeFunction();
 
 	m_fFTUserImpersonatedOk = fUserOk;
 
@@ -6559,7 +6530,7 @@ void vncClient::UndoFTUserImpersonation()
     if (m_fFileSessionOpen) return;
 
 	vnclog.Print(LL_INTERR, VNCLOG("%%%%%%%%%%%%% vncClient::UNDoFTUserImpersonation - 1\n"));
-	DWORD lTime = timeGetTime();
+	DWORD lTime = GetTimeFunction();
 	if (lTime - m_lLastFTUserImpersonationTime < 10000) return;
 	omni_mutex_lock l(GetUpdateLock(),104);
 	vnclog.Print(LL_INTERR, VNCLOG("%%%%%%%%%%%%% vncClient::UNDoFTUserImpersonation - Impersonationtoken exists\n"));

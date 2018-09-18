@@ -55,14 +55,12 @@ class vncDesktopThread : public omni_thread
 {
 public:
 	vncDesktopThread() {
-		/* BEGIN: Tobias Junghans, 2011/11 */
 		capture = false;
 		initialupdate = false;
 		XRichCursorEnabled = false;
 		m_screen_moved = false;
-		m_desktop = NULL;
-		m_server = NULL;
-		/* END: Tobias Junghans, 2011/11 */
+		m_desktop = nullptr;
+		m_server = nullptr;
 
 		m_returnsig = NULL;
 		user32 = LoadLibrary("user32.dll");

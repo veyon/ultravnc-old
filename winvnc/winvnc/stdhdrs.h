@@ -110,13 +110,13 @@ extern VNCLog vnclog;
 
 // Macros for sticking in the current file name
 #define VNCLOG(s)	(QStringLiteral("%1 : %2").arg(__PRETTY_FUNCTION__).arg(s).toUtf8().constData())
-#if MSC_VER > 12
+//#if MSC_VER > 12
 #ifndef _X64
 #pragma comment(linker,"/manifestdependency:\"type='Win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #else
 #pragma comment(linker,"/manifestdependency:\"type='Win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='amd64' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #endif
-#endif
+//#endif
 //#define memcpy memcpy_amd
 //remove comment to compiler for >=athlon  or >=PIII
 DWORD MessageBoxSecure(HWND hWnd,LPCTSTR lpText,LPCTSTR lpCaption,UINT uType);
@@ -126,4 +126,11 @@ extern void WriteLog(char* sender, char *format, ...);
 #define OutputDevMessage(...) WriteLog(__FUNCTION__, __VA_ARGS__);
 #else
 #define OutputDevMessage(...)
+#endif
+
+#ifdef HIGH_PRECISION
+#define GetTimeFunction timeGetTime
+#pragma comment(lib, "winmm.lib")
+#else
+#define GetTimeFunction GetTickCount
 #endif

@@ -500,7 +500,7 @@ int CheckUserGroupPasswordUni(char * userin,char *password,const char *machine)
 
 			CheckUserPasswordSDUni = (CheckUserPasswordSDUniFn) GetProcAddress(hModule, "CUPSD");
 			vnclog.Print(LL_INTINFO, VNCLOG("GetProcAddress"));
-			/*HRESULT hr =*/ CoInitialize(NULL);
+			HRESULT hr = CoInitialize(NULL);
 			result = CheckUserPasswordSDUni(userin, password, machine);
 			vnclog.Print(LL_INTINFO, "CheckUserPasswordSDUni result=%i", result);
 			CoUninitialize();

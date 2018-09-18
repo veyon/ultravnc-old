@@ -521,9 +521,7 @@ get_winlogon_handle(OUT LPHANDLE  lphUserToken, DWORD mysessionID)
 
     // fall back to old method if Terminal services is disabled
     if (W2K == 0 && Id == -1)
-	{
         Id=GetwinlogonPid();
-	}
 
 	#ifdef _DEBUG
 					char			szText[256];

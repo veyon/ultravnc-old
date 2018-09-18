@@ -30,7 +30,7 @@
 #include "commctrl.h"
 #include "richedit.h"
 #include "common/win32_helpers.h"
-
+#include <algorithm>
 #include "Localization.h" // Act : add localization on messages
 
 #define TEXTMAXSIZE 16384
@@ -49,37 +49,10 @@ extern HINSTANCE	hAppInstance;
 //
 //
 //
+#ifdef HIGH_PRECISION
 #include <mmsystem.h>
 BOOL PlayResource(LPSTR lpName)
 {
-    /*BOOL bRtn;
-    LPSTR lpRes;
-    HANDLE hRes;
-    HRSRC hResInfo;
-
-    // Find the WAVE resource. 
-    hResInfo= FindResource(hAppInstance,MAKEINTRESOURCE(IDR_WAVE1),"WAVE");
-    if(hResInfo == NULL)
-       return FALSE;
-    // Load the WAVE resource. 
-
-    hRes = LoadResource(hAppInstance,hResInfo);
-    if (hRes == NULL)
-      return FALSE;
-
-    // Lock the WAVE resource and play it. 
-    lpRes=(LPSTR)LockResource(hRes);
-    if(lpRes==NULL)
-      return FALSE;
-
-    bRtn = sndPlaySound(lpRes, SND_MEMORY | SND_SYNC);
-    if(bRtn == NULL)
-      return FALSE;
-
-    // Free the WAVE resource and return success or failure. 
-    FreeResource(hRes);
-    return TRUE;*/
-
 	char szWavFile[MAX_PATH]; //PGM 
 
 	if (GetModuleFileName(NULL, szWavFile, MAX_PATH)) //PGM 
@@ -105,6 +78,12 @@ BOOL PlayResource(LPSTR lpName)
 		return TRUE; //PGM 
 
 }
+#else
+BOOL PlayResource(LPSTR lpName)
+{
+	return TRUE;
+}
+#endif
 
 ///////////////////////////////////////////////////////
 TextChat::TextChat(vncClient *pCC)
@@ -363,7 +342,7 @@ void TextChat::PrintMessage(const char* szMessage,const char* szSender,DWORD dwC
     si.cbSize = sizeof(SCROLLINFO);
     si.fMask = SIF_RANGE|SIF_PAGE;
     GetScrollInfo(GetDlgItem(m_hDlg, IDC_CHATAREA_EDIT), SB_VERT, &si);
-	si.nPos = si.nMax - max(si.nPage - 1, 0);
+	si.nPos = si.nMax - std::max((int)(si.nPage - 1), 0);
 	SendDlgItemMessage(m_hDlg, IDC_CHATAREA_EDIT, WM_VSCROLL, MAKELONG(SB_THUMBPOSITION, si.nPos), 0L);	// Scroll down the ch
 
 	// This line does the bottom scrolling correctly under NT4,W2K, XP...
@@ -432,7 +411,7 @@ LRESULT CALLBACK TextChat::DoDialogThread(LPVOID lpParameter)
 
 		if (!SetThreadDesktop(desktop))
 		{
-			vnclog.Print(LL_INTERR, VNCLOG("SelectHDESK:!SetThreadDesktop \n"));
+			vnclog.Print(LL_INTERR, VNCLOG("SelectHDESK:!SetThreadDesktop 3\n"));
 		}
 	}
 
@@ -586,7 +565,7 @@ INT_PTR CALLBACK TextChat::TextChatDlgProc(  HWND hWnd,  UINT uMsg,  WPARAM wPar
 			si.cbSize = sizeof(SCROLLINFO);
 			si.fMask = SIF_RANGE|SIF_PAGE;
 			GetScrollInfo(GetDlgItem(hWnd, IDC_CHATAREA_EDIT), SB_VERT, &si);
-			si.nPos = si.nMax - max(si.nPage - 1, 0);
+			si.nPos = si.nMax - std::max((int)(si.nPage - 1), 0);
 			SendDlgItemMessage(hWnd, IDC_CHATAREA_EDIT, WM_VSCROLL, MAKELONG(SB_THUMBPOSITION, si.nPos), 0L);	
 			
 			SetForegroundWindow(hWnd);

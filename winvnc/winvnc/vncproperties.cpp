@@ -2211,7 +2211,7 @@ vncProperties::SaveUserPrefs(HKEY appkey)
 	SaveInt(appkey, "QuerySetting", m_server->QuerySetting());
 	SaveInt(appkey, "QueryTimeout", m_server->QueryTimeout());
 	SaveInt(appkey, "QueryDisableTime", m_server->QueryDisableTime());
-	SaveInt(appkey, "QueryAccept", m_server->QueryAccept());
+	SaveInt(appkey, "QueryAccept", m_server->QueryAcceptForSave());
 
 	// Lock settings
 	SaveInt(appkey, "LockSetting", m_server->LockSettings());
@@ -2567,7 +2567,7 @@ void vncProperties::SaveUserPrefsToIniFile()
 	myIniFile.WriteInt("admin", "QuerySetting", m_server->QuerySetting());
 	myIniFile.WriteInt("admin", "QueryTimeout", m_server->QueryTimeout());
 	myIniFile.WriteInt("admin", "QueryDisableTime", m_server->QueryDisableTime());
-	myIniFile.WriteInt("admin", "QueryAccept", m_server->QueryAccept());
+	myIniFile.WriteInt("admin", "QueryAccept", m_server->QueryAcceptForSave());
 
 	// Lock settings
 	myIniFile.WriteInt("admin", "LockSetting", m_server->LockSettings());

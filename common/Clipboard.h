@@ -33,12 +33,12 @@
 #pragma once
 
 #define VC_EXTRALEAN
+#include <../winvnc/stdhdrs.h>
 #include <winsock2.h>
 #include <windows.h>
 #include <string>
 #include <rdr/MemOutStream.h>
 #include "rfb.h"
-#include "stdhdrs.h"
 
 struct ExtendedClipboardDataMessage {
 	ExtendedClipboardDataMessage();
