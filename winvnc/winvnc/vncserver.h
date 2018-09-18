@@ -377,6 +377,7 @@ public:
 	virtual BOOL Secondary() {return m_SecondaryEnabled;};
 	virtual void Secondary(BOOL fEnable) {m_SecondaryEnabled = fEnable;};
 
+#ifdef DSM_SUPPORT
 	// sf@2002 - DSM Plugin
 	virtual BOOL IsDSMPluginEnabled();
 	virtual void EnableDSMPlugin(BOOL fEnable);
@@ -387,6 +388,7 @@ public:
 	//adzm 2010-05-12 - dsmplugin config
 	virtual void SetDSMPluginConfig(char* szDSMPluginConfig);
 	virtual char* GetDSMPluginConfig() { return m_szDSMPluginConfig;};
+#endif
 
 	// sf@2002 - Cursor handling
 	virtual void EnableXRichCursor(BOOL fEnable);
@@ -592,12 +594,14 @@ protected:
 	BOOL    m_fMSLogonRequired;
 	BOOL    m_fNewMSLogon;
 
+#ifdef DSM_SUPPORT
 	// sf@2002 - DSMPlugin
 	BOOL m_fDSMPluginEnabled;
 	char m_szDSMPlugin[128];
 	CDSMPlugin *m_pDSMPlugin;
 	//adzm 2010-05-12 - dsmplugin config
 	char m_szDSMPluginConfig[512];
+#endif
 
 	// sf@2002 - Cursor handling
 	BOOL m_fXRichCursor; 

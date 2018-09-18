@@ -302,8 +302,10 @@ public:
     void SendFTProtocolMsg();
 	// adzm - 2010-07 - Extended clipboard
 	void NotifyExtendedClipboardSupport();
+#ifdef DSM_SUPPORT
 	// adzm 2010-09 - Notify streaming DSM plugin support
 	void NotifyPluginStreamingSupport();
+#endif
 	bool cl_connected;
 	int filetransferrequestPart2(int nDirZipRet);
 	char m_szSrcFileName[MAX_PATH + 64]; // Path + timestring

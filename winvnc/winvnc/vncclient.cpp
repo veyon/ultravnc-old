@@ -877,10 +877,12 @@ vncClientThread::InitVersion()
 	// RDV 2010-6-10 
 	// removed SPECIAL_SC_PROMPT
 	
+#ifdef DSM_SUPPORT
 	if ( (m_minor >= 7) && m_socket->IsUsePluginEnabled() && m_server->GetDSMPluginPointer()->IsEnabled() && m_socket->GetIntegratedPlugin() != NULL) {
 		m_socket->SetPluginStreamingIn();
 		m_socket->SetPluginStreamingOut();
 	}
+#endif
 
 	return TRUE;
 }
@@ -1228,7 +1230,9 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 	const bool bUseSessionSelect = false;
 	
 	// obviously needs to be one that we suggested in the first place
+#ifdef DSM_SUPPORT
 	bool bSecureVNCPluginActive = std::find(current_auth.begin(), current_auth.end(), rfbUltraVNC_SecureVNCPluginAuth_new) != current_auth.end();
+#endif
 	bool bSCPromptActive = std::find(current_auth.begin(), current_auth.end(), rfbUltraVNC_SCPrompt) != current_auth.end();
 	bool bSessionSelectActive = std::find(current_auth.begin(), current_auth.end(), rfbUltraVNC_SessionSelect) != current_auth.end();
 
@@ -1237,6 +1241,7 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 		auth_types.push_back(rfbUltraVNC);
 	}
 
+#ifdef DSM_SUPPORT
 	// encryption takes priority over everything, for now at least.
 	// would be useful to have a host list to configure these settings.
 	// Include the SecureVNCPluginAuth type for those that support it but are not UltraVNC viewers
@@ -1245,6 +1250,9 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 		auth_types.push_back(rfbUltraVNC_SecureVNCPluginAuth_new);
 		auth_types.push_back(rfbUltraVNC_SecureVNCPluginAuth);		
 	}
+#else
+	if(0);
+#endif
 	else if ( (SPECIAL_SC_PROMPT || SPECIAL_SC_EXIT) && !bSCPromptActive ) 
 	{
 		// adzm 2010-10 - Add the SCPrompt pseudo-auth
@@ -1320,6 +1328,7 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 		m_client->SetUltraViewer(true);
 		auth_success = true;
 		break;
+#ifdef DSM_SUPPORT
 	case rfbUltraVNC_SecureVNCPluginAuth_new:
 		auth_success = AuthSecureVNCPlugin(auth_message);	
 		break;
@@ -1328,6 +1337,7 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 		auth_success = 0;
 		version_warning = 1;
 		break;
+#endif
 	case rfbUltraVNC_MsLogonIIAuth:
 		auth_success = AuthMsLogon(auth_message);
 		break;
@@ -1360,8 +1370,12 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 		// continue the authentication if mslogon is enabled. any method of authentication should
 		// work out fine with this method. Currently we limit ourselves to only one layer beyond
 		// the plugin to avoid deep recursion, but that can easily be changed if necessary.
+#ifdef DSM_SUPPORT
 		if (m_ms_logon && auth_accepted == rfbUltraVNC_SecureVNCPluginAuth_new && m_socket->GetIntegratedPlugin()) {
 			auth_result = rfbVncAuthContinue;
+#else
+		if(0){
+#endif
 		} else if (auth_accepted == rfbUltraVNC) {
 			auth_result = rfbVncAuthContinue;
 		} else if ( (SPECIAL_SC_PROMPT || SPECIAL_SC_EXIT) && !bSCPromptActive) {
@@ -1403,9 +1417,11 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 	/*if ((auth_success || auth_accepted == rfbUltraVNC_SecureVNCPluginAuth) && (auth_accepted == rfbUltraVNC_SecureVNCPluginAuth_new || auth_accepted == rfbUltraVNC_SecureVNCPluginAuth) && m_socket->GetIntegratedPlugin()) {			
 		m_socket->GetIntegratedPlugin()->SetHandshakeComplete();	
 	}*/
+#ifdef DSM_SUPPORT
 	if ((auth_success || auth_accepted == rfbUltraVNC_SecureVNCPluginAuth) && ( auth_accepted == rfbUltraVNC_SecureVNCPluginAuth) && m_socket->GetIntegratedPlugin()) {			
 		m_socket->GetIntegratedPlugin()->SetHandshakeComplete();	
 	}
+#endif
 
 	// Send a failure reason	
 	if (!auth_success && !version_warning) {
@@ -1458,10 +1474,14 @@ BOOL vncClientThread::AuthenticateLegacyClient()
 
 	CARD32 auth_type = rfbInvalidAuth;
 
+#ifdef DSM_SUPPORT
 	if (m_socket->IsUsePluginEnabled() && m_server->GetDSMPluginPointer()->IsEnabled() && m_socket->GetIntegratedPlugin() != NULL)
 	{
 		auth_type = rfbLegacy_SecureVNCPlugin;
 	}
+#else
+	if(0);
+#endif
 	else if (m_ms_logon)
 	{
 		auth_type = rfbLegacy_MsLogon;
@@ -1496,6 +1516,7 @@ BOOL vncClientThread::AuthenticateLegacyClient()
 	std::string auth_message;
 	switch (auth_type)
 	{
+#ifdef DSM_SUPPORT
 	case rfbLegacy_SecureVNCPlugin:
 		auth_success = AuthSecureVNCPlugin(auth_message);	
 		// adzm 2010-11 - Legacy 1.0.8.2 special build will continue here with mslogon
@@ -1513,6 +1534,7 @@ BOOL vncClientThread::AuthenticateLegacyClient()
 			auth_success = AuthMsLogon(auth_message);
 		}
 		break;
+#endif
 	case rfbLegacy_MsLogon:
 		auth_success = AuthMsLogon(auth_message);
 		break;
@@ -1543,10 +1565,12 @@ BOOL vncClientThread::AuthenticateLegacyClient()
 		return FALSE;
 	}
 	
+#ifdef DSM_SUPPORT
 	//adzm 2010-09 - Set handshake complete if integrated plugin finished auth
 	if (auth_success && auth_type == rfbLegacy_SecureVNCPlugin && m_socket->GetIntegratedPlugin()) {			
 		m_socket->GetIntegratedPlugin()->SetHandshakeComplete();
 	}
+#endif
 
 	if (auth_success) {
 		return TRUE;
@@ -1555,6 +1579,7 @@ BOOL vncClientThread::AuthenticateLegacyClient()
 	}
 }
 
+#ifdef DSM_SUPPORT
 // must SetHandshakeComplete after sending auth result!
 BOOL vncClientThread::AuthSecureVNCPlugin(std::string& auth_message)
 {
@@ -1739,6 +1764,7 @@ BOOL vncClientThread::AuthSecureVNCPlugin_old(std::string& auth_message)
 		return FALSE;
 	}
 }
+#endif
 
 // marscha@2006: Try to better hide the windows password.
 // I know that this is no breakthrough in modern cryptography.
@@ -2093,6 +2119,7 @@ bool vncClientThread::InitSocket()
 		vnclog.Print(LL_INTERR, VNCLOG("failed to set socket timeout(%d)\n"), GetLastError());
 	}
 
+#ifdef DSM_SUPPORT
 	// sf@2002 - DSM Plugin - Tell the client's socket where to find the DSMPlugin 
 	if (m_server->GetDSMPluginPointer() != NULL)
 	{
@@ -2137,6 +2164,7 @@ bool vncClientThread::InitSocket()
 		// TODO: Make a more secured challenge (with time stamp)
 	}
 	else
+#endif
 		m_client->m_encodemgr.EnableQueuing(true);
 
 	return true;
@@ -2420,8 +2448,10 @@ vncClientThread::run(void *arg)
     bool need_ft_version_msg =  false;
 	// adzm - 2010-07 - Extended clipboard
 	bool need_notify_extended_clipboard = false;
+#ifdef DSM_SUPPORT
 	// adzm 2010-09 - Notify streaming DSM plugin support
 	bool need_notify_streaming_DSM = false;
+#endif
 
 	while (m_client->cl_connected)
 	{
@@ -2500,14 +2530,17 @@ vncClientThread::run(void *arg)
 			m_client->NotifyExtendedClipboardSupport();
 			need_notify_extended_clipboard = false;
 		}
+#ifdef DSM_SUPPORT
 		// adzm 2010-09 - Notify streaming DSM plugin support
 		if (need_notify_streaming_DSM)
 		{
 			m_client->NotifyPluginStreamingSupport();
 			need_notify_streaming_DSM = false;
 		}
+#endif
 		// sf@2002 - v1.1.2
 		int nTO = 1; // Type offset
+#ifdef DSM_SUPPORT
 		// If DSM Plugin, we must read all the transformed incoming rfb messages (type included)
 		// adzm 2010-09
 		if (!m_socket->IsPluginStreamingIn() && m_socket->IsUsePluginEnabled() && m_server->GetDSMPluginPointer()->IsEnabled())
@@ -2520,6 +2553,7 @@ vncClientThread::run(void *arg)
 		    nTO = 0;
 		}
 		else
+#endif
 		{
 			// Try to read a message ID
 			if (!m_socket->ReadExact((char *)&msg.type, sizeof(msg.type)))
@@ -2778,12 +2812,14 @@ vncClientThread::run(void *arg)
 						continue;
 					}
 
+#ifdef DSM_SUPPORT
 					// adzm 2010-09 - Notify streaming DSM plugin support
 					if (Swap32IfLE(encoding) == rfbEncodingPluginStreaming) {
 						need_notify_streaming_DSM = true;
 						vnclog.Print(LL_INTINFO, VNCLOG("Streaming DSM support enabled\n"));
 						continue;
 					}
+#endif
 
 					// RDV - We try to detect which type of viewer tries to connect
 					if (Swap32IfLE(encoding) == rfbEncodingZRLE) {
@@ -4368,7 +4404,9 @@ vncClientThread::run(void *arg)
 			m_client->m_fFileTransferRunning = FALSE;
 			}
 			break;
+#endif
 
+#ifdef DSM_SUPPORT
 		// adzm 2010-09 - Notify streaming DSM plugin support
         case rfbNotifyPluginStreaming:
             if (sz_rfbNotifyPluginStreamingMsg > 1)
@@ -4382,6 +4420,7 @@ vncClientThread::run(void *arg)
 			m_socket->SetPluginStreamingIn();
             break;
 #endif
+
 		default:
 			// Unknown message, so fail!
 			m_client->cl_connected = FALSE;
@@ -5373,6 +5412,7 @@ vncClient::SendRectangle(const rfb::Rect &rect)
 
 	//	Totalsend+=(ScaledRect.br.x-ScaledRect.tl.x)*(ScaledRect.br.y-ScaledRect.tl.y);
 
+#ifdef DSM_SUPPORT
 	// sf@2002 - DSMPlugin
 	// Some encoders (Hextile, ZRLE, Raw..) store all the data to send into 
 	// m_clientbuffer and return the total size from EncodeRect()
@@ -5458,6 +5498,7 @@ vncClient::SendRectangle(const rfb::Rect &rect)
 		
 	}
 	else // Normal case - No DSM - Symetry is not important
+#endif
 	{
 		UINT bytes = m_encodemgr.EncodeRect(ScaledRect, m_socket);
 
@@ -6619,6 +6660,7 @@ void vncClient::NotifyExtendedClipboardSupport()
 	m_socket->SendExact((char *)(extendedDataMessage.GetData()), extendedDataMessage.GetDataLength());
 }
 
+#ifdef DSM_SUPPORT
 // adzm 2010-09 - Notify streaming DSM plugin support
 void vncClient::NotifyPluginStreamingSupport()
 {	
@@ -6630,6 +6672,7 @@ void vncClient::NotifyPluginStreamingSupport()
 	m_socket->SendExact((char *)&msg, sz_rfbNotifyPluginStreamingMsg, rfbNotifyPluginStreaming);
 	m_socket->SetPluginStreamingOut();
 }
+#endif
 
 #ifndef ULTRAVNC_VEYON_SUPPORT
 DWORD WINAPI CompressFolder(LPVOID lpParam)

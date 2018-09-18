@@ -38,7 +38,11 @@ extern BOOL G_ipv6_allowed;
 #define _ATT_VSOCKET_DEFINED
 
 #include "vtypes.h"
+#ifdef DSM_SUPPORT
 #include <DSMPlugin/DSMPlugin.h>
+#else
+#include "omnithread.h"
+#endif
 ////////////////////////////
 #include <iphlpapi.h>
 extern "C" {
@@ -262,6 +266,7 @@ public:
   VBool ReadExact(char *buff, const VCard bufflen);
   VBool ClearQueue();
 #endif
+#ifdef DSM_SUPPORT
   // sf@2002 - DSMPlugin
   //adzm 2009-06-20
   void SetDSMPluginPointer(CDSMPlugin* pDSMPlugin);
@@ -274,6 +279,7 @@ public:
   void SetPluginStreamingOut() { m_fPluginStreamingOut = true; }
   bool IsPluginStreamingIn(void) { return m_fPluginStreamingIn; }
   bool IsPluginStreamingOut(void) { return m_fPluginStreamingOut; }
+#endif
 
   void SetWriteToNetRectBuffer(bool fEnable) {m_fWriteToNetRectBuf = fEnable;}; 
   bool GetWriteToNetRectBuffer(void) {return m_fWriteToNetRectBuf;};
@@ -284,12 +290,16 @@ public:
   VBool SendExactHTTP(const char *buff, const VCard bufflen);
   VBool ReadExactHTTP(char *buff, const VCard bufflen);
 
+#ifdef DSM_SUPPORT
   //adzm 2010-05-10
   IIntegratedPlugin* GetIntegratedPlugin() { return m_pIntegratedPluginInterface; };
+#endif
 
   //adzm 2010-08-01
   DWORD GetLastSentTick() { return m_LastSentTick; };
+#ifdef DSM_SUPPORT
   IIntegratedPlugin* m_pIntegratedPluginInterface;
+#endif
   ////////////////////////////
   // Internal structures
 protected:
@@ -304,6 +314,7 @@ protected:
   //adzm 2010-08-01
   DWORD m_LastSentTick;
 
+#ifdef DSM_SUPPORT
   CDSMPlugin* m_pDSMPlugin; // sf@2002 - DSMPlugin
   //adzm 2009-06-20
   IPlugin* m_pPluginInterface;
@@ -313,12 +324,15 @@ protected:
   bool m_fPluginStreamingOut; //adzm 2010-09
   omni_mutex m_TransMutex;
   omni_mutex m_RestMutex;
+#endif
   omni_mutex m_CheckMutex;
 
+#ifdef DSM_SUPPORT
   //adzm 2009-06-20
   BYTE* TransformBuffer(BYTE* pDataBuffer, int nDataLen, int* nTransformedDataLen);
   BYTE* RestoreBufferStep1(BYTE* pDataBuffer, int nDataLen, int* nRestoredDataLen);
   BYTE* RestoreBufferStep2(BYTE* pDataBuffer, int nDataLen, int* nRestoredDataLen);
+#endif
 
   // All this should be private with accessors -> later
   BYTE* m_pNetRectBuf;

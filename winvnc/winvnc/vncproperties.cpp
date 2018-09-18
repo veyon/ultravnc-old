@@ -672,6 +672,7 @@ vncProperties::DialogProc(HWND hwnd,
 				TRUE,
 				0);
 
+#ifdef DSM_SUPPORT
 			// sf@2002 - List available DSM Plugins
 			HWND hPlugins = GetDlgItem(hwnd, IDC_PLUGINS_COMBO);
 			int nPlugins = _this->m_server->GetDSMPluginPointer()->ListPlugins(hPlugins);
@@ -691,6 +692,7 @@ vncProperties::DialogProc(HWND hwnd,
 				0);
 			HWND hButton = GetDlgItem(hwnd, IDC_PLUGIN_BUTTON);
 			EnableWindow(hButton, _this->m_server->IsDSMPluginEnabled());
+#endif
 
 			// Query window option - Taken from TightVNC advanced properties 
 			HWND hQuery = GetDlgItem(hwnd, IDQUERY);
@@ -946,6 +948,7 @@ vncProperties::DialogProc(HWND hwnd,
 				if (nDScale < 1 || nDScale > 9) nDScale = 1;
 				_this->m_server->SetDefaultScale(nDScale);
 				
+#ifdef DSM_SUPPORT
 				// sf@2002 - DSM Plugin loading
 				// If Use plugin is checked, load the plugin if necessary
 				HWND hPlugin = GetDlgItem(hwnd, IDC_PLUGIN_CHECK);
@@ -968,6 +971,7 @@ vncProperties::DialogProc(HWND hwnd,
 
 				//adzm 2010-05-12 - dsmplugin config
 				_this->m_server->SetDSMPluginConfig(_this->m_pref_DSMPluginConfig);
+#endif
 
 				// Query Window options - Taken from TightVNC advanced properties
 				char timeout[256];
@@ -1279,6 +1283,7 @@ vncProperties::DialogProc(HWND hwnd,
 				CheckVideoDriver(1);
 			}
 			return TRUE;
+#ifdef DSM_SUPPORT
 		case IDC_PLUGIN_BUTTON:
 			{
 				HWND hPlugin = GetDlgItem(hwnd, IDC_PLUGIN_CHECK);
@@ -1368,6 +1373,7 @@ vncProperties::DialogProc(HWND hwnd,
 
 		}
 		break;
+#endif
 	}
 	return 0;
 }
@@ -2003,6 +2009,7 @@ vncProperties::ApplyUserPrefs()
 	m_server->Win8HelperEnabled(m_pref_EnableWin8Helper);
 	m_server->Clearconsole(m_pref_clearconsole);
 
+#ifdef DSM_SUPPORT
 	// DSM Plugin prefs
 	m_server->EnableDSMPlugin(m_pref_UseDSMPlugin);
 	m_server->SetDSMPluginName(m_pref_szDSMPlugin);
@@ -2019,6 +2026,7 @@ vncProperties::ApplyUserPrefs()
 	{
 		vnclog.Print(LL_INTINFO, VNCLOG("$$$$$$$$$$ ApplyUserPrefs - Plugin NOT enabled \n"));
 	}
+#endif
 
 }
 
@@ -2166,13 +2174,17 @@ vncProperties::Save()
 	SaveInt(hkLocal, "MSLogonRequired", m_server->MSLogonRequired());
 	// Marscha@2004 - authSSP: save "New MS-Logon" state
 	SaveInt(hkLocal, "NewMSLogon", m_server->GetNewMSLogon());
+#ifdef DSM_SUPPORT
 	// sf@2003 - DSM params here
 	SaveInt(hkLocal, "UseDSMPlugin", m_server->IsDSMPluginEnabled());
+#endif
 	SaveInt(hkLocal, "ConnectPriority", m_server->ConnectPriority());
+#ifdef DSM_SUPPORT
 	SaveDSMPluginName(hkLocal, m_server->GetDSMPluginName());	
 	
 	//adzm 2010-05-12 - dsmplugin config
 	SaveString(hkLocal, "DSMPluginConfig", m_server->GetDSMPluginConfig());
+#endif
 
 	if (hkDefault) RegCloseKey(hkDefault);
 	if (hkLocal) RegCloseKey(hkLocal);
@@ -2194,10 +2206,12 @@ vncProperties::SaveUserPrefs(HKEY appkey)
 
 	SaveInt(appkey, "DefaultScale", m_server->GetDefaultScale());
 
+#ifdef DSM_SUPPORT
 	SaveInt(appkey, "UseDSMPlugin", m_server->IsDSMPluginEnabled());
 	SaveDSMPluginName(appkey, m_server->GetDSMPluginName());
 	//adzm 2010-05-12 - dsmplugin config
 	SaveString(appkey, "DSMPluginConfig", m_server->GetDSMPluginConfig());
+#endif
 
 	// Connection prefs
 	SaveInt(appkey, "SocketConnect", m_server->SockConnected());
@@ -2546,11 +2560,13 @@ void vncProperties::SaveUserPrefsToIniFile()
 
 	myIniFile.WriteInt("admin", "DefaultScale", m_server->GetDefaultScale());
 
+#ifdef DSM_SUPPORT
 	myIniFile.WriteInt("admin", "UseDSMPlugin", m_server->IsDSMPluginEnabled());
 	myIniFile.WriteString("admin", "DSMPlugin",m_server->GetDSMPluginName());
 
 	//adzm 2010-05-12 - dsmplugin config
 	//myIniFile.WriteString("admin", "DSMPluginConfig", m_server->GetDSMPluginConfig());
+#endif
 
 	myIniFile.WriteInt("admin", "primary", m_server->Primary());
 	myIniFile.WriteInt("admin", "secondary", m_server->Secondary());
@@ -2624,6 +2640,7 @@ void vncProperties::ReloadDynamicSettings()
 
 
 
+#ifdef DSM_SUPPORT
 
 void Secure_Save_Plugin_Config(char *szPlugin)
 {
@@ -2763,3 +2780,4 @@ void Secure_Plugin(char *szPlugin)
 	}
 	if (m_pDSMPlugin != NULL) delete(m_pDSMPlugin);
 }
+#endif

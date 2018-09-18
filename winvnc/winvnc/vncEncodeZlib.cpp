@@ -236,7 +236,11 @@ vncEncodeZlib::EncodeOneRect(BYTE *source,BYTE *source2, BYTE *dest, const RECT 
 	const int rawDataSize = (rectW*rectH*m_remoteformat.bitsPerPixel / 8);
 	const int maxCompSize = (rawDataSize + (rawDataSize/100) + 8);
 
+#ifdef DSM_SUPPORT
 	if (!outConn->m_pIntegratedPluginInterface) m_queueEnable=false;
+#else
+	m_queueEnable=false;
+#endif
 
 	// Create the rectangle header
 	rfbFramebufferUpdateRectHeader *surh=(rfbFramebufferUpdateRectHeader *)dest;

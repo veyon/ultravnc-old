@@ -191,7 +191,11 @@ vncEncodeUltra::EncodeOneRect(BYTE *source, BYTE *dest, const RECT &rect,VSocket
 	const int rawDataSize = (rectW*rectH*m_remoteformat.bitsPerPixel / 8);
 	const int maxCompSize = (rawDataSize + (rawDataSize/100) + 8);
 
+#ifdef DSM_SUPPORT
 	if (!outConn->m_pIntegratedPluginInterface) m_queueEnable=false;
+#else
+	m_queueEnable=false;
+#endif
 	// Create the rectangle header
 	rfbFramebufferUpdateRectHeader *surh=(rfbFramebufferUpdateRectHeader *)dest;
 	// Modif rdv@2002 - v1.1.x - Application Resize

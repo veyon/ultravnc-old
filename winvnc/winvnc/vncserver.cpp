@@ -204,11 +204,13 @@ vncServer::vncServer()
 	m_fFileTransferEnabled = true;
 	m_nDefaultScale = 1;
 
+#ifdef DSM_SUPPORT
 	// sf@2002 - Data Stream Modification Plugin handling
 	m_pDSMPlugin = new CDSMPlugin();
 
 	m_fDSMPluginEnabled = false;
 	strcpy(m_szDSMPlugin, "");
+#endif
 
 	m_fMSLogonRequired = false;
 
@@ -238,8 +240,11 @@ vncServer::vncServer()
     m_keepAliveInterval = KEEPALIVE_INTERVAL;
 	m_IdleInputTimeout = 0;
 	
+#ifdef DSM_SUPPORT
 	//adzm 2010-05-12 - dsmplugin config
 	m_szDSMPluginConfig[0] = '\0';
+#endif
+
 	OS_Shutdown=false;
 
 	m_autocapt = 1;
@@ -322,6 +327,7 @@ vncServer::~vncServer()
 		m_clientquitsig = NULL;
 	}
 
+#ifdef DSM_SUPPORT
 	// Modif sf@2002 - DSMPlugin handling
 	if (m_pDSMPlugin != NULL)
 	{
@@ -329,6 +335,7 @@ vncServer::~vncServer()
 		m_pDSMPlugin=NULL;
 		vnclog.Print(LL_SOCKINFO, VNCLOG("~server m_pDSMPlugin = NULL \n"));
 	}
+#endif
 
 	// Free the host blacklist
 	omni_mutex_lock l(m_clientsLockBlackList, 611);
@@ -422,6 +429,7 @@ vncServer::ShutdownServer()
 		m_clientquitsig = NULL;
 	}
 
+#ifdef DSM_SUPPORT
 	// Modif sf@2002 - DSMPlugin handling
 	if (m_pDSMPlugin != NULL)
 	{
@@ -429,6 +437,7 @@ vncServer::ShutdownServer()
 		m_pDSMPlugin=NULL;
 		vnclog.Print(LL_SOCKINFO, VNCLOG("ShutdownServer m_pDSMPlugin = NULL \n"));
 	}
+#endif
 
 	// Free the host blacklist
 	omni_mutex_lock l(m_clientsLockBlackList, 611);
@@ -2257,6 +2266,7 @@ BOOL vncServer::SetNewMSLogon(BOOL fEnable)
 	return TRUE;
 }
 
+#ifdef DSM_SUPPORT
 //
 // sf@2002 - v1.1.x - DSM Plugin
 //
@@ -2383,6 +2393,7 @@ void vncServer::SetDSMPluginConfig(char* szDSMPluginConfig)
 {
 	strncpy_s(m_szDSMPluginConfig, sizeof(m_szDSMPluginConfig) - 1, szDSMPluginConfig, _TRUNCATE);
 }
+#endif
 
 //
 // sgf@2002 - for now, we disable cache rects when more than one client
