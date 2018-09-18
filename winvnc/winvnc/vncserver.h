@@ -424,7 +424,11 @@ public:
 
 	// sf@2007 - Vista / XP FUS special modes
 	virtual BOOL RunningFromExternalService(){return m_fRunningFromExternalService;};
+#ifdef ULTRAVNC_VEYON_SUPPORT
 	virtual void RunningFromExternalService(BOOL fEnabled){m_fRunningFromExternalService = true;};
+#else
+	virtual void RunningFromExternalService(BOOL fEnabled){m_fRunningFromExternalService = fEnabled;};
+#endif
 
 	virtual void AutoRestartFlag(BOOL fOn){m_fAutoRestart = fOn;};
 	virtual BOOL AutoRestartFlag(){return m_fAutoRestart;};

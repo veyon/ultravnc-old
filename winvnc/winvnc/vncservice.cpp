@@ -54,7 +54,11 @@ DWORD	g_platform_id;
 BOOL	g_impersonating_user = 0;
 DWORD	g_version_major;
 DWORD	g_version_minor;
+#ifdef ULTRAVNC_VEYON_SUPPORT
 BOOL	m_fRunningFromExternalService = true;
+#else
+BOOL	m_fRunningFromExternalService = false;
+#endif
 
 typedef DWORD (WINAPI* pWTSGetActiveConsoleSessionId)(VOID);
 typedef BOOL (WINAPI * pProcessIdToSessionId)(DWORD,DWORD*);
@@ -1027,7 +1031,11 @@ vncService::RunningFromExternalService()
 void 
 vncService::RunningFromExternalService(BOOL fEnabled)
 {
+#ifdef ULTRAVNC_VEYON_SUPPORT
 	m_fRunningFromExternalService = true;
+#else
+	m_fRunningFromExternalService = fEnabled;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

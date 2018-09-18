@@ -170,9 +170,9 @@ void VNCLog::CloseFile() {
     }
 }
 
+#ifdef ULTRAVNC_VEYON_SUPPORT
 inline void VNCLog::ReallyPrintLine(int level, const char* line) 
 {
-#ifdef ULTRAVNC_VEYON_SUPPORT
 	if( level == LL_SOCKERR || level == LL_ERROR )
 	{
 		qCritical( line );
@@ -190,7 +190,10 @@ inline void VNCLog::ReallyPrintLine(int level, const char* line)
 	{
 		qDebug( line );
 	}
+}
 #else
+inline void VNCLog::ReallyPrintLine(const char* line) 
+{
     if (m_todebug) OutputDebugString(line);
     if (m_toconsole) {
         DWORD byteswritten;
@@ -200,8 +203,8 @@ inline void VNCLog::ReallyPrintLine(int level, const char* line)
         DWORD byteswritten;
         WriteFile(hlogfile, line, strlen(line), &byteswritten, NULL); 
     }
-#endif
 }
+#endif
 
 void VNCLog::ReallyPrint(int level, const char* format, va_list ap) 
 {

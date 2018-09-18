@@ -60,9 +60,15 @@ void InitIpp();
 #include "Localization.h" // Act : add localization on messages
 
 // Application instance and name
+#ifdef ULTRAVNC_VEYON_SUPPORT
 HINSTANCE	hAppInstance = NULL;
 const char	*szAppName = "VEYONVNC";
 DWORD		mainthreadId = 0;
+#else
+HINSTANCE	hAppInstance;
+const char	*szAppName = "WinVNC";
+DWORD		mainthreadId;
+#endif
 BOOL		fRunningFromExternalService=false;
 
 //adzm 2009-06-20
@@ -1340,9 +1346,13 @@ int WinVNCAppMain()
     		vnclog.Print(LL_INTINFO, VNCLOG("%s -- exiting\n"), sz_ID_ANOTHER_INST);
 			// We don't allow multiple instances!
 			if (!fRunningFromExternalService)
+#ifdef ULTRAVNC_VEYON_SUPPORT
 				MessageBoxSecure(NULL, "Another VNC server is already running. Please uninstall "
 										"any iTALC or UltraVNC installations or disable the "
 										"correspondig services of these products.", szAppName, MB_OK);
+#else
+				MessageBoxSecure(NULL, sz_ID_ANOTHER_INST, szAppName, MB_OK);
+#endif
 			if (instancehan != NULL) delete instancehan;
 			return 0;
 		}

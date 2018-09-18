@@ -62,9 +62,17 @@ public:
 	VNCLog();
 
     inline void Print(int level, const char* format, ...) {
+#ifndef ULTRAVNC_VEYON_SUPPORT
+        if ( level > m_level ) return;
+		if (!m_todebug && !m_toconsole && !m_tofile) return;
+#endif
         va_list ap;
         va_start(ap, format);
+#ifndef ULTRAVNC_VEYON_SUPPORT
+        ReallyPrint(format, ap);
+#else
         ReallyPrint(level, format, ap);
+#endif
         va_end(ap);
     }
     
@@ -89,8 +97,13 @@ public:
 	virtual ~VNCLog();
 
 private:
+#ifdef ULTRAVNC_VEYON_SUPPORT
 	void ReallyPrintLine(int level, const char* line);
     void ReallyPrint(int level, const char* format, va_list ap);
+#else
+	void ReallyPrintLine(const char* line);
+    void ReallyPrint(const char* format, va_list ap);
+#endif
 	void OpenFile();
     void CloseFile();
     bool m_tofile, m_todebug, m_toconsole;

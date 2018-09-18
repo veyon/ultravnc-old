@@ -154,7 +154,21 @@ BOOL WINAPI SSPLogonUser(LPTSTR szDomain,
             &fDone))
 			__leave;
 		
+#ifdef ULTRAVNC_VEYON_SUPPORT
 		fResult = TRUE;
+#else
+		*isAuthenticated = TRUE;
+
+		// Check authorization
+		if (IsImpersonationAllowed()) {
+			if (ImpersonateAndCheckAccess(&(asServer.hctxt), psdSD, pdwAccessGranted))
+				fResult = TRUE;
+		} else {
+			// Todo: Make alternative access check
+			if (ImpersonateAndCheckAccess(&(asServer.hctxt), psdSD, pdwAccessGranted))
+				fResult = TRUE;
+		}
+#endif
 
 	} __finally {
 

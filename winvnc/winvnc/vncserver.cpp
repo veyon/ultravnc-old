@@ -228,7 +228,11 @@ vncServer::vncServer()
 
 	m_impersonationtoken=NULL; // Modif Jeremy C. 
 
+#ifdef ULTRAVNC_VEYON_SUPPORT
 	m_fRunningFromExternalService = true;
+#else
+	m_fRunningFromExternalService = false;
+#endif
 	m_fAutoRestart = false;
     m_ftTimeout = FT_RECV_TIMEOUT;
     m_keepAliveInterval = KEEPALIVE_INTERVAL;
@@ -2060,7 +2064,11 @@ vncServer::AddAuthHostsBlacklist(const char *machine) {
 			current->_lastRefTime.QuadPart = now.QuadPart + 10*current->_failureCount;
 			current->_failureCount++;
 
+#ifdef ULTRAVNC_VEYON_SUPPORT
 			if (current->_failureCount > 50)
+#else
+			if (current->_failureCount > 5)
+#endif
 				current->_blocked = TRUE;
 			return;
 		}
@@ -2068,10 +2076,12 @@ vncServer::AddAuthHostsBlacklist(const char *machine) {
 		current = current->_next;
 	}
 
+#ifdef ULTRAVNC_VEYON_SUPPORT
 	if( strcmp( machine, "127.0.0.1" ) == 0 )
 	{
 		return;
 	}
+#endif
 
 	// Didn't find the entry
 	current = new vncServer::BlacklistEntry;

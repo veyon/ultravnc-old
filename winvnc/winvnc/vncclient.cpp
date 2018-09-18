@@ -2285,7 +2285,11 @@ vncClientThread::run(void *arg)
 	if (!InitAuthenticate())
 	{
 		m_server->RemoveClient(m_client->GetClientId());
+#ifdef ULTRAVNC_VEYON_SUPPORT
 		return;
+#else
+		goto testautoreconnect;
+#endif
 	}
 
 	// Authenticated OK - remove from blacklist and remove timeout

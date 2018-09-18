@@ -135,7 +135,7 @@ vncProperties::Init(vncServer *server)
 #ifdef ULTRAVNC_VEYON_SUPPORT
 	m_fUseRegistry = TRUE;
 #else
-	m_fUseRegistry = ((myIniFile.ReadInt("admin", "UseRegistry", 0) == 1) ? TRUE : FALSE);
+	m_fUseRegistry = ((myIniFile.ReadInt("admin", "UseRegistry", 0) == 1) ? TRUE : FALSE);
 #endif
 
 	// Load the settings

@@ -455,7 +455,9 @@ public:
 
   void keyEvent(rdr::U32 keysym, bool down, bool jap)
   {
-	  //vnclog.Print(LL_INTWARN, " keysym 0x%x",keysym);
+#ifndef ULTRAVNC_VEYON_SUPPORT
+	  vnclog.Print(LL_INTWARN, " keysym 0x%x",keysym);
+#endif
 	if (keysym>=XK_dead_grave && keysym <=XK_dead_belowdot)// && down)
 	{
 		keysymDead=keysym;
@@ -572,7 +574,9 @@ public:
 		  }
 	  }
 
-	  //vnclog.Print(LL_INTWARN, " SHORT s %i",s);
+#ifndef ULTRAVNC_VEYON_SUPPORT
+	  vnclog.Print(LL_INTWARN, " SHORT s %i",s);
+#endif
 
 	 if (s == -1)
 	 {
