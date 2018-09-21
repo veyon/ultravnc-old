@@ -630,7 +630,9 @@ public:
 	BOOL AuthSecureVNCPlugin_old(std::string& auth_message);
 	BOOL AuthMsLogon(std::string& auth_message);
 	BOOL AuthVnc(std::string& auth_message);
+#ifdef AUTH_SC_PROMP_SUPPORT
 	BOOL AuthSCPrompt(std::string& auth_message); // adzm 2010-10
+#endif
 	BOOL AuthSessionSelect(std::string& auth_message); // adzm 2010-10
 
 	BOOL FilterClients_Blacklist();

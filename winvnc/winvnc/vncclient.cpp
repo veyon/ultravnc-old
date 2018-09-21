@@ -1249,7 +1249,9 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 #ifdef DSM_SUPPORT
 	bool bSecureVNCPluginActive = std::find(current_auth.begin(), current_auth.end(), rfbUltraVNC_SecureVNCPluginAuth_new) != current_auth.end();
 #endif
+#ifdef AUTH_SC_PROMP_SUPPORT
 	bool bSCPromptActive = std::find(current_auth.begin(), current_auth.end(), rfbUltraVNC_SCPrompt) != current_auth.end();
+#endif
 	bool bSessionSelectActive = std::find(current_auth.begin(), current_auth.end(), rfbUltraVNC_SessionSelect) != current_auth.end();
 
 	if (current_auth.empty()) {
@@ -1269,11 +1271,13 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 #else
 	if(0);
 #endif
+#ifdef AUTH_SC_PROMP_SUPPORT
 	else if ( (SPECIAL_SC_PROMPT || SPECIAL_SC_EXIT) && !bSCPromptActive ) 
 	{
 		// adzm 2010-10 - Add the SCPrompt pseudo-auth
 		auth_types.push_back(rfbUltraVNC_SCPrompt);
 	}
+#endif
 	else if (bUseSessionSelect)
 	{
 		// adzm 2010-10 - Add the SessionSelect pseudo-auth
@@ -1363,10 +1367,12 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 	case rfbNoAuth:
 		auth_success = TRUE;
 		break;
+#ifdef AUTH_SC_PROMP_SUPPORT
 	case rfbUltraVNC_SCPrompt:
 		// adzm 2010-10 - Do the SCPrompt auth
 		auth_success = AuthSCPrompt(auth_message);
 		break;
+#endif
 	case rfbUltraVNC_SessionSelect:
 		// adzm 2010-10 - Do the SessionSelect auth
 		auth_success = AuthSessionSelect(auth_message);
@@ -1394,8 +1400,10 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 #endif
 		} else if (auth_accepted == rfbUltraVNC) {
 			auth_result = rfbVncAuthContinue;
+#ifdef AUTH_SC_PROMP_SUPPORT
 		} else if ( (SPECIAL_SC_PROMPT || SPECIAL_SC_EXIT) && !bSCPromptActive) {
 			auth_result = rfbVncAuthContinue;
+#endif
 		} else if (bUseSessionSelect && !bSessionSelectActive) {
 			auth_result = rfbVncAuthContinue;
 		} else {
@@ -1909,6 +1917,7 @@ BOOL vncClientThread::AuthVnc(std::string& auth_message)
 	}
 }
 
+#ifdef AUTH_SC_PROMP_SUPPORT
 // adzm 2010-10
 BOOL vncClientThread::AuthSCPrompt(std::string& auth_message)
 {
@@ -1934,6 +1943,7 @@ BOOL vncClientThread::AuthSCPrompt(std::string& auth_message)
 		return TRUE;
 	}
 }
+#endif
 
 BOOL vncClientThread::AuthSessionSelect(std::string& auth_message)
 {
