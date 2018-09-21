@@ -90,7 +90,7 @@ extern bool PreConnect;
 int PreConnectID = 0;
 extern BOOL	m_fRunningFromExternalService;
 
-#ifndef ULTRAVNC_VEYON_SUPPORT
+#ifdef FILETRANSFER_SUPPORT
 // take a full path & file name, split it, prepend prefix to filename, then merge it back
 static std::string make_temp_filename(const char *szFullPath)
 {
@@ -105,7 +105,6 @@ static std::string make_temp_filename(const char *szFullPath)
 
     return tmpName;
 }
-#endif
 
 std::string get_real_filename(std::string name)
 {
@@ -159,6 +158,7 @@ bool replaceFile(const char *src, const char *dst)
 
     return status;
 }
+#endif
 #include "Localization.h" // Act : add localization on messages
 typedef BOOL (WINAPI *PGETDISKFREESPACEEX)(LPCSTR,PULARGE_INTEGER, PULARGE_INTEGER, PULARGE_INTEGER);
 
@@ -248,7 +248,7 @@ void SplitTransferredFileNameAndDate(char *szFileAndDate, char *filetime)
 }
 
 
-#ifndef ULTRAVNC_VEYON_SUPPORT
+#ifdef FILETRANSFER_SUPPORT
 /*
  * File transfer event hooks
  *
@@ -615,7 +615,11 @@ vncClientUpdateThread::run_undetached(void *arg)
 			// Also allow in loopbackmode
 			// Loopback mode with winvncviewer will cause a loping
 			// But ssh is back working		
+#ifdef FILETRANSFER_SUPPORT
 			if (!m_client->m_fFileSessionOpen) {
+#else
+			if (true) {
+#endif
 				bool bShouldFlush = false;
 
 				// adzm - 2010-07 - Extended clipboard
@@ -2469,8 +2473,10 @@ vncClientThread::run(void *arg)
 	{
 		rfbClientToServerMsg msg;
 
+#ifdef FILETRANSFER_SUPPORT
 		// Ensure that we're running in the correct desktop
 		if (!m_client->IsFileTransBusy())
+#endif
 		// This desktop switch is responsible for the keyboard input
 		if (vncService::InputDesktopSelected()==0)
 		{
@@ -2530,12 +2536,14 @@ vncClientThread::run(void *arg)
 					OutputDebugString(szText);		
 #endif
 		}
+#ifdef FILETRANSFER_SUPPORT
         if (need_ft_version_msg)
         {
             // send a ft protocol message to client.
             m_client->SendFTProtocolMsg();
             need_ft_version_msg = false;
         }
+#endif
 #ifdef EXTENDED_CLIPBOARD_SUPPORT
 		// adzm - 2010-07 - Extended clipboard
 		if (need_notify_extended_clipboard)
@@ -2812,11 +2820,13 @@ vncClientThread::run(void *arg)
 						continue;
 						}
 
+#ifdef FILETRANSFER_SUPPORT
 					if (Swap32IfLE(encoding) == rfbEncodingFTProtocolVersion) {
                         need_ft_version_msg = true;
 						vnclog.Print(LL_INTINFO, VNCLOG("FTProtocolVersion protocol extension enabled\n"));
                         continue;
 					}
+#endif
 
 #ifdef EXTENDED_CLIPBOARD_SUPPORT
 					// adzm - 2010-07 - Extended clipboard
@@ -3716,8 +3726,9 @@ vncClientThread::run(void *arg)
 		case rfbTextChat:
 			m_client->m_pTextChat->ProcessTextChatMsg(nTO);
 			break;
+#endif
 
-
+#ifdef FILETRANSFER_SUPPORT
 		// Modif sf@2002 - FileTransfer
 		// File Transfer Message
 		case rfbFileTransfer:
@@ -4446,7 +4457,7 @@ vncClientThread::run(void *arg)
 			m_client->cl_connected = FALSE;
 		}
 
-#ifndef ULTRAVNC_VEYON_SUPPORT
+#ifdef FILETRANSFER_SUPPORT
 		// sf@2005 - Cancel FT User impersonation if possible
 		// We do it here to ensure impersonation is cancelled
 		if (m_server->FTUserImpersonation())
@@ -4464,7 +4475,7 @@ vncClientThread::run(void *arg)
 	}
 	
 
-#ifndef ULTRAVNC_VEYON_SUPPORT
+#ifdef FILETRANSFER_SUPPORT
     if (m_client->m_fFileDownloadRunning)
     {
         m_client->m_fFileDownloadError = true;
@@ -4603,13 +4614,12 @@ vncClient::vncClient() : m_clipboard(ClipboardSettings::defaultServerCaps), Send
 	// sf@2002 
 	fNewScale = false;
 	m_fPalmVNCScaling = false;
+#ifdef FILETRANSFER_SUPPORT
 	fFTRequest = false;
 
 	// Modif sf@2002 - FileTransfer
 	m_fFileTransferRunning = FALSE;
-#ifndef ULTRAVNC_VEYON_SUPPORT
 	m_pZipUnZip = new CZipUnZip32(); // Directory FileTransfer utils
-#endif
 
 	m_hDestFile = 0;
 	//m_szFullDestName = NULL;
@@ -4635,6 +4645,7 @@ vncClient::vncClient() : m_clipboard(ClipboardSettings::defaultServerCaps), Send
 	m_lpCSBuffer = NULL;
 	m_nCSOffset = 0;
 	m_nCSBufferSize = 0;
+#endif
 
 	// CURSOR HANDLING
 	m_cursor_update_pending = FALSE;
@@ -4653,9 +4664,11 @@ vncClient::vncClient() : m_clipboard(ClipboardSettings::defaultServerCaps), Send
 	m_pCacheZipBuf = NULL;
 	m_nCacheZipBufSize = 0;
 
+#ifdef FILETRANSFER_SUPPORT
 	// sf@2005 - FTUserImpersonation
 	m_fFTUserImpersonatedOk = false;
 	m_lLastFTUserImpersonationTime = 0L;
+#endif
 
 	// Modif sf@2002 - Text Chat
 #ifndef ULTRAVNC_VEYON_SUPPORT
@@ -4671,9 +4684,11 @@ vncClient::vncClient() : m_clipboard(ClipboardSettings::defaultServerCaps), Send
 	m_Support_rfbSetServerInput = false;
     m_wants_KeepAlive = false;
 	m_session_supported = false;
+#ifdef FILETRANSFER_SUPPORT
     m_fFileSessionOpen = false;
 	m_pBuff = 0;
 	m_pCompBuff = 0;
+#endif
 	m_NewSWDesktop = 0;
 	NewsizeW = 0;
 	NewsizeH = 0;
@@ -4732,12 +4747,14 @@ vncClient::~vncClient()
 			delete [] m_pCacheZipBuf;
 			m_pCacheZipBuf = NULL;
 		}
+#ifdef FILETRANSFER_SUPPORT
 	if (m_lpCSBuffer)
 		delete [] m_lpCSBuffer;
 	if (m_pBuff)
 		delete [] m_pBuff;
 	if (m_pCompBuff)
 		delete [] m_pCompBuff;
+#endif
 
 	//thos give sometimes errors, hlogfile is already removed at this point
 	//vnclog.Print(LL_INTINFO, VNCLOG("cached %d \n"),totalraw);
@@ -5861,7 +5878,7 @@ void vncClient::TriggerUpdate()
 }
 
 
-#ifndef ULTRAVNC_VEYON_SUPPORT
+#ifdef FILETRANSFER_SUPPORT
 ////////////////////////////////////////////////
 // Asynchronous & Delta File Transfer functions
 ////////////////////////////////////////////////
@@ -6655,6 +6672,7 @@ void vncClient::SendKeepAlive(bool bForce)
     }
 }
 
+#ifdef FILETRANSFER_SUPPORT
 void vncClient::SendFTProtocolMsg()
 {
     rfbFileTransferMsg ft;
@@ -6665,6 +6683,7 @@ void vncClient::SendFTProtocolMsg()
     m_socket->SendExact((char *)&ft, sz_rfbFileTransferMsg, rfbFileTransfer);
 
 }
+#endif
 
 #ifdef EXTENDED_CLIPBOARD_SUPPORT
 // adzm - 2010-07 - Extended clipboard
@@ -6698,7 +6717,7 @@ void vncClient::NotifyPluginStreamingSupport()
 }
 #endif
 
-#ifndef ULTRAVNC_VEYON_SUPPORT
+#ifdef FILETRANSFER_SUPPORT
 DWORD WINAPI CompressFolder(LPVOID lpParam)
 {
 	vncClient *client = (vncClient *)lpParam;

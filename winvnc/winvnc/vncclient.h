@@ -64,7 +64,7 @@ typedef std::list<vncClientId> vncClientList;
 #include "vncbuffer.h"
 #include "vncencodemgr.h"
 #include "TextChat.h" // sf@2002 - TextChat
-#ifndef ULTRAVNC_VEYON_SUPPORT
+#ifdef FILETRANSFER_SUPPORT
 #include "ZipUnZip32/zipUnZip32.h"
 #endif
 //#include "timer.h"
@@ -223,7 +223,9 @@ public:
 	virtual bool IsSlowEncoding() {return m_encodemgr.IsSlowEncoding();};
 	virtual bool IsUltraEncoding() {return m_encodemgr.IsUltraEncoding();};
 	virtual bool IsEncoderSet() { return m_encodemgr.IsEncoderSet(); };
+#ifdef FILETRANSFER_SUPPORT
 	virtual bool IsFileTransBusy(){return (m_fFileUploadRunning||m_fFileDownloadRunning || m_fFileSessionOpen);};
+#endif
 	void SetProtocolVersion(rfbProtocolVersionMsg *protocolMsg);
 	void SetOutgoing(bool outgoing) {m_outgoing = outgoing;};
 	void Clear_Update_Tracker();
@@ -267,8 +269,8 @@ public:
 		return m_hostPort;
 	};
 
+#ifdef FILETRANSFER_SUPPORT
 	// sf@2004 - Asynchronous FileTransfer - Delta Transfer
-#ifndef ULTRAVNC_VEYON_SUPPORT
 	int  GenerateFileChecksums(HANDLE hFile, char* lpCSBuffer, int nCSBufferSize);
 	bool ReceiveDestinationFileChecksums(int nSize, int nLen);
 	bool ReceiveFileChunk(int nLen, int nSize);
@@ -301,7 +303,9 @@ public:
     void SendServerStateUpdate(CARD32 state, CARD32 value);
 	void Record_SendServerStateUpdate(CARD32 state, CARD32 value);
     void SendKeepAlive(bool bForce = false);
+#ifdef FILETRANSFER_SUPPORT
     void SendFTProtocolMsg();
+#endif
 #ifdef EXTENDED_CLIPBOARD_SUPPORT
 	// adzm - 2010-07 - Extended clipboard
 	void NotifyExtendedClipboardSupport();
@@ -515,9 +519,8 @@ protected:
 
 	// Modif sf@2002 - FileTransfer 
 	BOOL m_fFileTransferRunning;
-#ifndef ULTRAVNC_VEYON_SUPPORT
+#ifdef FILETRANSFER_SUPPORT
 	CZipUnZip32		*m_pZipUnZip;
-#endif
 
 	char  m_szFullDestName[MAX_PATH + 64];
 	char  m_szFileTime[18];
@@ -549,6 +552,7 @@ protected:
 	char*	m_lpCSBuffer;
 	int		m_nCSOffset;
 	int		m_nCSBufferSize;
+#endif
 
 	// Modif sf@2002 - Scaling
 	rfb::Rect		m_ScaledScreen;
@@ -556,7 +560,9 @@ protected:
 	UINT			m_nScale_viewer;
 	bool			fNewScale;
 	bool			m_fPalmVNCScaling;
+#ifdef FILETRANSFER_SUPPORT
 	bool			fFTRequest;
+#endif
 
 	// sf@2002 
 	BYTE* m_pCacheZipBuf;
@@ -569,10 +575,12 @@ protected:
 
 	bool m_fUltraViewer; // sf@2002 
 
+#ifdef FILETRANSFER_SUPPORT
 	// sf@2005 - FTUserImpersonation
 	bool m_fFTUserImpersonatedOk;
 	char m_szTempDir[MAX_PATH];
 	DWORD m_lLastFTUserImpersonationTime;
+#endif
 
 	//stats
 	int totalraw;

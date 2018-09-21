@@ -983,6 +983,7 @@ bool vncServer::IsEncoderSet()
 
 bool vncServer::IsThereFileTransBusy()
 {
+#ifdef FILETRANSFER_SUPPORT
 	vncClientList::iterator i;
 	bool fFound = false;
 	omni_mutex_lock l(m_clientsLock,26);
@@ -994,6 +995,7 @@ bool vncServer::IsThereFileTransBusy()
 			return true;
 		}
 	}
+#endif
 	return false;
 }
 
