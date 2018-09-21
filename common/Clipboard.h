@@ -40,6 +40,7 @@
 #include <rdr/MemOutStream.h>
 #include "rfb.h"
 
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 struct ExtendedClipboardDataMessage {
 	ExtendedClipboardDataMessage();
 	~ExtendedClipboardDataMessage();
@@ -75,6 +76,7 @@ protected:
 	BYTE* m_pCurrentPos;
 	BYTE* m_pData;
 };
+#endif
 
 struct ClipboardSettings {
 	ClipboardSettings(CARD32 caps);
@@ -113,9 +115,11 @@ struct ClipboardSettings {
 
 	CARD32 m_remoteCaps; // messages and formats that will be handled by the remote application
 
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 	void PrepareCapsPacket(ExtendedClipboardDataMessage& extendedDataMessage);
 
 	void HandleCapsPacket(ExtendedClipboardDataMessage& extendedDataMessage, bool bSetLimits);
+#endif
 };
 
 struct ClipboardHolder {
@@ -126,6 +130,7 @@ struct ClipboardHolder {
 	bool m_bIsOpen;
 };
 
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 struct ClipboardData {
 	ClipboardData();
 
@@ -149,11 +154,14 @@ struct ClipboardData {
 
 	bool Restore(HWND hwndOwner, ExtendedClipboardDataMessage& extendedClipboardDataMessage);
 };
+#endif
 
 struct Clipboard {
 	Clipboard(CARD32 caps);
 
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 	bool UpdateClipTextEx(ClipboardData& clipboardData, CARD32 overrideFlags = 0); // returns true if something changed
+#endif
 
 	ClipboardSettings settings;
 	DWORD m_crc;
@@ -164,7 +172,9 @@ struct Clipboard {
 
 	CARD32 m_notifiedRemoteFormats;
 
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 	ExtendedClipboardDataMessage extendedClipboardDataMessage;
 	ExtendedClipboardDataMessage extendedClipboardDataNotifyMessage;
+#endif
 };
 

@@ -136,8 +136,10 @@ public:
 	// These all lock the UpdateLock themselves
 	virtual void UpdateMouse();
 	//virtual void UpdateClipText(const char* text);
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 	// adzm - 2010-07 - Extended clipboard
 	virtual void UpdateClipTextEx(ClipboardData& clipboardData, CARD32 overrideFlags = 0);
+#endif
 	virtual void UpdatePalette(bool lock);
 	virtual void UpdateLocalFormat(bool lock);
 	int nr_incr_rgn_empty;
@@ -300,8 +302,10 @@ public:
 	void Record_SendServerStateUpdate(CARD32 state, CARD32 value);
     void SendKeepAlive(bool bForce = false);
     void SendFTProtocolMsg();
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 	// adzm - 2010-07 - Extended clipboard
 	void NotifyExtendedClipboardSupport();
+#endif
 #ifdef DSM_SUPPORT
 	// adzm 2010-09 - Notify streaming DSM plugin support
 	void NotifyPluginStreamingSupport();

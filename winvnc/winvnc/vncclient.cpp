@@ -493,8 +493,10 @@ vncClientUpdateThread::run_undetached(void *arg)
 								m_client->m_update_tracker.get_changed_region().intersect(m_client->m_incr_rgn).is_empty() &&
 								m_client->m_update_tracker.get_copied_region().intersect(m_client->m_incr_rgn).is_empty() &&
 								m_client->m_update_tracker.get_cached_region().intersect(m_client->m_incr_rgn).is_empty() &&
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 								// adzm - 2010-07 - Extended clipboard
 								!(m_client->m_clipboard.m_bNeedToProvide || m_client->m_clipboard.m_bNeedToNotify) &&
+#endif
 								!m_client->m_cursor_pos_changed // nyama/marscha - PointerPos
 								))) {
 					// Issue the synchronisation signal, to tell other threads
@@ -510,8 +512,10 @@ vncClientUpdateThread::run_undetached(void *arg)
 							m_client->m_update_tracker.get_copied_region().intersect(m_client->m_incr_rgn).is_empty() &&
 							m_client->m_update_tracker.get_cached_region().intersect(m_client->m_incr_rgn).is_empty() &&
 							!m_client->m_encodemgr.IsCursorUpdatePending() &&
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 							// adzm - 2010-07 - Extended clipboard
 							!(m_client->m_clipboard.m_bNeedToProvide || m_client->m_clipboard.m_bNeedToNotify) &&
+#endif
 							!m_client->m_NewSWUpdateWaiting &&
 							!m_client->m_cursor_pos_changed // nyama/marscha - PointerPos
 							))) {
@@ -618,6 +622,7 @@ vncClientUpdateThread::run_undetached(void *arg)
 				// send any clipboard data that should be sent automatically
 				if (m_client->m_clipboard.m_bNeedToProvide) {
 					m_client->m_clipboard.m_bNeedToProvide = false;
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 					if (m_client->m_clipboard.settings.m_bSupportsEx) {
 					
 						int actualLen = m_client->m_clipboard.extendedClipboardDataMessage.GetDataLength();
@@ -638,6 +643,9 @@ vncClientUpdateThread::run_undetached(void *arg)
 						if (!m_client->m_socket->SendExactQueue((char*)(m_client->m_clipboard.extendedClipboardDataMessage.GetData()), m_client->m_clipboard.extendedClipboardDataMessage.GetDataLength()))
 							m_client->m_socket->Close();
 					} 
+#else
+					if(0);
+#endif
 					else {
 						rfbServerCutTextMsg message;
 
@@ -669,13 +677,16 @@ vncClientUpdateThread::run_undetached(void *arg)
 							m_client->m_socket->Close();
 						delete[] unixtext;
 					}
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 					m_client->m_clipboard.extendedClipboardDataMessage.Reset();
+#endif
 				}
 			
 				// adzm - 2010-07 - Extended clipboard
 				// notify of any other formats
 				if (m_client->m_clipboard.m_bNeedToNotify) {
 					m_client->m_clipboard.m_bNeedToNotify = false;
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 					if (m_client->m_clipboard.settings.m_bSupportsEx) {
 					
 						int actualLen = m_client->m_clipboard.extendedClipboardDataNotifyMessage.GetDataLength();
@@ -698,6 +709,7 @@ vncClientUpdateThread::run_undetached(void *arg)
 							m_client->m_socket->Close();
 					}
 					m_client->m_clipboard.extendedClipboardDataNotifyMessage.Reset();
+#endif
 				}
 
 			if (bShouldFlush) 
@@ -2524,12 +2536,14 @@ vncClientThread::run(void *arg)
             m_client->SendFTProtocolMsg();
             need_ft_version_msg = false;
         }
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 		// adzm - 2010-07 - Extended clipboard
 		if (need_notify_extended_clipboard)
 		{
 			m_client->NotifyExtendedClipboardSupport();
 			need_notify_extended_clipboard = false;
 		}
+#endif
 #ifdef DSM_SUPPORT
 		// adzm 2010-09 - Notify streaming DSM plugin support
 		if (need_notify_streaming_DSM)
@@ -2804,6 +2818,7 @@ vncClientThread::run(void *arg)
                         continue;
 					}
 
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 					// adzm - 2010-07 - Extended clipboard
 					if (Swap32IfLE(encoding) == rfbEncodingExtendedClipboard) {
 						need_notify_extended_clipboard = true;
@@ -2811,6 +2826,7 @@ vncClientThread::run(void *arg)
 						vnclog.Print(LL_INTINFO, VNCLOG("Extended clipboard protocol extension enabled\n"));
 						continue;
 					}
+#endif
 
 #ifdef DSM_SUPPORT
 					// adzm 2010-09 - Notify streaming DSM plugin support
@@ -3489,6 +3505,7 @@ vncClientThread::run(void *arg)
 				int length = Swap32IfLE(msg.cct.length);
 				if (length > 104857600) // 100 MBytes max
 					break;
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 				if (length < 0 && m_client->m_clipboard.settings.m_bSupportsEx) {
 
 					length = abs(length);
@@ -3532,6 +3549,9 @@ vncClientThread::run(void *arg)
 							// unsupported or not implemented
 							break;
 					}
+#else
+				if(0 ) {
+#endif
 				} else if (length >= 0) {
 					char* winStr = NULL;
 					{
@@ -4983,6 +5003,7 @@ vncClient::UpdateClipText(const char* text)
 }
 */
 
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 // adzm - 2010-07 - Extended clipboard
 void
 vncClient::UpdateClipTextEx(ClipboardData& clipboardData, CARD32 overrideFlags)
@@ -4995,6 +5016,7 @@ vncClient::UpdateClipTextEx(ClipboardData& clipboardData, CARD32 overrideFlags)
 		TriggerUpdateThread();
 	}
 }
+#endif
 
 void
 vncClient::UpdateCursorShape()
@@ -6644,6 +6666,7 @@ void vncClient::SendFTProtocolMsg()
 
 }
 
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 // adzm - 2010-07 - Extended clipboard
 void vncClient::NotifyExtendedClipboardSupport()
 {	
@@ -6659,6 +6682,7 @@ void vncClient::NotifyExtendedClipboardSupport()
 	m_socket->SendExactQueue((char *)&msg, sz_rfbServerCutTextMsg, rfbServerCutText);
 	m_socket->SendExact((char *)(extendedDataMessage.GetData()), extendedDataMessage.GetDataLength());
 }
+#endif
 
 #ifdef DSM_SUPPORT
 // adzm 2010-09 - Notify streaming DSM plugin support

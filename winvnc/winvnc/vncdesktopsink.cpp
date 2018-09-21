@@ -424,6 +424,7 @@ DesktopWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	case WM_DRAWCLIPBOARD:
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 		// adzm - 2010-07 - Fix clipboard hangs
 		if (_this->can_be_hooked && !_this->m_settingClipboardViewer)
 		{
@@ -442,6 +443,7 @@ DesktopWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 			//_this->m_initialClipBoardSeen = TRUE;
 		}
+#endif
 
 		if (_this->m_hnextviewer != NULL)
 		{

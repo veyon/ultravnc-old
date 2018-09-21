@@ -175,9 +175,11 @@ public:
 	// Update handling, used by the screen server
 	virtual rfb::UpdateTracker &GetUpdateTracker() {return m_update_tracker;};
 	virtual void UpdateMouse();
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 	// adzm - 2010-07 - Extended clipboard
 	//virtual void UpdateClipText(const char* text);
 	virtual void UpdateClipTextEx(HWND hwndOwner, vncClient* excludeClient = NULL);
+#endif
 	virtual void UpdatePalette(bool lock);
 	virtual void UpdateLocalFormat(bool lock);
 
@@ -206,8 +208,10 @@ public:
 
 	// Client manipulation of the clipboard
 	virtual void UpdateLocalClipText(LPSTR text);
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 	// adzm - 2010-07 - Extended clipboard
 	virtual void UpdateLocalClipTextEx(ExtendedClipboardDataMessage& extendedClipboardDataMessage, vncClient* sourceClient);
+#endif
 
 	// Name and port number handling
 	// TightVNC 1.2.7

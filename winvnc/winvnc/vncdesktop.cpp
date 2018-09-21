@@ -2000,6 +2000,7 @@ void vncDesktop::SetClipText(LPSTR rfbStr)
 	CloseClipboard();
 }
 
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 // adzm - 2010-07 - Extended clipboard
 void vncDesktop::SetClipTextEx(ExtendedClipboardDataMessage& extendedClipboardDataMessage)
 {
@@ -2018,6 +2019,7 @@ void vncDesktop::SetClipTextEx(ExtendedClipboardDataMessage& extendedClipboardDa
 		}
 	}
 }
+#endif
 
 // INTERNAL METHODS
 

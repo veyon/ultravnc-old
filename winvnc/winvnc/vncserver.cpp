@@ -1316,6 +1316,7 @@ vncServer::UpdateMouse()
 }
 
 
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 // adzm - 2010-07 - Extended clipboard
 void
 vncServer::UpdateClipTextEx(HWND hwndOwner, vncClient* excludeClient)
@@ -1337,6 +1338,7 @@ vncServer::UpdateClipTextEx(HWND hwndOwner, vncClient* excludeClient)
 		}
 	}
 }
+#endif
 
 void
 vncServer::UpdateCursorShape()
@@ -1394,6 +1396,7 @@ vncServer::UpdateLocalClipText(LPSTR text)
 }
 
 
+#ifdef EXTENDED_CLIPBOARD_SUPPORT
 // adzm - 2010-07 - Extended clipboard
 void
 vncServer::UpdateLocalClipTextEx(ExtendedClipboardDataMessage& extendedClipboardDataMessage, vncClient* sourceClient)
@@ -1406,6 +1409,7 @@ vncServer::UpdateLocalClipTextEx(ExtendedClipboardDataMessage& extendedClipboard
 			m_desktop->SetClipTextEx(extendedClipboardDataMessage);
 	}
 }
+#endif
 
 // Name and port number handling
 void
