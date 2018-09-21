@@ -1252,7 +1252,9 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 #ifdef AUTH_SC_PROMP_SUPPORT
 	bool bSCPromptActive = std::find(current_auth.begin(), current_auth.end(), rfbUltraVNC_SCPrompt) != current_auth.end();
 #endif
+#ifdef AUTH_SESSION_SELECT_SUPPORT
 	bool bSessionSelectActive = std::find(current_auth.begin(), current_auth.end(), rfbUltraVNC_SessionSelect) != current_auth.end();
+#endif
 
 	if (current_auth.empty()) {
 		// send the UltraVNC auth type to identify ourselves as an UltraVNC server, but only initially
@@ -1278,11 +1280,13 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 		auth_types.push_back(rfbUltraVNC_SCPrompt);
 	}
 #endif
+#ifdef AUTH_SESSION_SELECT_SUPPORT
 	else if (bUseSessionSelect)
 	{
 		// adzm 2010-10 - Add the SessionSelect pseudo-auth
 		auth_types.push_back(rfbUltraVNC_SessionSelect);
 	}
+#endif
 	else
 	{			
 		// Retrieve the local password
@@ -1373,10 +1377,12 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 		auth_success = AuthSCPrompt(auth_message);
 		break;
 #endif
+#ifdef AUTH_SESSION_SELECT_SUPPORT
 	case rfbUltraVNC_SessionSelect:
 		// adzm 2010-10 - Do the SessionSelect auth
 		auth_success = AuthSessionSelect(auth_message);
 		break;
+#endif
 	default:
 		auth_success = FALSE;
 		break;
@@ -1404,8 +1410,10 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 		} else if ( (SPECIAL_SC_PROMPT || SPECIAL_SC_EXIT) && !bSCPromptActive) {
 			auth_result = rfbVncAuthContinue;
 #endif
+#ifdef AUTH_SESSION_SELECT_SUPPORT
 		} else if (bUseSessionSelect && !bSessionSelectActive) {
 			auth_result = rfbVncAuthContinue;
+#endif
 		} else {
 			auth_result = rfbVncAuthOK;
 		}
@@ -1945,6 +1953,7 @@ BOOL vncClientThread::AuthSCPrompt(std::string& auth_message)
 }
 #endif
 
+#ifdef AUTH_SESSION_SELECT_SUPPORT
 BOOL vncClientThread::AuthSessionSelect(std::string& auth_message)
 {
 	return TRUE;
@@ -1979,6 +1988,7 @@ BOOL vncClientThread::AuthSessionSelect(std::string& auth_message)
 	}
 	*/
 }
+#endif
 
 void
 ClearKeyState(BYTE key)

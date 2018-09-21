@@ -633,7 +633,9 @@ public:
 #ifdef AUTH_SC_PROMP_SUPPORT
 	BOOL AuthSCPrompt(std::string& auth_message); // adzm 2010-10
 #endif
+#ifdef AUTH_SESSION_SELECT_SUPPORT
 	BOOL AuthSessionSelect(std::string& auth_message); // adzm 2010-10
+#endif
 
 	BOOL FilterClients_Blacklist();
 	BOOL FilterClients_Ask_Permission();
