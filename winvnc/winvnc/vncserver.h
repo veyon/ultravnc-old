@@ -103,7 +103,9 @@ public:
 	virtual BOOL Authenticated(vncClientId client);
 	virtual void KillClient(vncClientId client);
 	virtual void KillClient(LPSTR szClientName); // sf@2002
+#ifdef TEXT_CHAT_SUPPORT
 	virtual void TextChatClient(LPSTR szClientName); // sf@2002
+#endif
 	bool IsUltraVNCViewer();
 	bool AreThereMultipleViewers();
 

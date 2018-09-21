@@ -3721,7 +3721,7 @@ vncClientThread::run(void *arg)
 			break;
 
 
-#ifndef ULTRAVNC_VEYON_SUPPORT
+#ifdef TEXT_CHAT_SUPPORT
 		// Modif sf@2002 - TextChat
 		case rfbTextChat:
 			m_client->m_pTextChat->ProcessTextChatMsg(nTO);
@@ -4671,7 +4671,7 @@ vncClient::vncClient() : m_clipboard(ClipboardSettings::defaultServerCaps), Send
 #endif
 
 	// Modif sf@2002 - Text Chat
-#ifndef ULTRAVNC_VEYON_SUPPORT
+#ifdef TEXT_CHAT_SUPPORT
 	m_pTextChat = new TextChat(this); 	
 #endif
 	m_fUltraViewer = true;
@@ -4710,7 +4710,7 @@ vncClient::~vncClient()
 	cl_connected = false;
 	vnclog.Print(LL_INTINFO, VNCLOG("~vncClient() executing...\n"));
 
-#ifndef ULTRAVNC_VEYON_SUPPORT
+#ifdef TEXT_CHAT_SUPPORT
 	// Modif sf@2002 - Text Chat
 	if (m_pTextChat) 
 	{
@@ -4840,7 +4840,7 @@ vncClient::Kill()
 {
 	// Close the socket
 	vnclog.Print(LL_INTERR, VNCLOG("client Kill() called"));
-#ifndef ULTRAVNC_VEYON_SUPPORT
+#ifdef TEXT_CHAT_SUPPORT
 	if (m_pTextChat)
         m_pTextChat->KillDialog();
 #endif

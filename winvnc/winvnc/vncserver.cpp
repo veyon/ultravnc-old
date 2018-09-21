@@ -783,6 +783,7 @@ void vncServer::KillClient(LPSTR szClientName)
 }
 
 
+#ifdef TEXT_CHAT_SUPPORT
 //
 // sf@2002 - Open a textchat window with the named client
 //
@@ -797,7 +798,6 @@ void vncServer::TextChatClient(LPSTR szClientName)
 		pClient = GetClient(*i);
 		if (!_stricmp(pClient->GetClientName(), szClientName))
 		{
-#ifndef ULTRAVNC_VEYON_SUPPORT
 			if (!pClient->IsUltraViewer())
 			{
 				vnclog.Print(LL_INTINFO, VNCLOG("Client %s is not Ultra. Doesn't know TextChat\n"), szClientName);
@@ -810,12 +810,12 @@ void vncServer::TextChatClient(LPSTR szClientName)
 			}
 			vnclog.Print(LL_INTINFO, VNCLOG("TextChat with client named: %s\n"), szClientName);
 			pClient->GetTextChatPointer()->OrderTextChat();
-#endif
 			break;
 		}
 	}
 	vnclog.Print(LL_INTINFO, VNCLOG("KillClient() from name done\n"));
 }
+#endif
 
 bool vncServer::IsUltraVNCViewer()
 {

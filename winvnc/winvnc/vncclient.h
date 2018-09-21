@@ -63,7 +63,9 @@ typedef std::list<vncClientId> vncClientList;
 #include "rfbUpdateTracker.h"
 #include "vncbuffer.h"
 #include "vncencodemgr.h"
+#ifdef TEXT_CHAT_SUPPORT
 #include "TextChat.h" // sf@2002 - TextChat
+#endif
 #ifdef FILETRANSFER_SUPPORT
 #include "ZipUnZip32/zipUnZip32.h"
 #endif
@@ -210,7 +212,9 @@ public:
 	virtual void SetScreenOffset(int x,int y,int type);
 	virtual void InitialUpdate(bool value);
 
+#ifdef TEXT_CHAT_SUPPORT
 	virtual TextChat* GetTextChatPointer() { return m_pTextChat; }; // sf@2002
+#endif
 	virtual void SetUltraViewer(bool fTrue) { m_fUltraViewer = fTrue;};
 	virtual bool IsUltraViewer() { return m_fUltraViewer;};
 
@@ -570,8 +574,10 @@ protected:
 	BYTE* m_pRawCacheZipBuf;
 	unsigned int m_nRawCacheZipBufSize;
 
+#ifdef TEXT_CHAT_SUPPORT
 	friend class TextChat; 
 	TextChat *m_pTextChat;	// Modif sf@2002 - Text Chat
+#endif
 
 	bool m_fUltraViewer; // sf@2002 
 
