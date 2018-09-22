@@ -884,8 +884,10 @@ vncClientThread::InitVersion()
 	if (m_major != rfbProtocolMajorVersion)
 		return FALSE;
 
+#ifdef AUTH_MS_LOGON_SUPPORT
 	m_ms_logon = m_server->MSLogonRequired();
 	vnclog.Print(LL_INTINFO, VNCLOG("m_ms_logon set to %s"), m_ms_logon ? "true" : "false");
+#endif
 
 	// adzm 2010-09 - see rfbproto.h for more discussion on all this
 	m_client->SetUltraViewer(false); // sf@2005 - Fix Open TextChat from server bug 
@@ -1294,11 +1296,13 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 		m_server->GetPassword(password);
 		vncPasswd::ToText plain(password);
 
+#ifdef AUTH_MS_LOGON_SUPPORT
 		if (!m_auth && m_ms_logon)
 		{
 			auth_types.push_back(rfbUltraVNC_MsLogonIIAuth);
 		}
 		else
+#endif
 		{
 			if (m_auth || (strlen(plain) == 0))
 			{
@@ -1362,9 +1366,11 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 		version_warning = 1;
 		break;
 #endif
+#ifdef AUTH_MS_LOGON_SUPPORT
 	case rfbUltraVNC_MsLogonIIAuth:
 		auth_success = AuthMsLogon(auth_message);
 		break;
+#endif
 	case rfbVncAuth:
 		auth_success = AuthVnc(auth_message);
 		break;
@@ -1514,10 +1520,12 @@ BOOL vncClientThread::AuthenticateLegacyClient()
 #else
 	if(0);
 #endif
+#ifdef AUTH_MS_LOGON_SUPPORT
 	else if (m_ms_logon)
 	{
 		auth_type = rfbLegacy_MsLogon;
 	}
+#endif
 	else if (strlen(plain) > 0)
 	{
 		auth_type = rfbVncAuth;
@@ -1567,9 +1575,11 @@ BOOL vncClientThread::AuthenticateLegacyClient()
 		}
 		break;
 #endif
+#ifdef AUTH_MS_LOGON_SUPPORT
 	case rfbLegacy_MsLogon:
 		auth_success = AuthMsLogon(auth_message);
 		break;
+#endif
 	case rfbVncAuth:
 		auth_success = AuthVnc(auth_message);
 		break;
@@ -1798,6 +1808,7 @@ BOOL vncClientThread::AuthSecureVNCPlugin_old(std::string& auth_message)
 }
 #endif
 
+#ifdef AUTH_MS_LOGON_SUPPORT
 // marscha@2006: Try to better hide the windows password.
 // I know that this is no breakthrough in modern cryptography.
 // It's just a patch/kludge/workaround.
@@ -1840,6 +1851,7 @@ vncClientThread::AuthMsLogon(std::string& auth_message)
 		return FALSE;
 	}
 }
+#endif
 
 BOOL vncClientThread::AuthVnc(std::string& auth_message)
 {

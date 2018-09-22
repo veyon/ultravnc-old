@@ -634,9 +634,13 @@ public:
 	virtual BOOL AuthenticateClient(std::vector<CARD8>& current_auth);
 	virtual BOOL AuthenticateLegacyClient();
 
+#ifdef DSM_SUPPORT
 	BOOL AuthSecureVNCPlugin(std::string& auth_message); // must SetHandshakeComplete after sending auth result!
 	BOOL AuthSecureVNCPlugin_old(std::string& auth_message);
+#endif
+#ifdef AUTH_MS_LOGON_SUPPORT
 	BOOL AuthMsLogon(std::string& auth_message);
+#endif
 	BOOL AuthVnc(std::string& auth_message);
 #ifdef AUTH_SC_PROMP_SUPPORT
 	BOOL AuthSCPrompt(std::string& auth_message); // adzm 2010-10
@@ -674,7 +678,9 @@ protected:
 	vncClient *m_client;
 	BOOL m_auth;
 	BOOL m_shared;
+#ifdef AUTH_MS_LOGON_SUPPORT
 	BOOL m_ms_logon;
+#endif
 	int m_major;
 	int m_minor;
 #ifdef _Gii
