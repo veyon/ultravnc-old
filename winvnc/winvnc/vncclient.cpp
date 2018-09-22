@@ -2541,6 +2541,7 @@ vncClientThread::run(void *arg)
 		}
 #endif
 
+#ifdef SERVER_STATE_SUPPORT
 		if (need_first_idletime)
 		{
 			// send idletime to let the client know we accepted the encoding request
@@ -2558,6 +2559,7 @@ vncClientThread::run(void *arg)
 					OutputDebugString(szText);		
 #endif
 		}
+#endif
 #ifdef FILETRANSFER_SUPPORT
         if (need_ft_version_msg)
         {
@@ -2816,6 +2818,7 @@ vncClientThread::run(void *arg)
 						vnclog.Print(LL_INTINFO, VNCLOG("PointerPos protocol extension enabled\n"));
 						continue;
 					}
+#ifdef SERVER_STATE_SUPPORT
 					// 21 March 2008 jdp - client wants server state updates
 					if (Swap32IfLE(encoding) == rfbEncodingServerState) {
 						m_client->m_wants_ServerStateUpdates = true;
@@ -2829,6 +2832,7 @@ vncClientThread::run(void *arg)
 						vnclog.Print(LL_INTINFO, VNCLOG("KeepAlive protocol extension enabled\n"));
                         continue;
 					}
+#endif
 
 #ifdef KEEP_ALIVE_SUPPORT
 					if (Swap32IfLE(encoding) == rfbEncodingEnableKeepAlive) {
@@ -2840,11 +2844,13 @@ vncClientThread::run(void *arg)
 					}
 #endif
 					
+#ifdef SERVER_STATE_SUPPORT
 					if (Swap32IfLE(encoding) == rfbEncodingEnableIdleTime) {
 						need_first_idletime = true;
 						vnclog.Print(LL_INTINFO, VNCLOG("IdleTime protocol extension enabled\n"));
 						continue;
 						}
+#endif
 
 #ifdef FILETRANSFER_SUPPORT
 					if (Swap32IfLE(encoding) == rfbEncodingFTProtocolVersion) {
@@ -3707,21 +3713,18 @@ vncClientThread::run(void *arg)
 				/// fix by PGM (pgmoney)
 				if (!m_server->GetDesktopPointer()->GetBlockInputState() && msg.sim.status==1) 
 					{ 
-						CARD32 state = rfbServerState_Enabled; 
 						m_client->m_encodemgr.m_buffer->m_desktop->SetBlockInputState(true); 
 						m_client->m_bClientHasBlockedInput = (true);
 					} 
 
 				else if (m_server->GetDesktopPointer()->GetBlockInputState() && m_client->m_bClientHasBlockedInput && msg.sim.status==0)
 					{
-						CARD32 state = rfbServerState_Disabled; 
 						m_client->m_encodemgr.m_buffer->m_desktop->SetBlockInputState(FALSE);
 						m_client->m_bClientHasBlockedInput = (FALSE); 
 					} 
 
 				else if (!m_server->GetDesktopPointer()->GetBlockInputState() && !m_client->m_bClientHasBlockedInput && msg.sim.status==0)
 					{
-						CARD32 state = rfbServerState_Disabled; 
 						m_client->m_encodemgr.m_buffer->m_desktop->SetBlockInputState(FALSE);
 						m_client->m_bClientHasBlockedInput = (FALSE);
 					}
@@ -4705,9 +4708,13 @@ vncClient::vncClient() : m_clipboard(ClipboardSettings::defaultServerCaps), Send
 	m_NewSWUpdateWaiting=false;
 	client_settings_passed=false;
 	initialCapture_done=false;
+#ifdef SERVER_STATE_SUPPORT
     m_wants_ServerStateUpdates =  false;
+#endif
     m_bClientHasBlockedInput = false;
+#ifdef SERVER_STATE_SUPPORT
 	m_Support_rfbSetServerInput = false;
+#endif
 #ifdef KEEP_ALIVE_SUPPORT
     m_wants_KeepAlive = false;
 #endif
@@ -4726,7 +4733,9 @@ vncClient::vncClient() : m_clipboard(ClipboardSettings::defaultServerCaps), Send
 	m_szRepeaterID = NULL; // as in, not using
 	m_szHost = NULL;
 	m_hostPort = 0;
+#ifdef SERVER_STATE_SUPPORT
 	m_want_update_state=false;
+#endif
 	m_initial_update=false;
 	m_nScale_viewer = 1;
 	nr_incr_rgn_empty = 0;
@@ -6651,6 +6660,7 @@ void vncClient::UndoFTUserImpersonation()
 }
 #endif
 
+#ifdef SERVER_STATE_SUPPORT
 // 10 April 2008 jdp paquette@atnetsend.net
 // This can crash as we can not send middle in an update...
 
@@ -6680,6 +6690,7 @@ void vncClient::SendServerStateUpdate(CARD32 state, CARD32 value)
 		m_socket->SendExact((char*)&rsmsg, sz_rfbServerStateMsg, rfbServerState);
     }
 }
+#endif
 
 #ifdef KEEP_ALIVE_SUPPORT
 void vncClient::SendKeepAlive(bool bForce)

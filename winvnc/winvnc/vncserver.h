@@ -450,9 +450,11 @@ public:
 
 	bool IsClient(vncClient* pClient);
 
+#ifdef SERVER_STATE_SUPPORT
     void EnableServerStateUpdates(bool newstate) { m_fEnableStateUpdates = newstate; }
     bool DoServerStateUpdates() { return m_fEnableStateUpdates; }
     void NotifyClients_StateChange(CARD32 state, CARD32 value);
+#endif
     int  GetFTTimeout() { return m_ftTimeout; }
 #ifdef KEEP_ALIVE_SUPPORT
     int  GetKeepAliveInterval () { return m_keepAliveInterval; }
@@ -631,7 +633,9 @@ protected:
 	BOOL m_fFTUserImpersonation;
 
 	HINSTANCE   hWtsLib;
+#ifdef SERVER_STATE_SUPPORT
     bool m_fEnableStateUpdates;
+#endif
 #ifdef KEEP_ALIVE_SUPPORT
     bool m_fEnableKeepAlive;
 #endif

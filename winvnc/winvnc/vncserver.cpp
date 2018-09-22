@@ -2661,6 +2661,7 @@ void vncServer::_actualTimerRetryHandler()
 		m_retry_timeout = 0;
 	}
 }
+#ifdef SERVER_STATE_SUPPORT
 void vncServer::NotifyClients_StateChange(CARD32 state, CARD32 value)
 {
 	omni_mutex_lock l(m_clientsLock,42);
@@ -2689,6 +2690,7 @@ void vncServer::NotifyClients_StateChange(CARD32 state, CARD32 value)
         client->Record_SendServerStateUpdate(state, value);
 	}
 }
+#endif
 
 void vncServer::StopReconnectAll()
 {

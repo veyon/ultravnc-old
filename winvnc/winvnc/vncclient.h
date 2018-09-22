@@ -304,8 +304,10 @@ public:
     void FTDeleteHook(std::string name, bool isDir);
     void FTRenameHook(std::string oldName, std::string newname);
 #endif
+#ifdef SERVER_STATE_SUPPORT
     void SendServerStateUpdate(CARD32 state, CARD32 value);
 	void Record_SendServerStateUpdate(CARD32 state, CARD32 value);
+#endif
 #ifdef KEEP_ALIVE_SUPPORT
     void SendKeepAlive(bool bForce = false);
 #endif
@@ -596,7 +598,9 @@ protected:
     helper::DynamicFn<pSendinput> Sendinput;
 
     std::string m_OrigSourceDirectoryName;
+#ifdef SERVER_STATE_SUPPORT
     bool        m_wants_ServerStateUpdates;
+#endif
     bool        m_bClientHasBlockedInput;
 	bool		m_Support_rfbSetServerInput;
 #ifdef KEEP_ALIVE_SUPPORT

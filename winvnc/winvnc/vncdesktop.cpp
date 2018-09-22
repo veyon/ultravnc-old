@@ -2198,7 +2198,9 @@ vncDesktop::SetDisableInput()
 {
 	CARD32 state;
 	state = !block_input(false);
+#ifdef SERVER_STATE_SUPPORT
 	m_server->NotifyClients_StateChange(rfbServerRemoteInputsState, state);
+#endif
 }
 
 
@@ -2549,7 +2551,9 @@ void vncDesktop::SetBlockInputState(bool newstate)
 
 	m_bIsInputDisabledByClient = !state;
 
+#ifdef SERVER_STATE_SUPPORT
 	m_server->NotifyClients_StateChange(rfbServerRemoteInputsState, state);
+#endif
 }
 
 bool vncDesktop::block_input(bool first)
@@ -2584,7 +2588,9 @@ bool vncDesktop::block_input(bool first)
 		{
 			CARD32 state;
 			state = !Blockinput_val;
+#ifdef SERVER_STATE_SUPPORT
 			m_server->NotifyClients_StateChange(rfbServerRemoteInputsState, state);
+#endif
 		}
 		if (pbi)
 		{
