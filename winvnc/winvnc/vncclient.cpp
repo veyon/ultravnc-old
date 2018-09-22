@@ -2527,6 +2527,7 @@ vncClientThread::run(void *arg)
         m_client->m_encodemgr.m_buffer->m_desktop->block_input(firstrun);
 		firstrun=false;
 
+#ifdef KEEP_ALIVE_SUPPORT
         if (need_first_keepalive)
         {
             // send first keepalive to let the client know we accepted the encoding request
@@ -2538,6 +2539,7 @@ vncClientThread::run(void *arg)
 			m_client->SendKeepAlive(true);
 			need_keepalive = false;
 		}
+#endif
 
 		if (need_first_idletime)
 		{
@@ -2613,9 +2615,11 @@ vncClientThread::run(void *arg)
 		switch(msg.type)
 		{
 
+#ifdef KEEP_ALIVE_SUPPORT
         case rfbKeepAlive:
 				need_keepalive = true;
             break;
+#endif
 
 		case rfbSetPixelFormat:
 			// Read the rest of the message:
@@ -2826,6 +2830,7 @@ vncClientThread::run(void *arg)
                         continue;
 					}
 
+#ifdef KEEP_ALIVE_SUPPORT
 					if (Swap32IfLE(encoding) == rfbEncodingEnableKeepAlive) {
 						m_client->m_wants_KeepAlive = true;
                         m_server->EnableKeepAlives(true);
@@ -2833,6 +2838,7 @@ vncClientThread::run(void *arg)
 						vnclog.Print(LL_INTINFO, VNCLOG("KeepAlive protocol extension enabled\n"));
                         continue;
 					}
+#endif
 					
 					if (Swap32IfLE(encoding) == rfbEncodingEnableIdleTime) {
 						need_first_idletime = true;
@@ -4702,7 +4708,9 @@ vncClient::vncClient() : m_clipboard(ClipboardSettings::defaultServerCaps), Send
     m_wants_ServerStateUpdates =  false;
     m_bClientHasBlockedInput = false;
 	m_Support_rfbSetServerInput = false;
+#ifdef KEEP_ALIVE_SUPPORT
     m_wants_KeepAlive = false;
+#endif
 	m_session_supported = false;
 #ifdef FILETRANSFER_SUPPORT
     m_fFileSessionOpen = false;
@@ -6673,6 +6681,7 @@ void vncClient::SendServerStateUpdate(CARD32 state, CARD32 value)
     }
 }
 
+#ifdef KEEP_ALIVE_SUPPORT
 void vncClient::SendKeepAlive(bool bForce)
 {
     if (m_wants_KeepAlive && m_socket)
@@ -6691,6 +6700,7 @@ void vncClient::SendKeepAlive(bool bForce)
 		m_socket->SendExact((char*)&kp, sz_rfbKeepAliveMsg, rfbKeepAlive);
     }
 }
+#endif
 
 #ifdef FILETRANSFER_SUPPORT
 void vncClient::SendFTProtocolMsg()

@@ -306,7 +306,9 @@ public:
 #endif
     void SendServerStateUpdate(CARD32 state, CARD32 value);
 	void Record_SendServerStateUpdate(CARD32 state, CARD32 value);
+#ifdef KEEP_ALIVE_SUPPORT
     void SendKeepAlive(bool bForce = false);
+#endif
 #ifdef FILETRANSFER_SUPPORT
     void SendFTProtocolMsg();
 #endif
@@ -597,7 +599,9 @@ protected:
     bool        m_wants_ServerStateUpdates;
     bool        m_bClientHasBlockedInput;
 	bool		m_Support_rfbSetServerInput;
+#ifdef KEEP_ALIVE_SUPPORT
     bool        m_wants_KeepAlive;
+#endif
 	bool		m_session_supported;
 	bool		m_initial_update;
 	bool		m_outgoing;

@@ -2394,14 +2394,20 @@ void vncProperties::LoadFromIniFile()
     if (m_ftTimeout > 600)
         m_ftTimeout = 600;
 
+#ifdef KEEP_ALIVE_SUPPORT
     m_keepAliveInterval = myIniFile.ReadInt("admin", "KeepAliveInterval", m_keepAliveInterval);
+#endif
 	m_IdleInputTimeout = myIniFile.ReadInt("admin", "IdleInputTimeout", m_IdleInputTimeout);
 
+#ifdef KEEP_ALIVE_SUPPORT
     if (m_keepAliveInterval >= (m_ftTimeout - KEEPALIVE_HEADROOM))
         m_keepAliveInterval = m_ftTimeout - KEEPALIVE_HEADROOM;
+#endif
 
     m_server->SetFTTimeout(m_ftTimeout);
+#ifdef KEEP_ALIVE_SUPPORT
     m_server->SetKeepAliveInterval(m_keepAliveInterval);
+#endif
 	m_server->SetIdleInputTimeout(m_IdleInputTimeout);
     
 
@@ -2506,7 +2512,9 @@ void vncProperties::SaveToIniFile()
 				myIniFile.WriteInt("admin", "AllowProperties",  m_allowproperties);
 				myIniFile.WriteInt("admin", "AllowEditClients", m_alloweditclients);
 				myIniFile.WriteInt("admin", "FileTransferTimeout", m_ftTimeout);
+#ifdef KEEP_ALIVE_SUPPORT
 				myIniFile.WriteInt("admin", "KeepAliveInterval", m_keepAliveInterval);
+#endif
 				myIniFile.WriteInt("admin", "IdleInputTimeout", m_IdleInputTimeout);
 				myIniFile.WriteInt("admin", "DisableTrayIcon", m_server->GetDisableTrayIcon());
 				myIniFile.WriteInt("admin", "rdpmode", m_server->GetRdpmode());
@@ -2534,7 +2542,9 @@ void vncProperties::SaveToIniFile()
 	myIniFile.WriteInt("admin", "AllowProperties",  m_allowproperties);
 	myIniFile.WriteInt("admin", "AllowEditClients", m_alloweditclients);
     myIniFile.WriteInt("admin", "FileTransferTimeout", m_ftTimeout);
+#ifdef KEEP_ALIVE_SUPPORT
     myIniFile.WriteInt("admin", "KeepAliveInterval", m_keepAliveInterval);
+#endif
 	myIniFile.WriteInt("admin", "IdleInputTimeout", m_IdleInputTimeout);
 	myIniFile.WriteInt("admin", "DisableTrayIcon", m_server->GetDisableTrayIcon());
 	myIniFile.WriteInt("admin", "rdpmode", m_server->GetRdpmode());

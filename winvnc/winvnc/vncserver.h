@@ -454,11 +454,14 @@ public:
     bool DoServerStateUpdates() { return m_fEnableStateUpdates; }
     void NotifyClients_StateChange(CARD32 state, CARD32 value);
     int  GetFTTimeout() { return m_ftTimeout; }
+#ifdef KEEP_ALIVE_SUPPORT
     int  GetKeepAliveInterval () { return m_keepAliveInterval; }
+#endif
 	int  GetIdleInputTimeout() { return m_IdleInputTimeout; }
 	void SetIdleInputTimeout(int secs) { m_IdleInputTimeout = secs; }
 
     void SetFTTimeout(int msecs);
+#ifdef KEEP_ALIVE_SUPPORT
     void EnableKeepAlives(bool newstate) { m_fEnableKeepAlive = newstate; }
     bool DoKeepAlives() { return m_fEnableKeepAlive; }
     void SetKeepAliveInterval(int secs) { 
@@ -466,6 +469,7 @@ public:
     if (m_keepAliveInterval >= (m_ftTimeout - KEEPALIVE_HEADROOM))
         m_keepAliveInterval = m_ftTimeout  - KEEPALIVE_HEADROOM;
     }
+#endif
 
 	void TriggerUpdate();
 	UINT				m_retry_timeout;
@@ -628,7 +632,9 @@ protected:
 
 	HINSTANCE   hWtsLib;
     bool m_fEnableStateUpdates;
+#ifdef KEEP_ALIVE_SUPPORT
     bool m_fEnableKeepAlive;
+#endif
     int m_ftTimeout;
     int m_keepAliveInterval;
 	int m_IdleInputTimeout;
