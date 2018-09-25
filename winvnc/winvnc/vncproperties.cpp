@@ -151,7 +151,7 @@ vncProperties::Init(vncServer *server)
 	m_server->GetPassword(passwd);
 #ifndef ULTRAVNC_VEYON_SUPPORT
 	{
-	    vncPasswd::ToText plain(passwd);
+	    vncPasswd::ToText plain(passwd, m_pref_Secure);
 	    if (strlen(plain) == 0)
 		{
 			 if (!m_allowproperties || !RunningAsAdministrator ()) {
@@ -378,7 +378,7 @@ vncProperties::ShowAdmin(BOOL show, BOOL usersettings)
 				char passwd[MAXPWLEN];
 				m_server->GetPassword(passwd);
 				{
-				    vncPasswd::ToText plain(passwd);
+				    vncPasswd::ToText plain(passwd, m_server->Secure());
 				    if ((strlen(plain) != 0) || !m_server->AuthRequired())
 					break;
 				}
@@ -567,6 +567,9 @@ vncProperties::DialogProc(HWND hwnd,
 			// added New MS-Logon checkbox
 			// only enable New MS-Logon checkbox and Configure MS-Logon groups when MS-Logon
 			// is checked.
+		   HWND hSecure = GetDlgItem(hwnd, IDC_SAVEPASSWORDSECURE);
+		   SendMessage(hSecure, BM_SETCHECK, _this->m_server->Secure(), 0);
+		   
 			HWND hMSLogon = GetDlgItem(hwnd, IDC_MSLOGON_CHECKD);
 			SendMessage(hMSLogon, BM_SETCHECK, _this->m_server->MSLogonRequired(), 0);
 
@@ -744,37 +747,60 @@ vncProperties::DialogProc(HWND hwnd,
 					strcpy(path,"");
 					vnclog.SetPath(path);
 				}
+				bool Secure_old = _this->m_server->Secure();
+				HWND hSecure = GetDlgItem(hwnd, IDC_SAVEPASSWORDSECURE);
+				_this->m_server->Secure(SendMessage(hSecure, BM_GETCHECK, 0, 0) == BST_CHECKED);
 
 				// Save the password
 				char passwd[MAXPWLEN+1];
 				char passwd2[MAXPWLEN+1];
+				memset(passwd, '\0', MAXPWLEN + 1); //PGM
+				memset(passwd2, '\0', MAXPWLEN + 1); //PGM
 				// TightVNC method
-				int len = GetDlgItemText(hwnd, IDC_PASSWORD, (LPSTR) &passwd, MAXPWLEN+1);
+				int lenPassword = GetDlgItemText(hwnd, IDC_PASSWORD, (LPSTR) &passwd, MAXPWLEN+1);				
+				int lenPassword2 = GetDlgItemText(hwnd, IDC_PASSWORD2, (LPSTR)&passwd2, MAXPWLEN + 1); //PGM
+
+
+				if (Secure_old != _this->m_server->Secure()) {
+					//We changed the method to save the password
+					//load passwords and encrypt the other method
+					char password[MAXPWLEN];
+					char password2[MAXPWLEN];
+					_this->m_server->GetPassword(password);
+					vncPasswd::ToText plain(password, Secure_old);
+					_this->m_server->GetPassword2(password2);
+					vncPasswd::ToText plain2(password2, Secure_old);
+					memset(passwd, '\0', MAXPWLEN + 1); //PGM
+					memset(passwd2, '\0', MAXPWLEN + 1); //PGM
+					strcpy(passwd,plain);
+					strcpy(passwd2, plain2);
+					lenPassword = strlen(passwd);
+					lenPassword2 = strlen(passwd2);
+				}
+				
 				if (strcmp(passwd, "~~~~~~~~") != 0) {
-					if (len == 0)
+					if (lenPassword == 0)
 					{
-						vncPasswd::FromClear crypt;
+						vncPasswd::FromClear crypt(_this->m_server->Secure());
 						_this->m_server->SetPassword(crypt);
 					}
 					else
 					{
-						vncPasswd::FromText crypt(passwd);
+						vncPasswd::FromText crypt(passwd, _this->m_server->Secure());
 						_this->m_server->SetPassword(crypt);
 					}
 				}
 
-				memset(passwd2, '\0', MAXPWLEN+1); //PGM
-				len = 0; //PGM
-				len = GetDlgItemText(hwnd, IDC_PASSWORD2, (LPSTR) &passwd2, MAXPWLEN+1); //PGM
+				
 				if (strcmp(passwd2, "~~~~~~~~") != 0) { //PGM
-					if (len == 0) //PGM
+					if (lenPassword2 == 0) //PGM
 					{ //PGM
-						vncPasswd::FromClear crypt2; //PGM
+						vncPasswd::FromClear crypt2(_this->m_server->Secure()); //PGM
 						_this->m_server->SetPassword2(crypt2); //PGM
 					} //PGM
 					else //PGM
 					{ //PGM
-						vncPasswd::FromText crypt2(passwd2); //PGM
+						vncPasswd::FromText crypt2(passwd2, _this->m_server->Secure()); //PGM
 						_this->m_server->SetPassword2(crypt2); //PGM
 					} //PGM
 				} //PGM
@@ -938,7 +964,8 @@ vncProperties::DialogProc(HWND hwnd,
 				}
 				// Modif sf@2002 - v1.1.0
 				// Marscha@2004 - authSSP: moved MS-Logon checkbox back to admin props page
-				// added New MS-Logon checkbox
+				// added New MS-Logon checkbox				
+
 				HWND hMSLogon = GetDlgItem(hwnd, IDC_MSLOGON_CHECKD);
 				_this->m_server->RequireMSLogon(SendMessage(hMSLogon, BM_GETCHECK, 0, 0) == BST_CHECKED);
 				
@@ -1732,6 +1759,10 @@ vncProperties::Load(BOOL usersettings)
 
 	m_server->SetLoopbackOnly(LoadInt(hkLocal, "LoopbackOnly", false));
 
+	m_pref_Secure = false;
+	m_pref_Secure = LoadInt(hkLocal, "Secure", m_pref_Secure);
+	m_server->Secure(m_pref_Secure);
+
 	m_pref_RequireMSLogon=false;
 	m_pref_RequireMSLogon = LoadInt(hkLocal, "MSLogonRequired", m_pref_RequireMSLogon);
 	m_server->RequireMSLogon(m_pref_RequireMSLogon);
@@ -1791,7 +1822,7 @@ LABELUSERSETTINGS:
 	m_pref_PortNumber = RFB_PORT_OFFSET; 
 	m_pref_SockConnect=TRUE;
 	{
-	    vncPasswd::FromClear crypt;
+	    vncPasswd::FromClear crypt(m_pref_Secure);
 	    memcpy(m_pref_passwd, crypt, MAXPWLEN);
 	}
 	m_pref_QuerySetting=2;
@@ -2197,6 +2228,7 @@ vncProperties::Save()
 
 	SaveInt(hkLocal, "DisableTrayIcon", m_server->GetDisableTrayIcon());
 	SaveInt(hkLocal, "rdpmode", m_server->GetRdpmode());
+	SaveInt(hkLocal, "Secure", m_server->Secure());
 	SaveInt(hkLocal, "MSLogonRequired", m_server->MSLogonRequired());
 	// Marscha@2004 - authSSP: save "New MS-Logon" state
 	SaveInt(hkLocal, "NewMSLogon", m_server->GetNewMSLogon());
@@ -2331,6 +2363,14 @@ void vncProperties::LoadFromIniFile()
 
 	m_server->SetLoopbackOnly(myIniFile.ReadInt("admin", "LoopbackOnly", false));
 
+	m_pref_Secure = false;
+	m_pref_Secure = myIniFile.ReadInt("admin", "Secure", m_pref_Secure);
+	m_server->Secure(m_pref_Secure);
+
+	m_pref_Secure = false;
+	m_pref_Secure = myIniFile.ReadInt("admin", "Secure", m_pref_Secure);
+	m_server->Secure(m_pref_Secure);
+
 	m_pref_RequireMSLogon=false;
 	m_pref_RequireMSLogon = myIniFile.ReadInt("admin", "MSLogonRequired", m_pref_RequireMSLogon);
 	m_server->RequireMSLogon(m_pref_RequireMSLogon);
@@ -2378,7 +2418,7 @@ void vncProperties::LoadFromIniFile()
 	m_pref_PortNumber = RFB_PORT_OFFSET; 
 	m_pref_SockConnect=TRUE;
 	{
-	    vncPasswd::FromClear crypt;
+	    vncPasswd::FromClear crypt(m_pref_Secure);
 	    memcpy(m_pref_passwd, crypt, MAXPWLEN);
 	}
 	m_pref_QuerySetting=2;
@@ -2548,6 +2588,7 @@ void vncProperties::SaveToIniFile()
 				myIniFile.WriteInt("admin", "IdleInputTimeout", m_IdleInputTimeout);
 				myIniFile.WriteInt("admin", "DisableTrayIcon", m_server->GetDisableTrayIcon());
 				myIniFile.WriteInt("admin", "rdpmode", m_server->GetRdpmode());
+				myIniFile.WriteInt("admin", "Secure", m_server->Secure());
 				myIniFile.WriteInt("admin", "MSLogonRequired", m_server->MSLogonRequired());
 				// Marscha@2004 - authSSP: save "New MS-Logon" state
 				myIniFile.WriteInt("admin", "NewMSLogon", m_server->GetNewMSLogon());
@@ -2578,6 +2619,7 @@ void vncProperties::SaveToIniFile()
 	myIniFile.WriteInt("admin", "IdleInputTimeout", m_IdleInputTimeout);
 	myIniFile.WriteInt("admin", "DisableTrayIcon", m_server->GetDisableTrayIcon());
 	myIniFile.WriteInt("admin", "rdpmode", m_server->GetRdpmode());
+	myIniFile.WriteInt("admin", "Secure", m_server->Secure());
 	myIniFile.WriteInt("admin", "MSLogonRequired", m_server->MSLogonRequired());
 	// Marscha@2004 - authSSP: save "New MS-Logon" state
 	myIniFile.WriteInt("admin", "NewMSLogon", m_server->GetNewMSLogon());

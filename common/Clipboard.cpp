@@ -33,6 +33,10 @@
 #include "Clipboard.h"
 
 
+#ifdef ULTRAVNC_VEYON_SUPPORT
+#include "stdhdrs.h"
+#endif
+
 #define VC_EXTRALEAN
 #include <winsock2.h>
 #include <windows.h>
@@ -45,7 +49,7 @@
 #ifdef _INTERNALLIB
 #include <zlib.h>
 #else
-#include <zlib-1.2.5/zlib.h>
+#include <zlib/zlib.h>
 #endif
 
 

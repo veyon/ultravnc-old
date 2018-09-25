@@ -51,6 +51,8 @@
 ///unload driver
 #include "vncOSVersion.h"
 #include "videodriver.h"
+#include <intrin.h>
+#include "vncauth.h"
 
 #ifdef IPP
 void InitIpp();
@@ -149,6 +151,31 @@ VNC_OSVersion VNCOS;
 extern bool PreConnect;
 // winvnc.exe will also be used for helper exe
 // This allow us to minimize the number of seperate exe
+#define u16 unsigned short
+#define u32 unsigned int
+u16 getVolumeHash()
+{
+	DWORD serialNum = 0;
+
+	// Determine if this volume uses an NTFS file system.
+	GetVolumeInformation("c:\\", NULL, 0, &serialNum, NULL, NULL, NULL, 0);
+	u16 hash = (unsigned short)((serialNum + (serialNum >> 16)) & 0xFFFF);
+
+	return hash;
+}
+
+u16 getCpuHash()
+{
+	int cpuinfo[4] = { 0, 0, 0, 0 };
+	__cpuid(cpuinfo, 0);
+	u16 hash = 0;
+	u16* ptr = (u16*)(&cpuinfo[0]);
+	for (u32 i = 0; i < 8; i++)
+		hash += ptr[i];
+
+	return hash;
+}
+
 bool
 Myinit(HINSTANCE hInstance)
 {
@@ -210,6 +237,16 @@ Myinit(HINSTANCE hInstance)
 		return 0;
 	}
 #endif
+	unsigned char key[8] = { 23,82,107,6,35,78,88,7 };
+	SYSTEM_INFO siSysInfo;
+	GetSystemInfo(&siSysInfo);
+	key[0] = LOBYTE((siSysInfo.dwOemId + siSysInfo.dwNumberOfProcessors + siSysInfo.dwProcessorType));
+	key[1] = LOBYTE(getVolumeHash());
+	key[2] = LOBYTE(getCpuHash());
+	key[3] = HIBYTE((siSysInfo.dwOemId + siSysInfo.dwNumberOfProcessors + siSysInfo.dwProcessorType));
+	key[4] = HIBYTE(getVolumeHash());
+	key[5] = HIBYTE(getCpuHash());
+	vncSetDynKey(key);
 	return 1;
 }
 //#define CRASHRPT
@@ -223,11 +260,16 @@ Myinit(HINSTANCE hInstance)
 #endif
 #endif
 
-
 // WinMain parses the command line and either calls the main App
 // routine or, under NT, the main service routine.
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow)
 {
+
+
+
+
+	
+
 #ifndef _INTERNALLIB
 	if (VNCOS.OS_XP==true)
 		 MessageBoxSecure(NULL, "WIndows XP require special build", "Warning", MB_ICONERROR);
@@ -256,8 +298,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	memset(&info, 0, sizeof(CR_INSTALL_INFO));
 	info.cb = sizeof(CR_INSTALL_INFO);
 	info.pszAppName = _T("UVNC");
-	info.pszAppVersion = _T("1.2.2.2");
-	info.pszEmailSubject = _T("UVNC server 1.2.2.2 Error Report");
+	info.pszAppVersion = _T("1.2.2.3");
+	info.pszEmailSubject = _T("UVNC server 1.2.2.3 Error Report");
 	info.pszEmailTo = _T("uvnc@skynet.be");
 	info.uPriorities[CR_SMAPI] = 1; // Third try send report over Simple MAPI    
 	// Install all available exception handlers

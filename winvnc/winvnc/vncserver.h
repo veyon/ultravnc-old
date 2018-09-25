@@ -379,6 +379,8 @@ public:
 	virtual void BlankMonitorEnabled(BOOL fEnable) {m_fBlankMonitorEnabled = fEnable;};
 	virtual BOOL BlankInputsOnly() {return m_fBlankInputsOnly;}; //PGM
 	virtual void BlankInputsOnly(BOOL fEnable) {m_fBlankInputsOnly = fEnable;}; //PGM
+	virtual BOOL Secure();
+	virtual BOOL Secure(BOOL fEnable);
 	virtual BOOL MSLogonRequired();
 	virtual BOOL RequireMSLogon(BOOL fEnable);
 	virtual BOOL GetNewMSLogon();
@@ -610,6 +612,7 @@ protected:
 	BOOL m_PrimaryEnabled;
 	BOOL m_SecondaryEnabled;
 
+	BOOL	m_Secure;
 	BOOL    m_fMSLogonRequired;
 	BOOL    m_fNewMSLogon;
 

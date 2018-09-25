@@ -144,7 +144,7 @@ vncServer::vncServer()
 	m_auth_hosts = 0;
 	m_blacklist = 0;
 	{
-	    vncPasswd::FromClear clearPWD;
+	    vncPasswd::FromClear clearPWD(m_Secure);
 	    memcpy(m_password, clearPWD, MAXPWLEN);
 	}
 	m_querysetting = 2;
@@ -215,6 +215,7 @@ vncServer::vncServer()
 #endif
 
 	m_fMSLogonRequired = false;
+	m_Secure = false;
 
 	m_fXRichCursor = false;
 
@@ -2265,10 +2266,20 @@ BOOL vncServer::EnableFileTransfer(BOOL fEnable)
 
 	return TRUE;
 }
+BOOL vncServer::Secure()
+{
+	return m_Secure;
+}
 
 BOOL vncServer::MSLogonRequired()
 {
 	return m_fMSLogonRequired;
+}
+
+BOOL vncServer::Secure(BOOL fEnable)
+{
+	m_Secure = fEnable;
+	return TRUE;
 }
 
 BOOL vncServer::RequireMSLogon(BOOL fEnable)
@@ -2370,7 +2381,7 @@ BOOL vncServer::SetDSMPlugin(BOOL bForceReload)
 		GetPassword(password);
 		// Does the plugin need the VNC password to do its job ?
 		if (!_stricmp(m_pDSMPlugin->GetPluginParams(), "VNCPasswordNeeded"))
-			strcpy(szParams, vncDecryptPasswd((char *)password));
+			strcpy(szParams, vncDecryptPasswd((char *)password, m_Secure));
 		else
 			strcpy(szParams, "NoPassword");
 
@@ -2385,7 +2396,7 @@ BOOL vncServer::SetDSMPlugin(BOOL bForceReload)
 
 
 		//adzm 2010-05-12 - dsmplugin config
-		if (m_pDSMPlugin->SetPluginParams(NULL, szParams/*vncDecryptPasswd((char *)password)*/, GetDSMPluginConfig(), NULL))
+		if (m_pDSMPlugin->SetPluginParams(NULL, szParams, GetDSMPluginConfig(), NULL))
 		{
 			m_pDSMPlugin->SetEnabled(true); // The plugin is ready to be used
 			vnclog.Print(LL_INTINFO, VNCLOG("DSMPlugin Params OK\n"));

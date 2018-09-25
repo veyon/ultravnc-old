@@ -45,7 +45,7 @@ class vncEncodeZlibHex;
 #ifdef _INTERNALLIB
 #include <zlib.h>
 #else
-#include <zlib-1.2.5/zlib.h>
+#include <zlib/zlib.h>
 #endif
 #ifdef ULTRAVNC_VEYON_SUPPORT
 #include <lzo/lzo1x.h>
