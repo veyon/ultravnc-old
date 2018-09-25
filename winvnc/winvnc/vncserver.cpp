@@ -1227,6 +1227,7 @@ vncServer::RemoveClient(vncClientId clientid)
 	{
 		vnclog.Print(LL_STATE, VNCLOG("deleting desktop server\n"));
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 		// sf@2007 - Do not lock/logoff even if required when WinVNC autorestarts (on desktop change (XP FUS / Vista))
 		if (!AutoRestartFlag() && !OS_Shutdown)
 		{
@@ -1249,6 +1250,7 @@ vncServer::RemoveClient(vncClientId clientid)
 				}
 			}
 		}
+#endif
 
 		// Delete the screen server
 		delete m_desktop;

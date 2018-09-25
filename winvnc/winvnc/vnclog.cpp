@@ -53,6 +53,7 @@ VNCLog::VNCLog()
 	m_path[0] = 0;
 }
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 void VNCLog::SetMode(int mode)
 {
 	m_mode = mode;
@@ -91,12 +92,14 @@ void VNCLog::SetMode(int mode)
         m_toconsole = false;
     }
 }
+#endif
 
 
 void VNCLog::SetLevel(int level) {
     m_level = level;
 }
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 void VNCLog::SetFile() 
 {
 	//SetMode(2);
@@ -169,6 +172,7 @@ void VNCLog::CloseFile() {
         hlogfile = NULL;
     }
 }
+#endif
 
 #ifdef ULTRAVNC_VEYON_SUPPORT
 inline void VNCLog::ReallyPrintLine(int level, const char* line) 
@@ -239,6 +243,7 @@ void VNCLog::ReallyPrint(int level, const char* format, va_list ap)
 
 VNCLog::~VNCLog()
 {
+#ifndef ULTRAVNC_VEYON_SUPPORT
     try
     {
         CloseFile();
@@ -246,6 +251,7 @@ VNCLog::~VNCLog()
     catch(...)
     {
     }
+#endif
 }
 
 void VNCLog::GetLastErrorMsg(LPSTR szErrorMsg) const {

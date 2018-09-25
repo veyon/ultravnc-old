@@ -1556,6 +1556,7 @@ vncProperties::LoadString(HKEY key, LPCSTR keyname)
 }
 
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 void
 vncProperties::ResetRegistry()
 {	
@@ -1617,6 +1618,7 @@ LABELUSERSETTINGS:
 		}
 
 }
+#endif
 
 void
 vncProperties::Load(BOOL usersettings)
@@ -1627,7 +1629,9 @@ vncProperties::Load(BOOL usersettings)
 	//	vnclog.Print(LL_INTWARN, VNCLOG("service helper invoked while Properties panel displayed\n"));
 	//	return;
 	//}
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	ResetRegistry();
+#endif
 
 	if (vncService::RunningAsService()) usersettings=false;
 
@@ -1659,6 +1663,12 @@ vncProperties::Load(BOOL usersettings)
 
 	// GET THE CORRECT KEY TO READ FROM
 
+#ifdef ULTRAVNC_VEYON_SUPPORT
+	strcpy((char *)&username, "SYSTEM");
+	hkLocal = nullptr;
+	hkLocalUser = nullptr;
+	hkDefault = nullptr;
+#else
 	// Get the user name / service name
 	if (!vncService::CurrentUser((char *)&username, sizeof(username)))
 	{
@@ -1703,6 +1713,7 @@ vncProperties::Load(BOOL usersettings)
 		&hkDefault,
 		&dw) != ERROR_SUCCESS)
 		hkDefault = NULL;
+#endif
 
 	// LOAD THE MACHINE-LEVEL PREFS
 
@@ -1819,7 +1830,9 @@ LABELUSERSETTINGS:
 	m_pref_DefaultScale = 1;
 
 	// Load the local prefs for this user
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	if (hkDefault != NULL)
+#endif
 	{
 		vnclog.Print(LL_INTINFO, VNCLOG("***** DBG - Local Preferences - Default\n"));
 

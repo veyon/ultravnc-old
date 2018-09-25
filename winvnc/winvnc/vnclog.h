@@ -103,14 +103,16 @@ private:
 #else
 	void ReallyPrintLine(const char* line);
     void ReallyPrint(const char* format, va_list ap);
-#endif
 	void OpenFile();
     void CloseFile();
+#endif
     bool m_tofile, m_todebug, m_toconsole;
 	int m_mode;
     int m_level;
     HANDLE hlogfile;
+#ifdef ULTRAVNC_VEYON_SUPPORT
 	char m_filename[512];
+#endif
 	bool m_append;
 	bool m_video;
 	char m_path[MAX_PATH];

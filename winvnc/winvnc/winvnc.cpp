@@ -141,8 +141,11 @@ void Secure_Plugin_elevated(char *szPlugin);
 void Secure_Plugin(char *szPlugin);
 
 //HACK to use name in autoreconnect from service with dyn dns
+#ifndef ULTRAVNC_VEYON_SUPPORT
 char dnsname[255];
+#endif
 VNC_OSVersion VNCOS;
+#ifndef ULTRAVNC_VEYON_SUPPORT
 extern bool PreConnect;
 // winvnc.exe will also be used for helper exe
 // This allow us to minimize the number of seperate exe
@@ -209,7 +212,6 @@ Myinit(HINSTANCE hInstance)
 #endif
 	return 1;
 }
-#ifndef ULTRAVNC_VEYON_SUPPORT
 //#define CRASHRPT
 #ifdef CRASHRPT
 #ifndef _X64

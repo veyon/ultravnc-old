@@ -69,6 +69,7 @@ public:
 	bool Lock_service_helper;
 
 	BOOL m_fUseRegistry;
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	// Ini file
 	IniFile myIniFile;
 	void LoadFromIniFile();
@@ -76,6 +77,7 @@ public:
 	void SaveToIniFile();
 	void SaveUserPrefsToIniFile();
     void ReloadDynamicSettings();
+#endif
 
 	// Implementation
 protected:
@@ -166,7 +168,9 @@ protected:
 
     void LoadDSMPluginName(HKEY key, char *buffer);
 	void SaveDSMPluginName(HKEY key, char *buffer); 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	vncSetAuth		m_vncauth;
+#endif
 
 	char m_pref_path111[500];
 	char m_Tempfile[MAX_PATH];

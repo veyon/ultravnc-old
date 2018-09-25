@@ -28,6 +28,7 @@
 #include <string>
 #include <cctype>
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 //  We first use shellexecute with "runas"
 //  This way we can use UAC and user/passwd
 //	Runas is standard OS, so no security risk
@@ -588,6 +589,7 @@ bool GetServiceName(TCHAR *pszAppPath, TCHAR *pszServiceName)
 
     return bResult;
 }
+#endif
 extern BOOL	m_fRunningFromExternalService;
 DWORD MessageBoxSecure(HWND hWnd,LPCTSTR lpText,LPCTSTR lpCaption,UINT uType)
 {

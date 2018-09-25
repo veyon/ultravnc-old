@@ -121,6 +121,7 @@ DWORD GetCurrentConsoleSessionID()
 	return dwSessionId;
 }
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 DWORD GetExplorerLogonPid()
 {
 	char alternate_shell[129];
@@ -245,6 +246,7 @@ GetConsoleUser(char *buffer, UINT size)
 	CloseHandle(hProcess);
 	return 0;
 }
+#endif
 
 
 
@@ -261,6 +263,7 @@ vncService::vncService()
 	g_version_minor = osversioninfo.dwMinorVersion;
 }
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 // CurrentUser - fills a buffer with the name of the current user!
 BOOL
 GetCurrentUser(char *buffer, UINT size) // RealVNC 336 change
@@ -381,6 +384,7 @@ vncService::CurrentUser(char *buffer, UINT size)
   }
   return result;
 }
+#endif
 
 
 BOOL vncService::IsWSLocked()
@@ -1038,6 +1042,7 @@ vncService::RunningFromExternalService(BOOL fEnabled)
 #endif
 }
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 ////////////////////////////////////////////////////////////////////////////////
 extern char service_name[];
 bool
@@ -1059,5 +1064,6 @@ vncService::IsInstalled()
     }
     return (FALSE != bResult);
 }
+#endif
 
 

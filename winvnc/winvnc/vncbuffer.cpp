@@ -869,12 +869,16 @@ bool vncBuffer::GreyScaleRect(rfb::Rect &rect)
 
 void vncBuffer::WriteMessageOnScreen(char* tt)
 {
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	m_desktop->WriteMessageOnScreen(tt,m_mainbuff, m_backbuffsize);
+#endif
 }
 
 void vncBuffer::WriteMessageOnScreenPreConnect()
 {
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	m_desktop->WriteMessageOnScreenPreConnect( m_mainbuff, m_backbuffsize);
+#endif
 }
 
 void

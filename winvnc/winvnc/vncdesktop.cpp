@@ -1489,6 +1489,7 @@ vncDesktop::FillDisplayInfo(rfbServerInitMsg *scrinfo)
 }
 
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 void
 vncDesktop::WriteMessageOnScreen(char * tt, BYTE *scrBuff, UINT scrBuffSize)
 {
@@ -1700,6 +1701,7 @@ vncDesktop::WriteMessageOnScreenPreConnect(BYTE *scrBuff, UINT scrBuffSize)
 	SetRect(&rect, 0, 0, 640, 640);
 	CopyToBuffer(rect, scrBuff, scrBuffSize);
 }
+#endif
 
 
 
