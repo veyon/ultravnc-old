@@ -215,8 +215,10 @@ public:
 #ifdef TEXT_CHAT_SUPPORT
 	virtual TextChat* GetTextChatPointer() { return m_pTextChat; }; // sf@2002
 #endif
+#ifdef AUTH_ULTRA_SUPPORT
 	virtual void SetUltraViewer(bool fTrue) { m_fUltraViewer = fTrue;};
 	virtual bool IsUltraViewer() { return m_fUltraViewer;};
+#endif
 
 	virtual void EnableCache(BOOL enabled);
 
@@ -583,7 +585,9 @@ protected:
 	TextChat *m_pTextChat;	// Modif sf@2002 - Text Chat
 #endif
 
+#ifdef AUTH_ULTRA_SUPPORT
 	bool m_fUltraViewer; // sf@2002 
+#endif
 
 #ifdef FILETRANSFER_SUPPORT
 	// sf@2005 - FTUserImpersonation

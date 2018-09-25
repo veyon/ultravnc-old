@@ -817,6 +817,7 @@ void vncServer::TextChatClient(LPSTR szClientName)
 }
 #endif
 
+#ifdef AUTH_ULTRA_SUPPORT
 bool vncServer::IsUltraVNCViewer()
 {
 	vncClientList::iterator i;
@@ -829,6 +830,7 @@ bool vncServer::IsUltraVNCViewer()
 	}
 	return false;
 }
+#endif
 
 bool vncServer::AreThereMultipleViewers()
 {

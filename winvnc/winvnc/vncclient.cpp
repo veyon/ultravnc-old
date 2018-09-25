@@ -889,11 +889,13 @@ vncClientThread::InitVersion()
 	vnclog.Print(LL_INTINFO, VNCLOG("m_ms_logon set to %s"), m_ms_logon ? "true" : "false");
 #endif
 
+#ifdef AUTH_ULTRA_SUPPORT
 	// adzm 2010-09 - see rfbproto.h for more discussion on all this
 	m_client->SetUltraViewer(false); // sf@2005 - Fix Open TextChat from server bug 
 	// UltraViewer will be set when viewer responds with rfbUltraVNC Auth type
 	// RDV 2010-6-10 
 	// removed SPECIAL_SC_PROMPT
+#endif
 	
 #ifdef DSM_SUPPORT
 	if ( (m_minor >= 7) && m_socket->IsUsePluginEnabled() && m_server->GetDSMPluginPointer()->IsEnabled() && m_socket->GetIntegratedPlugin() != NULL) {
@@ -1258,10 +1260,12 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 	bool bSessionSelectActive = std::find(current_auth.begin(), current_auth.end(), rfbUltraVNC_SessionSelect) != current_auth.end();
 #endif
 
+#ifdef AUTH_ULTRA_SUPPORT
 	if (current_auth.empty()) {
 		// send the UltraVNC auth type to identify ourselves as an UltraVNC server, but only initially
 		auth_types.push_back(rfbUltraVNC);
 	}
+#endif
 
 #ifdef DSM_SUPPORT
 	// encryption takes priority over everything, for now at least.
@@ -1352,10 +1356,12 @@ BOOL vncClientThread::AuthenticateClient(std::vector<CARD8>& current_auth)
 	std::string auth_message;
 	switch (auth_accepted)
 	{
+#ifdef AUTH_ULTRA_SUPPORT
 	case rfbUltraVNC:
 		m_client->SetUltraViewer(true);
 		auth_success = true;
 		break;
+#endif
 #ifdef DSM_SUPPORT
 	case rfbUltraVNC_SecureVNCPluginAuth_new:
 		auth_success = AuthSecureVNCPlugin(auth_message);	
@@ -4715,7 +4721,9 @@ vncClient::vncClient() : m_clipboard(ClipboardSettings::defaultServerCaps), Send
 #ifdef TEXT_CHAT_SUPPORT
 	m_pTextChat = new TextChat(this); 	
 #endif
+#ifdef AUTH_ULTRA_SUPPORT
 	m_fUltraViewer = true;
+#endif
 	m_IsLoopback=false;
 	m_NewSWUpdateWaiting=false;
 	client_settings_passed=false;
