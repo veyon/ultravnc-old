@@ -130,8 +130,10 @@ vncServer::vncServer()
 	// Initialise some important stuffs...
 	g_Server_running=true;
 	m_socketConn = NULL;
+#ifdef HTTP_SUPPORT
 	m_httpConn = NULL;
 	m_enableHttpConn = false;
+#endif
 
 	m_desktop = NULL;
 	m_name = NULL;
@@ -275,11 +277,13 @@ vncServer::~vncServer()
 		m_socketConn = NULL;
 	}
 
+#ifdef HTTP_SUPPORT
 	if (m_httpConn != NULL)
 	{
 		delete m_httpConn;
 		m_httpConn = NULL;
 	}
+#endif
 
 	// Modif Jeremy C. 
 	if(m_impersonationtoken) 
@@ -377,11 +381,13 @@ vncServer::ShutdownServer()
 		m_socketConn = NULL;
 	}
 
+#ifdef HTTP_SUPPORT
 	if (m_httpConn != NULL)
 	{
 		delete m_httpConn;
 		m_httpConn = NULL;
 	}
+#endif
 
 	// Modif Jeremy C. 
 	if(m_impersonationtoken) 
@@ -1604,7 +1610,9 @@ vncServer::SockConnect(BOOL On)
 				for (int i=0; i < 99; i++)
 				{
 					m_port = DISPLAY_TO_PORT(i);
+#ifdef HTTP_SUPPORT
 					m_port_http = DISPLAY_TO_HPORT(i);
+#endif
 
 					vnclog.Print(LL_CLIENTS, VNCLOG("trying port number %d\n"), m_port);
 
@@ -1649,8 +1657,10 @@ vncServer::SockConnect(BOOL On)
 				}
 			}
 
+#ifdef HTTP_SUPPORT
 			// Now let's start the HTTP connection stuff
 			EnableHTTPConnect(m_enableHttpConn);
+#endif
 			vnclog.Print(LL_SOCKINFO, VNCLOG("SockConnect  Done %d\n"), On);
 		}
 	}
@@ -1673,8 +1683,10 @@ vncServer::SockConnect(BOOL On)
 			m_socketConn = NULL;
 		}
 
+#ifdef HTTP_SUPPORT
 		// Is there an HTTP socket active?
 		EnableHTTPConnect(m_enableHttpConn);
+#endif
 	}
 
 	return TRUE;
@@ -1686,6 +1698,7 @@ vncServer::SockConnected()
 	return m_socketConn != NULL;
 }
 
+#ifdef HTTP_SUPPORT
 BOOL
 vncServer::EnableHTTPConnect(BOOL enable)
 {
@@ -1723,6 +1736,7 @@ vncServer::EnableHTTPConnect(BOOL enable)
 
 	return TRUE;
 }
+#endif
 
 BOOL
 vncServer::SetLoopbackOnly(BOOL loopbackOnly)

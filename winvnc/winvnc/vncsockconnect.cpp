@@ -33,7 +33,9 @@
 #include <omnithread.h>
 
 
+#ifdef HTTP_SUPPORT
 VBool maybeHandleHTTPRequest(VSocket* sock,vncServer* svr);
+#endif
 
 // The function for the spawned thread to run
 class vncSockConnectThread : public omni_thread
@@ -81,6 +83,7 @@ void *vncSockConnectThread::run_undetached(void * arg)
 			break;
 		else
 		{
+#ifdef HTTP_SUPPORT
 			if( m_server->GetHttpPort()== m_server->GetPort())
 			{
 				if (maybeHandleHTTPRequest(new_socket,m_server)) {
@@ -90,6 +93,7 @@ void *vncSockConnectThread::run_undetached(void * arg)
  					continue;
  				}
 			}
+#endif
 
 			vnclog.Print(LL_CLIENTS, VNCLOG("accepted connection from %s\n"), new_socket->GetPeerName());
 			if (!m_shutdown && !fShutdownOrdered) m_server->AddClient(new_socket, FALSE, FALSE,NULL,false);

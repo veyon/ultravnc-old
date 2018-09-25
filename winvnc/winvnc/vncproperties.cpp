@@ -1377,7 +1377,6 @@ vncProperties::DialogProc(HWND hwnd,
 	}
 	return 0;
 }
-#endif
 
 
 
@@ -1420,6 +1419,7 @@ vncProperties::InitPortSettings(HWND hwnd)
 	EnableWindow(GetDlgItem(hwnd, IDC_PORTHTTP),
 		bConnectSock && !bAutoPort && !bValidDisplay);
 }
+#endif
 
 #ifdef ULTRAVNC_VEYON_SUPPORT
 extern BOOL ultravnc_veyon_load_int( LPCSTR valname, LONG *out );
@@ -1975,7 +1975,9 @@ vncProperties::ApplyUserPrefs()
 	if (!m_pref_SockConnect)
 		m_server->SockConnect(m_pref_SockConnect);
 
+#ifdef HTTP_SUPPORT
 	m_server->EnableHTTPConnect(m_pref_HTTPConnect);
+#endif
 
 	// Are inputs being disabled?
 	if (!m_pref_EnableRemoteInputs)
@@ -2215,11 +2217,15 @@ vncProperties::SaveUserPrefs(HKEY appkey)
 
 	// Connection prefs
 	SaveInt(appkey, "SocketConnect", m_server->SockConnected());
+#ifdef HTTP_SUPPORT
 	SaveInt(appkey, "HTTPConnect", m_server->HTTPConnectEnabled());
+#endif
 	SaveInt(appkey, "AutoPortSelect", m_server->AutoPortSelect());
 	if (!m_server->AutoPortSelect()) {
 		SaveInt(appkey, "PortNumber", m_server->GetPort());
+#ifdef HTTP_SUPPORT
 		SaveInt(appkey, "HTTPPortNumber", m_server->GetHttpPort());
+#endif
 	}
 	SaveInt(appkey, "InputsEnabled", m_server->RemoteInputsEnabled());
 	SaveInt(appkey, "LocalInputsDisabled", m_server->LocalInputsDisabled());
@@ -2583,11 +2589,15 @@ void vncProperties::SaveUserPrefsToIniFile()
 
 	// Connection prefs
 	myIniFile.WriteInt("admin", "SocketConnect", m_server->SockConnected());
+#ifdef HTTP_SUPPORT
 	myIniFile.WriteInt("admin", "HTTPConnect", m_server->HTTPConnectEnabled());
+#endif
 	myIniFile.WriteInt("admin", "AutoPortSelect", m_server->AutoPortSelect());
 	if (!m_server->AutoPortSelect()) {
 		myIniFile.WriteInt("admin", "PortNumber", m_server->GetPort());
+#ifdef HTTP_SUPPORT
 		myIniFile.WriteInt("admin", "HTTPPortNumber", m_server->GetHttpPort());
+#endif
 	}
 	myIniFile.WriteInt("admin", "InputsEnabled", m_server->RemoteInputsEnabled());
 	myIniFile.WriteInt("admin", "LocalInputsDisabled", m_server->LocalInputsDisabled());

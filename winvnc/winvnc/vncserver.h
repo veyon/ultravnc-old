@@ -44,7 +44,9 @@ class vncServer;
 
 // Custom
 #include "vncsockconnect.h"
+#ifdef HTTP_SUPPORT
 #include "vnchttpconnect.h"
+#endif
 #include "vncclient.h"
 #include "rfbRegion.h"
 #include "vncpasswd.h"
@@ -220,7 +222,9 @@ public:
 	virtual void SetName(const char * name);
 	virtual void SetPorts(const UINT port_rfb, const UINT port_http);
 	virtual UINT GetPort() { return m_port; };
+#ifdef HTTP_SUPPORT
 	virtual UINT GetHttpPort() { return m_port_http; };
+#endif
 	// RealVNC method
 	/*
 	virtual void SetPort(const UINT port);
@@ -285,9 +289,11 @@ public:
 	virtual BOOL GetAllowEditClients();
 
 
+#ifdef HTTP_SUPPORT
 	// HTTP daemon handling
 	virtual BOOL EnableHTTPConnect(BOOL enable);
 	virtual BOOL HTTPConnectEnabled() {return m_enableHttpConn;};
+#endif
 
 
 
@@ -506,9 +512,10 @@ protected:
 
 	// Connection servers
 	vncSockConnect		*m_socketConn;
+#ifdef HTTP_SUPPORT
 	vncHTTPConnect		*m_httpConn;
 	BOOL				m_enableHttpConn;
-
+#endif
 
 	// The desktop handler
 	vncDesktop			*m_desktop;
