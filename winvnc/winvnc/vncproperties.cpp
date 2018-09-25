@@ -141,8 +141,10 @@ vncProperties::Init(vncServer *server)
 	// Load the settings
 	if (m_fUseRegistry)
 		Load(TRUE);
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	else
 		LoadFromIniFile();
+#endif
 
 	// If the password is empty then always show a dialog
 	char passwd[MAXPWLEN];
@@ -1728,6 +1730,7 @@ vncProperties::Load(BOOL usersettings)
 	m_pref_NewMSLogon = LoadInt(hkLocal, "NewMSLogon", m_pref_NewMSLogon);
 	m_server->SetNewMSLogon(m_pref_NewMSLogon);
 
+#ifdef DSM_SUPPORT
 	// sf@2003 - Moved DSM params here
 	m_pref_UseDSMPlugin=false;
 	m_pref_UseDSMPlugin = LoadInt(hkLocal, "UseDSMPlugin", m_pref_UseDSMPlugin);
@@ -1743,6 +1746,7 @@ vncProperties::Load(BOOL usersettings)
 			m_pref_DSMPluginConfig[0] = '\0';
 		}
 	}
+#endif
 #ifdef IPV6V4
 	m_server->SetIPV6(LoadInt(hkLocal, "UseIpv6", true));
 #endif
@@ -1898,8 +1902,10 @@ vncProperties::LoadUserPrefs(HKEY appkey)
 	m_pref_Primary=LoadInt(appkey, "primary", m_pref_Primary);
 	m_pref_Secondary=LoadInt(appkey, "secondary", m_pref_Secondary);
 
+#ifdef DSM_SUPPORT
 	m_pref_UseDSMPlugin = LoadInt(appkey, "UseDSMPlugin", m_pref_UseDSMPlugin);
 	LoadDSMPluginName(appkey, m_pref_szDSMPlugin);
+#endif
 
 	// Connection prefs
 	m_pref_SockConnect=LoadInt(appkey, "SocketConnect", m_pref_SockConnect);
@@ -2032,6 +2038,7 @@ vncProperties::ApplyUserPrefs()
 
 }
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 void
 vncProperties::SaveInt(HKEY key, LPCSTR valname, LONG val)
 {
@@ -2053,7 +2060,9 @@ vncProperties::SaveString(HKEY key,LPCSTR valname, const char *buffer)
 {
 	RegSetValueEx(key, valname, 0, REG_BINARY, (LPBYTE) buffer, strlen(buffer)+1);
 }
+#endif
 
+#ifdef DSM_SUPPORT
 void
 vncProperties::SaveDSMPluginName(HKEY key, char *buffer)
 {
@@ -2080,7 +2089,9 @@ vncProperties::LoadDSMPluginName(HKEY key, char *buffer)
 
 	memcpy(buffer, inouttext, MAXPATH);
 }
+#endif
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 void
 vncProperties::Save()
 {
@@ -2656,6 +2667,7 @@ void vncProperties::ReloadDynamicSettings()
 	vnclog.SetLevel(myIniFile.ReadInt("admin", "DebugLevel", 0));
 }
 
+#endif
 
 
 
