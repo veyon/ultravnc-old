@@ -1677,7 +1677,9 @@ vncProperties::Load(BOOL usersettings)
 	else
 		vnclog.Print(LL_INTINFO, VNCLOG("***** DBG - Service mode\n"));
 	
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	char username[UNLEN+1];
+#endif
 	HKEY hkLocal, hkLocalUser, hkDefault;
 	DWORD dw;
 	
@@ -1691,7 +1693,6 @@ vncProperties::Load(BOOL usersettings)
 	// GET THE CORRECT KEY TO READ FROM
 
 #ifdef ULTRAVNC_VEYON_SUPPORT
-	strcpy((char *)&username, "SYSTEM");
 	hkLocal = nullptr;
 	hkLocalUser = nullptr;
 	hkDefault = nullptr;
@@ -1874,6 +1875,7 @@ LABELUSERSETTINGS:
 		m_alloweditclients = LoadInt(hkDefault, "AllowEditClients", m_alloweditclients);
 	}
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	// Are we being asked to load the user settings, or just the default local system settings?
 	if (usersettings)
 	{
@@ -1922,6 +1924,7 @@ LABELUSERSETTINGS:
 		}
 		vnclog.Print(LL_INTINFO, VNCLOG("bypassing user-specific settings (both local and global)\n"));
 	}
+#endif
 
 	if (hkLocalUser != NULL) RegCloseKey(hkLocalUser);
 	if (hkDefault != NULL) RegCloseKey(hkDefault);
