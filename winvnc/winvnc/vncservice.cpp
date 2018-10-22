@@ -455,6 +455,7 @@ vncService::VersionMinor()
 	return g_version_minor;
 }
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 //adzm 2010-02-10 - Finds the appropriate VNC window
 HWND
 FindWinVNCWindow(bool bThisProcess)
@@ -529,6 +530,7 @@ PostToThisWinVNC(UINT message, WPARAM wParam, LPARAM lParam)
 	PostMessage(hservwnd, message, wParam, lParam);
 	return TRUE;
 }
+#endif
 
 
 // Static routines only used on Windows NT to ensure we're in the right desktop
@@ -806,7 +808,6 @@ vncService::SimulateCtrlAltDel()
 
 	return TRUE;
 }
-#endif
 
 // Static routine to lock a 2K or above workstation
 
@@ -1017,6 +1018,7 @@ vncService::PostAddConnectClient( const char* pszId )
 	}
 	return ( PostToWinVNC(MENU_REPEATER_ID_MSG, 0, (LPARAM)aId) );
 }
+#endif
 
 BOOL
 vncService::RunningAsService()

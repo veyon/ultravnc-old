@@ -2336,6 +2336,7 @@ vncClientThread::run(void *arg)
 			if (m_client->m_outgoing) vncMenu::NotifyBalloon(szInfo, NULL);
 #endif
 		}
+#ifndef ULTRAVNC_VEYON_SUPPORT
 		// wa@2005 - AutoReconnection attempt if required
 		if (m_client->m_Autoreconnect && !fShutdownOrdered)
 		{
@@ -2357,6 +2358,7 @@ vncClientThread::run(void *arg)
 			vncService::PostAddNewClient(1111, 1111);
 #endif
 		}
+#endif
 		m_server->RemoveClient(m_client->GetClientId());
 		return;
 	}
@@ -4600,6 +4602,7 @@ vncClientThread::run(void *arg)
 	// updates
 	m_server->RemoveClient(m_client->GetClientId());
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	// sf@2003 - AutoReconnection attempt if required
 	testautoreconnect:
 	if (!fShutdownOrdered) {
@@ -4617,6 +4620,7 @@ vncClientThread::run(void *arg)
 #endif
 		}
 	}
+#endif
 }
 
 // The vncClient itself
@@ -4816,6 +4820,7 @@ vncClient::~vncClient()
 	//thos give sometimes errors, hlogfile is already removed at this point
 	//vnclog.Print(LL_INTINFO, VNCLOG("cached %d \n"),totalraw);
 
+#ifdef AUTH_SC_PROMP_SUPPORT
 	if ((SPECIAL_SC_EXIT || (m_server->GetRdpmode() && m_fRunningFromExternalService)) && !fShutdownOrdered) // if fShutdownOrdered, hwnd may not be valid
 	{
 		//adzm 2009-06-20 - if we are SC, only exit if no other viewers are connected!
@@ -4829,6 +4834,7 @@ vncClient::~vncClient()
 			if (hwnd) SendMessage(hwnd,WM_COMMAND,ID_CLOSE,0);
 		}
 	}
+#endif
 
 	// adzm 2009-07-05
 	if (m_szRepeaterID) {

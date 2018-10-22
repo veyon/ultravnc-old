@@ -1254,6 +1254,7 @@ DWORD WINAPI imp_desktop_thread(LPVOID lpParam)
 	m_propertiesPoll.Init(server);
 #endif
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	// This is a good spot to handle the old PostAdd messages
 	if (PostAddAutoConnectClient_bool)
 		vncService::PostAddAutoConnectClient( pszId_char );
@@ -1289,9 +1290,10 @@ DWORD WINAPI imp_desktop_thread(LPVOID lpParam)
 		vnclog.Print(LL_INTERR, VNCLOG("PostAddNewRepeaterClient II\n"));
 		vncService::PostAddNewRepeaterClient();
 	}
+#endif
 	bool Runonce=false;
 	MSG msg;
-#if ULTRAVNC_VEYON_SUPPORT
+#ifdef ULTRAVNC_VEYON_SUPPORT
 	while( fShutdownOrdered == false )
 	{
 		DWORD result = WaitForSingleObject(hShutdownEvent, 100);
