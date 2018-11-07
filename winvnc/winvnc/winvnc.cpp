@@ -224,7 +224,6 @@ Myinit(HINSTANCE hInstance)
 	}
 #endif
 
-#ifndef ULTRAVNC_VEYON_SUPPORT
 	// Save the application instance and main thread id
 	hAppInstance = hInstance;
 	mainthreadId = GetCurrentThreadId();
@@ -236,7 +235,6 @@ Myinit(HINSTANCE hInstance)
 		MessageBoxSecure(NULL, sz_ID_FAILED_INIT, szAppName, MB_OK);
 		return 0;
 	}
-#endif
 	unsigned char key[8] = { 23,82,107,6,35,78,88,7 };
 	SYSTEM_INFO siSysInfo;
 	GetSystemInfo(&siSysInfo);
