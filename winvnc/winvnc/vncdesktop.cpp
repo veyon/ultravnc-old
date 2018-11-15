@@ -242,7 +242,7 @@ bool vncDesktop::FastDetectChanges(rfb::Region2D &rgn, rfb::Rect &rect, int nZon
 		hFolderView = hWnd;
 		if (NULL != hWnd)
 		{
-			nr_rects = SendMessage(hWnd, LVM_GETITEMCOUNT, 0, 0);
+			nr_rects = (int)SendMessage(hWnd, LVM_GETITEMCOUNT, 0, 0);
 			if (nr_rects > 200) nr_rects = 200;
 			for (int j = 0; j < nr_rects; j++)
 			{
@@ -1050,6 +1050,7 @@ vncDesktop::InitBitmap()
     {
         show_multi_monitors = true;
         m_current_monitor = MULTI_MON_ALL;
+        m_old_monitor = m_current_monitor;
     }
 
 	if (VideoBuffer())
@@ -1058,7 +1059,7 @@ vncDesktop::InitBitmap()
 		SetBitmapRectOffsetAndClipRect(0, 0, mymonitor[3].Width, mymonitor[3].Height);
 	else
 		SetBitmapRectOffsetAndClipRect(0, 0, mymonitor[0].Width, mymonitor[0].Height);
-		
+	
 
 	vnclog.Print(LL_INTINFO, VNCLOG("bitmap dimensions are %d x %d\n"), m_bmrect.br.x, m_bmrect.br.y);
 
@@ -1509,7 +1510,7 @@ vncDesktop::WriteMessageOnScreen(char * tt, BYTE *scrBuff, UINT scrBuffSize)
 		return;
 
 	FillRect(m_hmemdc, &rect, backgroundBrush);
-	DrawText(m_hmemdc, tt, strlen(tt), &rect, DT_CENTER | DT_VCENTER);
+	DrawText(m_hmemdc, tt, (int)strlen(tt), &rect, DT_CENTER | DT_VCENTER);
 
 	SetBkColor(m_hmemdc, oldbgcol);
 	SetTextColor(m_hmemdc, oldtxtcol);
@@ -1645,7 +1646,7 @@ vncDesktop::WriteMessageOnScreenPreConnect(BYTE *scrBuff, UINT scrBuffSize)
 	char menustring[12800];
 	strcpy(menustring, "");
 
-	for (DWORD i(0); i < aantal_session; ++i)
+	for (DWORD i(0); i < (DWORD)aantal_session; ++i)
 	{
 		if (sesmsg[i].ID != 65536 && sesmsg[i].ID != 0)
 		{
@@ -1674,7 +1675,8 @@ vncDesktop::WriteMessageOnScreenPreConnect(BYTE *scrBuff, UINT scrBuffSize)
 
 	HFONT hFont, hOldFont;
 	SetRect(&rect, 0, 10, 640, 640);
-	DrawText(m_hmemdc, "UVNC experimental server 1.2.2.3 pre-connect window \n", strlen("UVNC experimental server 1.2.2.3 pre-connect window \n"), &rect, DT_CENTER);
+    char *tout = "UVNC experimental server 1.2.2.3 pre-connect window \n";
+	DrawText(m_hmemdc, tout, (int)strlen(tout), &rect, DT_CENTER);
 
 
 	if (strlen(mytext22) == 0)getinfo(mytext22);
@@ -1683,7 +1685,7 @@ vncDesktop::WriteMessageOnScreenPreConnect(BYTE *scrBuff, UINT scrBuffSize)
 	hFont = (HFONT)GetStockObject(ANSI_FIXED_FONT);
 	if ((hOldFont = (HFONT)SelectObject(m_hmemdc, hFont)))
 	{
-		DrawText(m_hmemdc, mytext22, strlen(mytext22), &rect, DT_LEFT | DT_WORDBREAK);
+		DrawText(m_hmemdc, mytext22, (int)strlen(mytext22), &rect, DT_LEFT | DT_WORDBREAK);
 		SelectObject(m_hmemdc, hOldFont);
 
 	}
@@ -1692,7 +1694,7 @@ vncDesktop::WriteMessageOnScreenPreConnect(BYTE *scrBuff, UINT scrBuffSize)
 	hFont = (HFONT)GetStockObject(ANSI_FIXED_FONT);
 	if ((hOldFont = (HFONT)SelectObject(m_hmemdc, hFont)))
 	{
-		DrawText(m_hmemdc, menustring, strlen(menustring), &rect, DT_LEFT);
+		DrawText(m_hmemdc, menustring, (int)strlen(menustring), &rect, DT_LEFT);
 		SelectObject(m_hmemdc, hOldFont);
 
 	}

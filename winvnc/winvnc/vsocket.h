@@ -305,10 +305,10 @@ public:
 protected:
   // The internal socket id
 #ifdef IPV6V4
-	int sock4;
-	int sock6;
+    SOCKET sock4;
+    SOCKET sock6;
 #else
-  int sock;	      
+    SOCKET sock;
 #endif
 
   //adzm 2010-08-01

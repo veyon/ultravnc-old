@@ -52,19 +52,21 @@ void ClientConnection::SetFullScreenMode(bool enable)
 	// Modif sf@2002 - v1.1.0 - In case of server scaling
 	// Clear the Window (in black)
     if (m_opts.m_nServerScale > 1)
-	{
-		/*RECT winrect;
-		GetWindowRect(m_hwndMain, &winrect);
-		int winwidth = winrect.right - winrect.left;
-		int winheight = winrect.bottom - winrect.top;
-		RECT rect;
-		SetRect(&rect, 0,0, winwidth, winheight);
-		COLORREF bgcol = RGB(0x0, 0x0, 0x0);
-		FillSolidRect_ultra(0, 0, winwidth, winheight, m_myFormat.bitsPerPixel,(BYTE *) &bgcol);*/
-		// Update the whole screen 
-		//adzm 2010-09
-		SendFullFramebufferUpdateRequest(false);
-	}
+    {
+        /*RECT winrect;
+        GetWindowRect(m_hwndMain, &winrect);
+        int winwidth = winrect.right - winrect.left;
+        int winheight = winrect.bottom - winrect.top;
+        RECT rect;
+        SetRect(&rect, 0,0, winwidth, winheight);
+        COLORREF bgcol = RGB(0x0, 0x0, 0x0);
+        FillSolidRect_ultra(0, 0, winwidth, winheight, m_myFormat.bitsPerPixel,(BYTE *) &bgcol);*/
+        // Update the whole screen 
+        //adzm 2010-09
+        SendFullFramebufferUpdateRequest(false);
+    }
+    
+    RedrawWindow(m_hwndMain, NULL, NULL, RDW_FRAME | RDW_INVALIDATE);
 }
 
 // If the options have been changed other than by calling 
@@ -169,7 +171,7 @@ void ClientConnection::RealiseFullScreenMode()
 
 		TitleBar.DisplayWindow(FALSE, TRUE); //Added by: Lars Werner (http://lars.werner.no)
 
-		if (m_hwndStatus)::RedrawWindow(m_hwndStatus, NULL,NULL,TRUE); //Added by: Lars Werner (http://lars.werner.no) - Reason: The status window is not getting redrawn after a resize.
+		if (m_hwndStatus)::RedrawWindow(m_hwndStatus, NULL,NULL, RDW_INVALIDATE); //Added by: Lars Werner (http://lars.werner.no) - Reason: The status window is not getting redrawn after a resize.
 	}
 }
 
@@ -188,7 +190,7 @@ void ClientConnection::BorderlessMode()
 	// adzm - 2010-07 - Extended clipboard
 	CheckMenuItem(m_hPopupMenuDisplay, ID_FULLSCREEN, MF_BYCOMMAND | MF_UNCHECKED);
 	TitleBar.DisplayWindow(FALSE, TRUE);
-	if (m_hwndStatus)::RedrawWindow(m_hwndStatus, NULL, NULL, TRUE);
+	if (m_hwndStatus)::RedrawWindow(m_hwndStatus, NULL, NULL, RDW_INVALIDATE);
 }
 
 bool ClientConnection::BumpScroll(int x, int y)

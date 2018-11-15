@@ -846,7 +846,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 			// wa@2005 -- added support for the AutoReconnectId
 			i+=strlen(winvncAutoReconnect);
 			Injected_autoreconnect=true;
-			int start, end;
+            size_t start, end;
 			char* pszId = NULL;
 			start = i;
 			// skip any spaces and grab the parameter
@@ -896,7 +896,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		if ( strncmp( &szCmdLine[i], winvncReconnectId, strlen(winvncReconnectId) ) == 0 )
 			{
 				i+=strlen("-");
-				int start, end;
+                size_t start, end;
 				char* pszId = NULL;
 				start = i;
 				end = start;
@@ -941,7 +941,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 			i+=strlen(winvncConnect);
 
 			// First, we have to parse the command line to get the filename to use
-			int start, end;
+            size_t start, end;
 			start=i;
 			while (szCmdLine[start] <= ' ' && szCmdLine[start] != 0) start++;
 			end = start;
@@ -1086,7 +1086,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 			i+=strlen(winvncRepeater);
 
 			// First, we have to parse the command line to get the host to use
-			int start, end;
+            size_t start, end;
 			start=i;
 			while (szCmdLine[start] <= ' ' && szCmdLine[start] != 0) start++;
 			end = start;
