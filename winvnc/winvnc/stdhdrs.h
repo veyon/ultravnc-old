@@ -120,7 +120,7 @@ extern VNCLog vnclog;
 
 // Macros for sticking in the current file name
 #ifdef ULTRAVNC_VEYON_SUPPORT
-#define VNCLOG(s)	(QStringLiteral("%1 : %2").arg(__PRETTY_FUNCTION__).arg(s).toUtf8().constData())
+#define VNCLOG(s)	(QStringLiteral("%1 : %2").arg(QLatin1String(__PRETTY_FUNCTION__)).arg(QStringLiteral(s)).toUtf8().constData())
 #else
 #define VNCLOG(s)	(__FILE__ " : " s)
 #endif
