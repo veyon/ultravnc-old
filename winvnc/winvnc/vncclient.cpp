@@ -2526,6 +2526,7 @@ vncClientThread::run(void *arg)
 			if (!vncService::SelectDesktop(NULL, &input_desktop)) 
 					break;
 		}
+#ifndef ULTRAVNC_VEYON_SUPPORT
 		// added jeff
         // 2 May 2008 jdp paquette@atnetsend.net moved so that we're on the right desktop  when we're a service
 	    // Clear the CapsLock and NumLock keys
@@ -2537,6 +2538,7 @@ vncClientThread::run(void *arg)
 		    ClearKeyState(VK_SCROLL);
             need_to_clear_keyboard = false;
 	    }
+#endif
         //
         if (need_to_disable_input)
         {
