@@ -244,7 +244,7 @@ const char *SplitString(const char *input, char separator, char *head){
 
 	tail = strchr(input, separator);
 	if (tail){
-		l = tail - input;
+		l = (int)(tail - input);
 		// get rid of separator
 		tail = tail + 1; 
 		strncpy(head, input, l);

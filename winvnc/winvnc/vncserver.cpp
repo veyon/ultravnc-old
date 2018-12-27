@@ -151,7 +151,6 @@ vncServer::vncServer()
 	m_queryaccept = 0;
 	m_querytimeout = 10;
 	m_querydisabletime = 10;
-	m_retry_timeout = 0;
 
 	// Autolock settings
 	m_lock_on_exit = 0;
@@ -254,22 +253,17 @@ vncServer::vncServer()
 
     startTime = GetTickCount();
 	m_fSendExtraMouse = TRUE;
+	retryThreadHandle = NULL;
+	retrysock = NULL;
 }
 
 vncServer::~vncServer()
-{
+{	
 	vnclog.Print(LL_STATE, VNCLOG("shutting down server object1\n"));
 
 	// We don't want to retry when we are shutting down...
 	m_fAutoReconnect = FALSE;
 	m_fIdReconnect = FALSE;
-
-	// if we are in the middle of retrying our autoreconnect - kill the timer
-	if ( m_retry_timeout > 0 )
-	{
-		KillTimer( NULL, m_retry_timeout );
-		m_retry_timeout = 0;
-	}
 
 	// If there is a socket_conn object then delete it
 	if (m_socketConn != NULL)
@@ -285,6 +279,15 @@ vncServer::~vncServer()
 		m_httpConn = NULL;
 	}
 #endif
+
+	if (retrysock != NULL)
+		retrysock->Shutdown();
+	//if some reconnect is running wait until timeout
+	if (retryThreadHandle != NULL) {
+		 WaitForSingleObject(retryThreadHandle,INFINITE);
+		 CloseHandle(retryThreadHandle);
+		 retryThreadHandle = NULL;
+	}
 
 	// Modif Jeremy C. 
 	if(m_impersonationtoken) 
@@ -368,13 +371,6 @@ vncServer::ShutdownServer()
 	m_fAutoReconnect = FALSE;
 	m_fIdReconnect = FALSE;
 
-	// if we are in the middle of retrying our autoreconnect - kill the timer
-	if ( m_retry_timeout > 0 )
-	{
-		KillTimer( NULL, m_retry_timeout );
-		m_retry_timeout = 0;
-	}
-
 	// If there is a socket_conn object then delete it
 	if (m_socketConn != NULL)
 	{
@@ -389,6 +385,16 @@ vncServer::ShutdownServer()
 		m_httpConn = NULL;
 	}
 #endif
+
+	if (retrysock != NULL)
+		retrysock->Shutdown();
+
+	//if some reconnect is running wait until timeout
+	if (retryThreadHandle != NULL) {
+		 WaitForSingleObject(retryThreadHandle,INFINITE);
+		 CloseHandle(retryThreadHandle);
+		 retryThreadHandle = NULL;
+	}
 
 	// Modif Jeremy C. 
 	if(m_impersonationtoken) 
@@ -740,8 +746,8 @@ vncServer::KillClient(vncClientId clientid)
 
 			// Ask the client to die
 			vncClient *client = GetClient(clientid);
-			client->Kill();
-
+			client->Kill(true);
+			delete client; 
 			done = TRUE;
 			break;
 		}
@@ -1021,7 +1027,8 @@ vncServer::KillUnauthClients()
 		vnclog.Print(LL_INTINFO, VNCLOG("killing unauth client\n"));
 
 		// Kill the client
-		GetClient(*i)->Kill();
+		GetClient(*i)->Kill(true);
+		delete GetClient(*i);
 	}
 
 	vnclog.Print(LL_INTINFO, VNCLOG("KillUnauthClients() done\n"));
@@ -1033,7 +1040,7 @@ vncServer::AuthClientCount()
 {
 	//omni_mutex_lock l(m_clientsLock,28);
 
-	return m_authClients.size();
+	return (UINT)m_authClients.size();
 }
 
 UINT
@@ -1041,7 +1048,7 @@ vncServer::UnauthClientCount()
 {
 	//omni_mutex_lock l(m_clientsLock,30);
 
-	return m_unauthClients.size();
+	return (UINT)m_unauthClients.size();
 }
 
 BOOL
@@ -1976,7 +1983,7 @@ vncServer::VerifyHost(const char *hostname) {
 	vncServer::AcceptQueryReject patternType = vncServer::aqrReject;
 	UINT authHostsPos = 0;
 	UINT patternStart = 0;
-	UINT hostNameLen = strlen(hostname);
+	UINT hostNameLen = (UINT)strlen(hostname);
 
 	// Run through the auth hosts string until we hit the end
 	if (m_auth_hosts) {
@@ -2577,119 +2584,79 @@ bool vncServer::IsClient(vncClient* pClient)
 
   return false;
 }
+
+DWORD WINAPI retryThread(LPVOID lpParam)
+{
+	vncServer* pIface = (vncServer*)lpParam;
+	pIface->actualRetryThread();
+	return true;
+}
+
 void vncServer::AutoConnectRetry( )
 {
-	if ( m_fAutoReconnect && !fShutdownOrdered)
-	{
+	//Start thread if not running
+	if ( m_fAutoReconnect && !fShutdownOrdered) {
 		vnclog.Print(LL_INTINFO, VNCLOG("AutoConnectRetry(): started\n"));
-		if (m_retry_timeout == 0) m_retry_timeout = SetTimer( NULL, 0, (100), (TIMERPROC)_timerRetryHandler );
-	}
-}
-void CALLBACK vncServer::_timerRetryHandler( HWND /*hWnd*/, UINT /*uMsg*/, UINT_PTR /*idEvent*/, DWORD /*dwTime*/ )
-{
-	vncServer* pIface = (vncServer*)pThis;
-	pIface->_actualTimerRetryHandler( );
-}
-void vncServer::_actualTimerRetryHandler()
-{
-	vnclog.Print(LL_INTINFO, VNCLOG("Attempting AutoReconnect....\n"));
-	
-	KillTimer( NULL, m_retry_timeout );
-	
-	
-	if ( m_fAutoReconnect && strlen(m_szAutoReconnectAdr) > 0 && !fShutdownOrdered)
-	{
-
-		VSocket *tmpsock;
-		tmpsock = new VSocket;
-		if (tmpsock) {
-
-
-			/*if (G_HTTP)
-				{
-					if (tmpsock->Http_CreateConnect(m_szAutoReconnectAdr))
-					{
-						if ( strlen( m_szAutoReconnectId ) > 0 )
-						{
-						// wa@2005 -- added support for the AutoReconnectId
-						// Set the ID for this client -- code taken from vncconndialog.cpp (ln:142)
-						tmpsock->Send(m_szAutoReconnectId,250);
-						tmpsock->SetTimeout(0);
-						
-						// adzm 2009-07-05 - repeater IDs
-						// Add the new client to this server
-						// adzm 2009-08-02
-						AddClient(tmpsock, TRUE, TRUE, 0, NULL, m_szAutoReconnectId, m_szAutoReconnectAdr, m_AutoReconnectPort);
-						m_retry_timeout = 0;
-						} else {
-						// Add the new client to this server
-						// adzm 2009-08-02
-						AddClient(tmpsock, TRUE, TRUE, 0, NULL, NULL, m_szAutoReconnectAdr, m_AutoReconnectPort);
-						m_retry_timeout = 0;
-						}
-					}
-					else
-					{
-						// Connect out to the specified host on the VNCviewer listen port
-						tmpsock->Create();
-						if (tmpsock->Connect(m_szAutoReconnectAdr, m_AutoReconnectPort)) {
-							if ( strlen( m_szAutoReconnectId ) > 0 )
-							{
-								tmpsock->Send(m_szAutoReconnectId,250);
-								tmpsock->SetTimeout(0);
-								// adzm 2009-07-05 - repeater IDs
-								// Add the new client to this server
-								AddClient(tmpsock, TRUE, TRUE, 0, NULL, m_szAutoReconnectId, m_szAutoReconnectAdr, m_AutoReconnectPort);
-								m_retry_timeout = 0;
-							} else {
-								// Add the new client to this server
-								// adzm 2009-08-02
-								AddClient(tmpsock, TRUE, TRUE, 0, NULL, NULL, m_szAutoReconnectAdr, m_AutoReconnectPort);
-								m_retry_timeout = 0;
-							}
-						} else {
-							delete tmpsock;
-							m_retry_timeout = SetTimer( NULL, 0, (1000*30), (TIMERPROC)_timerRetryHandler );
-						}
-					}
-
-				}
-				else*/
-				{
-					// Connect out to the specified host on the VNCviewer listen port
-#ifdef IPV6V4
-					if (tmpsock->CreateConnect(m_szAutoReconnectAdr, m_AutoReconnectPort))
-#else
-					tmpsock->Create();
-					if (tmpsock->Connect(m_szAutoReconnectAdr, m_AutoReconnectPort))
-#endif
-					{
-						if ( strlen( m_szAutoReconnectId ) > 0 )
-						{
-							tmpsock->Send(m_szAutoReconnectId,250);
-							tmpsock->SetTimeout(0);
-							// adzm 2009-07-05 - repeater IDs
-							// Add the new client to this server
-							AddClient(tmpsock, TRUE, TRUE, 0, NULL, m_szAutoReconnectId, m_szAutoReconnectAdr, m_AutoReconnectPort,true);
-							m_retry_timeout = 0;
-						} else {
-							// Add the new client to this server
-							// adzm 2009-08-02
-							AddClient(tmpsock, TRUE, TRUE, 0, NULL, NULL, m_szAutoReconnectAdr, m_AutoReconnectPort,true);
-							m_retry_timeout = 0;
-						}
-					} else {
-						delete tmpsock;
-						m_retry_timeout = SetTimer( NULL, 0, (1000*30), (TIMERPROC)_timerRetryHandler );
-					}
+		if (retryThreadHandle != NULL) {
+			DWORD dwWait = WaitForSingleObject(retryThreadHandle, 0);
+			if (dwWait == WAIT_OBJECT_0) {
+				CloseHandle(retryThreadHandle);
+				DWORD dwTId;
+				retryThreadHandle = CreateThread(NULL, 0, retryThread, pThis, 0, &dwTId);
+			} 
+			else if (dwWait == WAIT_TIMEOUT) {
+				// thread still running
 			}
-		} //tempsocket
-	}
-	else
-	{
-		m_retry_timeout = 0;
+		}
+		else {
+			DWORD dwTId;
+			retryThreadHandle = CreateThread(NULL, 0, retryThread, pThis, 0, &dwTId);
+		}
+
 	}
 }
+
+void vncServer::actualRetryThread()
+{	
+	while ( m_fAutoReconnect && strlen(m_szAutoReconnectAdr) > 0 && !fShutdownOrdered)
+	{
+		vnclog.Print(LL_INTINFO, VNCLOG("Attempting AutoReconnect....\n"));	
+		retrysock = new VSocket;
+		if (retrysock) {
+			// Connect out to the specified host on the VNCviewer listen port
+#ifdef IPV6V4
+			if (tmpsock->CreateConnect(m_szAutoReconnectAdr, m_AutoReconnectPort)) {
+#else
+			retrysock->Create();
+			if (retrysock->Connect(m_szAutoReconnectAdr, m_AutoReconnectPort)) {
+#endif
+				if ( strlen( m_szAutoReconnectId ) > 0 ) {
+					retrysock->Send(m_szAutoReconnectId,250);
+					retrysock->SetTimeout(0);
+					// adzm 2009-07-05 - repeater IDs
+					// Add the new client to this server
+					AddClient(retrysock, TRUE, TRUE, 0, NULL, m_szAutoReconnectId, m_szAutoReconnectAdr, m_AutoReconnectPort,true);
+					vnclog.Print(LL_INTINFO, VNCLOG("leaving reconnectThread....\n"));
+					return;
+				} else {
+					// Add the new client to this server
+					// adzm 2009-08-02
+					AddClient(retrysock, TRUE, TRUE, 0, NULL, NULL, m_szAutoReconnectAdr, m_AutoReconnectPort,true);
+					vnclog.Print(LL_INTINFO, VNCLOG("leaving reconnectThread....\n"));
+					return;
+				}
+			} else {
+				vnclog.Print(LL_INTINFO, VNCLOG("connect failed, waitin 5 sec to retry....\n"));	
+				delete retrysock;	//retry
+				retrysock = NULL;
+				if ( m_fAutoReconnect && strlen(m_szAutoReconnectAdr) > 0 && !fShutdownOrdered) 
+					Sleep(5000);
+			}
+		} 
+	}
+	vnclog.Print(LL_INTINFO, VNCLOG("leaving reconnectThread....\n"));
+}
+
 #ifdef SERVER_STATE_SUPPORT
 void vncServer::NotifyClients_StateChange(CARD32 state, CARD32 value)
 {

@@ -326,7 +326,7 @@ bool vncDesktop::FastDetectChanges(rfb::Region2D &rgn, rfb::Rect &rect, int nZon
 			// If init list
 			if (fInitGrid)
 			{
-				int off = iPixelColor - pThePixelGrid->begin();
+				int off = (int)(iPixelColor - pThePixelGrid->begin());
 				pThePixelGrid->push_back(PixelColor);
 				iPixelColor = pThePixelGrid->begin() + off;
 				rgn.assign_union(rect);
@@ -1675,7 +1675,7 @@ vncDesktop::WriteMessageOnScreenPreConnect(BYTE *scrBuff, UINT scrBuffSize)
 
 	HFONT hFont, hOldFont;
 	SetRect(&rect, 0, 10, 640, 640);
-    char *tout = "UVNC experimental server 1.2.2.3 pre-connect window \n";
+    char *tout = "UVNC experimental server 1.2.2.4 pre-connect window \n";
 	DrawText(m_hmemdc, tout, (int)strlen(tout), &rect, DT_CENTER);
 
 
@@ -2567,8 +2567,8 @@ bool vncDesktop::block_input(bool first)
 {
 	if (first)
 	{
-		old_Blockinput1 = m_bIsInputDisabledByClient;
-		old_Blockinput2 = m_server->LocalInputsDisabled();
+		old_Blockinput1 = m_bIsInputDisabledByClient ? 1 : 0;
+		old_Blockinput2 = m_server->LocalInputsDisabled() ? 1 : 0;
 		return false;
 	}
 	else
@@ -2591,7 +2591,7 @@ bool vncDesktop::block_input(bool first)
 						OutputDebugString(szText);
 		#endif*/
 
-		if (old_Blockinput1 != m_bIsInputDisabledByClient || old_Blockinput2 != m_server->LocalInputsDisabled())
+		if (old_Blockinput1 != (m_bIsInputDisabledByClient ? 1 : 0) || old_Blockinput2 != (m_server->LocalInputsDisabled() ? 1 : 0))
 		{
 			CARD32 state;
 			state = !Blockinput_val;
@@ -2611,8 +2611,8 @@ bool vncDesktop::block_input(bool first)
 			}
 
 		}
-		old_Blockinput1 = m_bIsInputDisabledByClient;
-		old_Blockinput2 = m_server->LocalInputsDisabled();
+		old_Blockinput1 = m_bIsInputDisabledByClient ? 1 : 0;
+		old_Blockinput2 = m_server->LocalInputsDisabled() ? 1 : 0;
 		old_Blockinput = Blockinput_val;
 		return Blockinput_val;
 	}
