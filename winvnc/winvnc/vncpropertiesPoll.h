@@ -109,6 +109,7 @@ protected:
 	BOOL m_pref_PollOnEventOnly;
 	LONG m_pref_MaxCpu;
 
+	BOOL m_pref_DeskDupEngine;
 	BOOL m_pref_Driver;
 	BOOL m_pref_Hook;
 	BOOL m_pref_Virtual;

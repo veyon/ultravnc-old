@@ -767,6 +767,7 @@ LABELUSERSETTINGS:
 	m_pref_PollConsoleOnly=FALSE;
 	m_pref_PollOnEventOnly=FALSE;
 	m_pref_MaxCpu=40;
+	m_pref_DeskDupEngine=true;
 	m_pref_Driver=CheckVideoDriver(0);
 	m_pref_Hook=TRUE;
 	m_pref_Virtual=FALSE;
@@ -841,6 +842,7 @@ vncPropertiesPoll::LoadUserPrefsPoll(HKEY appkey)
 	m_pref_PollOnEventOnly=LoadInt(appkey, "OnlyPollOnEvent", m_pref_PollOnEventOnly);
 	m_pref_MaxCpu=LoadInt(appkey, "MaxCpu", m_pref_MaxCpu);
 	if (m_pref_MaxCpu==0) m_pref_MaxCpu=100;
+	m_pref_DeskDupEngine=LoadInt(appkey, "DeskDupEngine", m_pref_DeskDupEngine);
 	m_pref_Driver=LoadInt(appkey, "EnableDriver", m_pref_Driver);
 	if (m_pref_Driver)m_pref_Driver=CheckVideoDriver(0);
 	m_pref_Hook=LoadInt(appkey, "EnableHook", m_pref_Hook);
@@ -868,6 +870,7 @@ vncPropertiesPoll::ApplyUserPrefs()
 	m_server->PollConsoleOnly(m_pref_PollConsoleOnly);
 	m_server->PollOnEventOnly(m_pref_PollOnEventOnly);
 	m_server->MaxCpu(m_pref_MaxCpu);	
+	if (m_pref_DeskDupEngine == false) m_server->GetDesktopPointer()->DisableDeskDupEngine();
 	if (CheckVideoDriver(0) && m_pref_Driver) m_server->Driver(m_pref_Driver);
 	else m_server->Driver(false);
 	m_server->Hook(m_pref_Hook);
