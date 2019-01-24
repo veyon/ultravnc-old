@@ -164,6 +164,7 @@ vncServer::vncServer()
 	m_MaxCpu=20;
 	m_poll_consoleonly = TRUE;
 
+	m_deskDupEngine = TRUE;
 	m_driver = FALSE;
 	m_hook = FALSE;
 	m_virtual = FALSE;
@@ -2465,6 +2466,11 @@ vncServer::Clear_Update_Tracker() {
 	}
 }
 
+
+void vncServer::DeskDupEngine(BOOL enable)
+{
+	m_deskDupEngine = enable;
+}
 
 void vncServer::Driver(BOOL enable)
 {

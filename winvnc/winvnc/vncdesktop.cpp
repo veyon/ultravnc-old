@@ -504,7 +504,6 @@ vncDesktop::vncDesktop()
 	hUser32 = LoadLibrary("USER32");
 	if (hUser32) pbi = (pBlockInput)GetProcAddress(hUser32, "BlockInput");
 	no_default_desktop = false;
-	m_useDeskDupEngine = true;
 	DriverWantedSet = false;
 	can_be_hooked = false;
 
@@ -2353,7 +2352,7 @@ BOOL vncDesktop::InitVideoDriver()
 		if (m_screenCapture != NULL) delete m_screenCapture;
 
 	}
-	if (IsWindows8OrGreater() && m_useDeskDupEngine)
+	if (IsWindows8OrGreater() && m_server->DeskDupEngine())
 	{
 		int a = 0;
 		m_screenCapture = new DeskDupEngine;

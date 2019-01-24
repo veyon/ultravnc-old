@@ -196,6 +196,8 @@ public:
 	virtual void PollFullScreen(BOOL enable) {m_poll_fullscreen = enable;};
 	virtual BOOL PollFullScreen() {return m_poll_fullscreen;};
 
+	virtual void DeskDupEngine(BOOL enable);
+	virtual BOOL DeskDupEngine() {return m_deskDupEngine;};
 	virtual void Driver(BOOL enable);
 	virtual BOOL Driver() {return m_driver;};
 	virtual void Hook(BOOL enable);
@@ -564,6 +566,7 @@ protected:
 	LONG				m_MaxCpu;
 	BOOL				m_poll_consoleonly;
 
+	BOOL				m_deskDupEngine;
 	BOOL				m_driver;
 	BOOL				m_hook;
 	BOOL				m_virtual;

@@ -335,7 +335,6 @@ public:
 	// JnZn558
 	void GetThirdDevice();
 	//
-	void DisableDeskDupEngine() { m_useDeskDupEngine = false; }
 	void Checkmonitors();
     // 28 Mar 2008 jdp
     void SetBlockInputState(bool newstate);
@@ -539,8 +538,6 @@ bool m_bIsInputDisabledByClient; // 28 March 2008 jdp
 #ifdef AVILOG
 CAVIGenerator *AviGen;
 #endif
-
-BOOL m_useDeskDupEngine;
 
 private:
 	HDESK m_input_desktop;

@@ -870,7 +870,7 @@ vncPropertiesPoll::ApplyUserPrefs()
 	m_server->PollConsoleOnly(m_pref_PollConsoleOnly);
 	m_server->PollOnEventOnly(m_pref_PollOnEventOnly);
 	m_server->MaxCpu(m_pref_MaxCpu);	
-	if (m_pref_DeskDupEngine == false) m_server->GetDesktopPointer()->DisableDeskDupEngine();
+	m_server->DeskDupEngine(m_pref_DeskDupEngine);
 	if (CheckVideoDriver(0) && m_pref_Driver) m_server->Driver(m_pref_Driver);
 	else m_server->Driver(false);
 	m_server->Hook(m_pref_Hook);
