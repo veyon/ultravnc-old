@@ -361,8 +361,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
     char progname[MAX_PATH];
     strncpy(progname, WORKDIR, sizeof progname);
     progname[MAX_PATH - 1] = 0;
-	//strcat(WORKDIR,"\\");
-	//strcat(WORKDIR,"WinVNC.log");
+	//strcat_s(WORKDIR,"\\");
+	//strcat_s(WORKDIR,"WinVNC.log");
 
 	vnclog.SetFile();
 	//vnclog.SetMode(4);
@@ -435,7 +435,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 			Sleep(3000);
 			char mycommand[MAX_PATH];
 			i+=strlen(winvncSettingshelper);
-			strcpy( mycommand, &(szCmdLine[i+1]));
+			strcpy_s( mycommand, &(szCmdLine[i+1]));
 			Set_settings_as_admin(mycommand);
 #ifdef CRASHRPT
 			crUninstall();
@@ -597,7 +597,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		{
 			char mycommand[MAX_PATH];
 			i+=strlen(winvncSettings);
-			strcpy( mycommand, &(szCmdLine[i+1]));
+			strcpy_s( mycommand, &(szCmdLine[i+1]));
 			Real_settings(mycommand);
 #ifdef CRASHRPT
 			crUninstall();
@@ -609,7 +609,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		{
 			char mycommand[MAX_PATH];
 			i += strlen(dsmpluginhelper);
-			strcpy(mycommand, &(szCmdLine[i + 1]));
+			strcpy_s(mycommand, &(szCmdLine[i + 1]));
 			Secure_Plugin_elevated(mycommand);
 #ifdef CRASHRPT
 			crUninstall();
@@ -621,7 +621,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		{
 			char mycommand[MAX_PATH];
 			i += strlen(dsmplugininstance);
-			strcpy(mycommand, &(szCmdLine[i + 1]));
+			strcpy_s(mycommand, &(szCmdLine[i + 1]));
 			Secure_Plugin(mycommand);
 #ifdef CRASHRPT
 			crUninstall();
@@ -884,7 +884,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 				}
 				else
 				{
-					strcpy(pszId_char,pszId);
+					strcpy_s(pszId_char,pszId);
 					//memory leak fix
 					delete[] pszId; pszId = NULL;
 				}
@@ -922,7 +922,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 				}
 				else
 				{
-					strcpy(pszId_char,pszId);
+					strcpy_s(pszId_char,pszId);
 					//memory leak fix
 					delete[] pszId; pszId = NULL;
 				}

@@ -107,16 +107,16 @@ vncPropertiesPoll::Show(BOOL show, BOOL usersettings)
 					if (p == NULL) return;
 					*p = '\0';
 				}
-					strcpy(m_Tempfile,"");
-					strcat(m_Tempfile,WORKDIR);//set the directory
-					strcat(m_Tempfile,"\\");
-					strcat(m_Tempfile,INIFILE_NAME);
+					strcpy_s(m_Tempfile,"");
+					strcat_s(m_Tempfile,WORKDIR);//set the directory
+					strcat_s(m_Tempfile,"\\");
+					strcat_s(m_Tempfile,INIFILE_NAME);
 		}
 		else
 		{
-			strcpy(m_Tempfile,"");
-			strcat(m_Tempfile,WORKDIR);//set the directory
-			strcat(m_Tempfile,INIFILE_NAME);
+			strcpy_s(m_Tempfile,"");
+			strcat_s(m_Tempfile,WORKDIR);//set the directory
+			strcat_s(m_Tempfile,INIFILE_NAME);
 		}
 	}
 	if (id!=0) 
@@ -131,8 +131,8 @@ vncPropertiesPoll::Show(BOOL show, BOOL usersettings)
 					if(iImpersonateResult == ERROR_SUCCESS)
 					{
 						ExpandEnvironmentStringsForUser(hPToken, "%TEMP%", m_Tempfile, MAX_PATH);
-						strcat(m_Tempfile,"\\");
-						strcat(m_Tempfile,INIFILE_NAME);
+						strcat_s(m_Tempfile,"\\");
+						strcat_s(m_Tempfile,INIFILE_NAME);
 					}
 				}
 			}
@@ -636,7 +636,7 @@ vncPropertiesPoll::ResetRegistry()
 
 	// If there is no user logged on them default to SYSTEM
 	if (strcmp(username, "") == 0)
-		strcpy((char *)&username, "SYSTEM");
+		strcpy_s((char *)&username, UNLEN+1, "SYSTEM");
 
 	// Try to get the machine registry key for WinVNC
 	if (RegCreateKeyEx(HKEY_LOCAL_MACHINE,
@@ -723,7 +723,7 @@ vncPropertiesPoll::Load(BOOL usersettings)
 
 	// If there is no user logged on them default to SYSTEM
 	if (strcmp(username, "") == 0)
-		strcpy((char *)&username, "SYSTEM");
+		strcpy_s((char *)&username, UNLEN+1, "SYSTEM");
 
 	// Try to get the machine registry key for WinVNC
 	if (RegCreateKeyEx(HKEY_LOCAL_MACHINE,

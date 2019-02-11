@@ -33,7 +33,7 @@ IniFile::IniFile()
 {
 	if(g_szIniFile)
 	{
-		strcpy(myInifile,g_szIniFile);
+		strcpy_s(myInifile,g_szIniFile);
 	}
 	else
 	{
@@ -44,10 +44,10 @@ IniFile::IniFile()
 		if (p == NULL) return;
 		*p = '\0';
 		}
-	strcpy(myInifile,"");
-	strcat(myInifile,WORKDIR);//set the directory
-	strcat(myInifile,"\\");
-	strcat(myInifile,INIFILE_NAME);
+	strcpy_s(myInifile,"");
+	strcat_s(myInifile,WORKDIR);//set the directory
+	strcat_s(myInifile,"\\");
+	strcat_s(myInifile,INIFILE_NAME);
 }
 }
 
@@ -56,7 +56,7 @@ IniFile::IniFileSetSecure()
 {
 	if(g_szIniFile)
 	{
-		strcpy(myInifile,g_szIniFile);
+		strcpy_s(myInifile,g_szIniFile);
 	}
 	else
 	{
@@ -67,10 +67,10 @@ char WORKDIR[MAX_PATH];
 		if (p == NULL) return;
 		*p = '\0';
 		}
-	strcpy(myInifile,"");
-	strcat(myInifile,WORKDIR);//set the directory
-	strcat(myInifile,"\\");
-	strcat(myInifile,INIFILE_NAME);
+	strcpy_s(myInifile,"");
+	strcat_s(myInifile,WORKDIR);//set the directory
+	strcat_s(myInifile,"\\");
+	strcat_s(myInifile,INIFILE_NAME);
 }
 }
 
@@ -94,16 +94,16 @@ char WORKDIR[MAX_PATH];
 		if (p == NULL) return;
 		*p = '\0';
 		}
-		strcpy(myInifile,"");
-		strcat(myInifile,WORKDIR);//set the directory
-		strcat(myInifile,"\\");
-		strcat(myInifile,INIFILE_NAME);
+		strcpy_s(myInifile,"");
+		strcat_s(myInifile,WORKDIR);//set the directory
+		strcat_s(myInifile,"\\");
+		strcat_s(myInifile,INIFILE_NAME);
 		return;
 	}
 
-	strcpy(myInifile,"");
-	strcat(myInifile,WORKDIR);//set the directory
-	strcat(myInifile,INIFILE_NAME);
+	strcpy_s(myInifile,"");
+	strcat_s(myInifile,WORKDIR);//set the directory
+	strcat_s(myInifile,INIFILE_NAME);
 }*/
 
 void
@@ -115,10 +115,10 @@ IniFile::copy_to_secure()
 		char exe_file_name[MAX_PATH];
 		GetModuleFileName(0, exe_file_name, MAX_PATH);
 
-		strcpy(dir, exe_file_name);
-		strcat(dir, " -settingshelper");
-		strcat(dir, ":");
-		strcat(dir, myInifile);
+		strcpy_s(dir, exe_file_name);
+		strcat_s(dir, " -settingshelper");
+		strcat_s(dir, ":");
+		strcat_s(dir, myInifile);
 
 		STARTUPINFO          StartUPInfo;
 		PROCESS_INFORMATION  ProcessInfo;

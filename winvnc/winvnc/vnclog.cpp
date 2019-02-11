@@ -49,7 +49,7 @@ VNCLog::VNCLog()
 	, m_video(false)
     , m_lastLogTime(0)
 {
-	strcpy(m_filename,"");
+	strcpy_s(m_filename,"");
 	m_path[0] = 0;
 }
 
@@ -108,9 +108,9 @@ void VNCLog::SetFile()
 	IniFile myIniFile;
 	myIniFile.ReadString("admin", "path", temp,512);
 	SetPath(temp);
-	strcpy(m_filename,m_path);
-	strcat(m_filename,"\\");
-	strcat(m_filename,"WinVNC.log");
+	strcpy_s(m_filename,m_path);
+	strcat_s(m_filename,"\\");
+	strcat_s(m_filename,"WinVNC.log");
 	m_append = true;
 	if (m_tofile)
 		OpenFile();
@@ -232,10 +232,10 @@ void VNCLog::ReallyPrint(int level, const char* format, va_list ap)
              MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),(char *)&szErrorMsg,
              LINE_BUFFER_SIZE, NULL) == 0)
         {
-            sprintf(szErrorMsg, "error code 0x%08X", (unsigned int) dwErrorCode);
+            sprintf_s(szErrorMsg, "error code 0x%08X", (unsigned int) dwErrorCode);
         }
-	strcat(line," --");
-	strcat(line,szErrorMsg);
+	strcat_s(line," --");
+	strcat_s(line,szErrorMsg);
 	level = LL_ERROR;
     }
 	ReallyPrintLine(level, line);
@@ -276,10 +276,10 @@ void VNCLog::SetPath(char path[512])
 		if (p == NULL) return;
 		*p = '\0';
 		}
-		strcpy(m_path,WORKDIR);
+		strcpy_s(m_path,WORKDIR);
 	}
 	else
-	strcpy(m_path,path);
+	strcpy_s(m_path,path);
 }
 char *VNCLog::GetPath()
 {
@@ -292,7 +292,7 @@ char *VNCLog::GetPath()
 		if (p == NULL) return "";
 		*p = '\0';
 		}
-		strcpy(m_path,WORKDIR);
+		strcpy_s(m_path,WORKDIR);
 	}
 	
 	return m_path;
@@ -301,8 +301,8 @@ char *VNCLog::GetPath()
 void VNCLog::ClearAviConfig()
 {
 	char WORKDIR[MAX_PATH];
-	strcpy(WORKDIR,m_path);
-	strcat(WORKDIR,"\\");
-	strcat(WORKDIR,"codec.cfg");
+	strcpy_s(WORKDIR,m_path);
+	strcat_s(WORKDIR,"\\");
+	strcat_s(WORKDIR,"codec.cfg");
 	DeleteFile(WORKDIR);
 }

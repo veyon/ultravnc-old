@@ -126,7 +126,7 @@ DWORD GetExplorerLogonPid()
 {
 	char alternate_shell[129];
 	IniFile myIniFile;
-	strcpy(alternate_shell, "");
+	strcpy_s(alternate_shell, "");
 	myIniFile.ReadString("admin", "alternate_shell", alternate_shell, 256);
 
 	DWORD dwSessionId;
@@ -207,7 +207,7 @@ GetConsoleUser(char *buffer, UINT size)
 	DWORD dwExplorerLogonPid=GetExplorerLogonPid();
 	if (dwExplorerLogonPid==0) 
 	{
-		strcpy(buffer,"");
+		strcpy_s(buffer, 257, "");
 		return 0;
 	}
 	hProcess = OpenProcess(MAXIMUM_ALLOWED,FALSE,dwExplorerLogonPid);
@@ -216,7 +216,7 @@ GetConsoleUser(char *buffer, UINT size)
                                     |TOKEN_DUPLICATE|TOKEN_ASSIGN_PRIMARY|TOKEN_ADJUST_SESSIONID
                                     |TOKEN_READ|TOKEN_WRITE,&hPToken))
 		{     
-			   strcpy(buffer,"");
+			   strcpy_s(buffer, 257, "");
 			   CloseHandle(hProcess);
 			   return 0 ;
 		}
@@ -241,7 +241,7 @@ GetConsoleUser(char *buffer, UINT size)
 		return 1;
 	}
 	//free(ptu);
-	strcpy(buffer,"");
+	strcpy_s(buffer, 257, "");
 	CloseHandle(hPToken);
 	CloseHandle(hProcess);
 	return 0;
@@ -308,7 +308,7 @@ GetCurrentUser(char *buffer, UINT size) // RealVNC 336 change
 				vnclog.Print(LL_INTERR, VNCLOG("@@@@@@@@@@@@@ GetCurrentUser - Error: Bad buffer size \n"));
 				return FALSE;
 			}
-			strcpy(buffer, "");
+			strcpy_s(buffer, 257,"");
 
 			vnclog.Print(LL_INTERR, VNCLOG("@@@@@@@@@@@@@ GetCurrentUser - Error: Usersize 0\n"));
 			return TRUE;
@@ -322,7 +322,7 @@ GetCurrentUser(char *buffer, UINT size) // RealVNC 336 change
 			// Return "" as the name...
 			if (strlen("") >= size)
 				return FALSE;
-			strcpy(buffer, "");
+			strcpy_s(buffer, 257, "");
 			return TRUE;
 		}
 	}
@@ -353,7 +353,7 @@ GetCurrentUser(char *buffer, UINT size) // RealVNC 336 change
 						// No user logged on
 						if (strlen("") >= size)
 							return FALSE;
-						strcpy(buffer, "");
+						strcpy_s(buffer, 257, "");
 						return TRUE;
 					}
 					else
