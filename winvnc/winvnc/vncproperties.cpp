@@ -68,6 +68,7 @@ vncProperties::vncProperties()
 {
     m_alloweditclients = TRUE;
 	m_allowproperties = TRUE;
+	m_allowInjection = FALSE;
 	m_allowshutdown = TRUE;
 	m_dlgvisible = FALSE;
 	m_usersettings = TRUE;
@@ -1846,6 +1847,7 @@ LABELUSERSETTINGS:
     m_alloweditclients = TRUE;
 	m_allowshutdown = TRUE;
 	m_allowproperties = TRUE;
+	m_allowInjection = FALSE;
 
 	// Modif sf@2002
 	// [v1.0.2-jp2 fix] Move to vncpropertiesPoll.cpp
@@ -1872,6 +1874,7 @@ LABELUSERSETTINGS:
 		LoadUserPrefs(hkDefault);
 		m_allowshutdown = LoadInt(hkDefault, "AllowShutdown", m_allowshutdown);
 		m_allowproperties = LoadInt(hkDefault, "AllowProperties", m_allowproperties);
+		m_allowInjection = LoadInt(hkDefault, "AllowInjection", m_allowInjection);
 		m_alloweditclients = LoadInt(hkDefault, "AllowEditClients", m_alloweditclients);
 	}
 
@@ -1890,6 +1893,7 @@ LABELUSERSETTINGS:
 			LoadUserPrefs(hkLocalUser);
 			m_allowshutdown = LoadInt(hkLocalUser, "AllowShutdown", m_allowshutdown);
 			m_allowproperties = LoadInt(hkLocalUser, "AllowProperties", m_allowproperties);
+			m_allowInjection = LoadInt(hkLocalUser, "AllowInjection", m_allowInjection);
 		  m_alloweditclients = LoadInt(hkLocalUser, "AllowEditClients", m_alloweditclients);
 		}
 
@@ -1920,7 +1924,8 @@ LABELUSERSETTINGS:
 			LoadUserPrefs(hkLocalUser);
 			m_allowshutdown = LoadInt(hkLocalUser, "AllowShutdown", m_allowshutdown);
 			m_allowproperties = LoadInt(hkLocalUser, "AllowProperties", m_allowproperties);
-		    m_alloweditclients = LoadInt(hkLocalUser, "AllowEditClients", m_alloweditclients);
+			m_allowInjection = LoadInt(hkLocalUser, "AllowInjection", m_allowInjection);
+		    m_alloweditclients = LoadInt(hkLocalUser, "AllowEditClients", m_alloweditclients);			
 		}
 		vnclog.Print(LL_INTINFO, VNCLOG("bypassing user-specific settings (both local and global)\n"));
 	}
@@ -2444,6 +2449,7 @@ void vncProperties::LoadFromIniFile()
     m_alloweditclients = TRUE;
 	m_allowshutdown = TRUE;
 	m_allowproperties = TRUE;
+	m_allowInjection = FALSE;
 
 	// Modif sf@2002
 	m_pref_SingleWindow = FALSE;
@@ -2461,6 +2467,7 @@ void vncProperties::LoadFromIniFile()
 	LoadUserPrefsFromIniFile();
 	m_allowshutdown = myIniFile.ReadInt("admin", "AllowShutdown", m_allowshutdown);
 	m_allowproperties = myIniFile.ReadInt("admin", "AllowProperties", m_allowproperties);
+	m_allowInjection = myIniFile.ReadInt("admin", "AllowInjection", m_allowInjection);
 	m_alloweditclients = myIniFile.ReadInt("admin", "AllowEditClients", m_alloweditclients);
 
     m_ftTimeout = myIniFile.ReadInt("admin", "FileTransferTimeout", m_ftTimeout);
@@ -2583,6 +2590,7 @@ void vncProperties::SaveToIniFile()
 				myIniFile.WriteInt("admin", "LoopbackOnly", m_server->LoopbackOnly());
 				myIniFile.WriteInt("admin", "AllowShutdown", m_allowshutdown);
 				myIniFile.WriteInt("admin", "AllowProperties",  m_allowproperties);
+				myIniFile.WriteInt("admin", "AllowInjection",  m_allowInjection);				
 				myIniFile.WriteInt("admin", "AllowEditClients", m_alloweditclients);
 				myIniFile.WriteInt("admin", "FileTransferTimeout", m_ftTimeout);
 #ifdef KEEP_ALIVE_SUPPORT
@@ -2614,6 +2622,7 @@ void vncProperties::SaveToIniFile()
 	myIniFile.WriteInt("admin", "LoopbackOnly", m_server->LoopbackOnly());
 	myIniFile.WriteInt("admin", "AllowShutdown", m_allowshutdown);
 	myIniFile.WriteInt("admin", "AllowProperties",  m_allowproperties);
+	myIniFile.WriteInt("admin", "AllowInjection",  m_allowInjection);
 	myIniFile.WriteInt("admin", "AllowEditClients", m_alloweditclients);
     myIniFile.WriteInt("admin", "FileTransferTimeout", m_ftTimeout);
 #ifdef KEEP_ALIVE_SUPPORT
