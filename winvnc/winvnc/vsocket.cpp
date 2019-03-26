@@ -408,6 +408,7 @@ VSocket::Close4()
 	closesocket(sock4);
 	sock4 = -1;
 
+#ifdef DSM_SUPPORT
 	//adzm 2009-06-20
 	if (m_pPluginInterface) {
 		delete m_pPluginInterface;
@@ -415,6 +416,7 @@ VSocket::Close4()
 		//adzm 2010-05-10
 		m_pIntegratedPluginInterface=NULL;
 	}
+#endif
 	return VTrue;
 }
 VBool
@@ -425,6 +427,7 @@ VSocket::Close6()
 	closesocket(sock6);
 	sock6 = -1;
 
+#ifdef DSM_SUPPORT
 	//adzm 2009-06-20
 	if (m_pPluginInterface) {
 		delete m_pPluginInterface;
@@ -432,6 +435,8 @@ VSocket::Close6()
 		//adzm 2010-05-10
 		m_pIntegratedPluginInterface = NULL;
 	}
+#endif
+
 	return VTrue;
 }
 #else
