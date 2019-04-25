@@ -175,24 +175,29 @@ void VNCLog::CloseFile() {
 #endif
 
 #ifdef ULTRAVNC_VEYON_SUPPORT
+#include <QDebug>
+#include <QLoggingCategory>
+Q_DECLARE_LOGGING_CATEGORY(lcUltraVnc)
+Q_LOGGING_CATEGORY(lcUltraVnc, "UltraVNC")
+
 inline void VNCLog::ReallyPrintLine(int level, const char* line) 
 {
 	if( level == LL_SOCKERR || level == LL_ERROR )
 	{
-		qCritical( line );
+		qCritical(lcUltraVnc) << line;
 	}
 	else if( level == LL_CONNERR )
 	{
-		qWarning( line );
+		qWarning(lcUltraVnc) << line;
 	}
 	else if( level == LL_STATE ||
 				level == LL_CLIENTS || level == LL_INTERR )
 	{
-		qInfo( line );
+		qInfo(lcUltraVnc) << line;
 	}
 	else
 	{
-		qDebug( line );
+		qDebug(lcUltraVnc) << line;
 	}
 }
 #else
