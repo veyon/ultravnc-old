@@ -435,8 +435,10 @@ public:
       rdr::U8 chars[2];
       int nchars = ToAscii(vkCode, 0, keystate, (WORD*)&chars, 0);
       if (nchars < 0) {
+#ifndef ULTRAVNC_VEYON_SUPPORT
         vnclog.Print(LL_INTWARN, "Found dead key 0x%x '%c'",
                    latin1DeadChars[j], latin1DeadChars[j]);
+#endif
         deadChars.push_back(latin1DeadChars[j]);
         ToAscii(vkCode, 0, keystate, (WORD*)&chars, 0);
       }
