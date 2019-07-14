@@ -102,8 +102,6 @@ void VNCLog::SetLevel(int level) {
 #ifndef ULTRAVNC_VEYON_SUPPORT
 void VNCLog::SetFile() 
 {
-	//SetMode(2);
-	//SetLevel(10);
 	char temp[512];
 	IniFile myIniFile;
 	myIniFile.ReadString("admin", "path", temp,512);

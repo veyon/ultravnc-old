@@ -231,6 +231,7 @@ public:
 	virtual long GetConnectTime() {return m_lConnectTime;};
 	virtual bool IsSlowEncoding() {return m_encodemgr.IsSlowEncoding();};
 	virtual bool IsUltraEncoding() {return m_encodemgr.IsUltraEncoding();};
+	virtual bool IsUltra2Encoding() {return m_encodemgr.IsUltra2Encoding();};
 	virtual bool IsEncoderSet() { return m_encodemgr.IsEncoderSet(); };
 #ifdef FILETRANSFER_SUPPORT
 	virtual bool IsFileTransBusy(){return (m_fFileUploadRunning||m_fFileDownloadRunning || m_fFileSessionOpen);};
