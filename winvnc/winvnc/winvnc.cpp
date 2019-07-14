@@ -1373,14 +1373,6 @@ void KillSDTimer()
 
 int WinVNCAppMain()
 {
-	IniFile myIniFile;
-	vnclog.SetMode(myIniFile.ReadInt("admin", "DebugMode", 0));
-	char temp[512];
-	myIniFile.ReadString("admin", "path", temp,512);
-	vnclog.SetPath(temp);
-	vnclog.SetLevel(myIniFile.ReadInt("admin", "DebugLevel", 0));
-	vnclog.SetVideo(myIniFile.ReadInt("admin", "Avilog", 0) ? true : false);
-
 	vnclog.Print(-1, VNCLOG("WinVNCAPPMain-----Application started\n"));
 #ifdef CRASH_ENABLED
 	LPVOID lpvState = Install(NULL,  "rudi.de.vos@skynet.be", "UltraVNC");
