@@ -27,6 +27,10 @@ namespace rdr {
   struct Exception {
     enum { len = 256 };
     char str_[len];
+    void strncat_s(char* dst, const char* src, size_t count)
+    {
+        ::strncat_s(dst, len, src, count);
+    }
     Exception(const char* s=0, const char* e="rdr::Exception") {
       str_[0] = 0;
       strncat_s(str_, e, len-1);
