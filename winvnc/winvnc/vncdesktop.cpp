@@ -546,7 +546,6 @@ vncDesktop::vncDesktop()
 	}
 	m_SWOffsetx = 0;
 	m_SWOffsety = 0;
-
 }
 
 vncDesktop::~vncDesktop()
@@ -583,7 +582,10 @@ vncDesktop::~vncDesktop()
 
 
 	// added jeff
-	if (m_server) SetBlockInputState(false);
+	if (m_server) {
+		SetBlockInputState(false);
+		PreventScreensaver(false);
+	}
 	// Let's call Shutdown just in case something went wrong...
 	Shutdown();
 	vnclog.Print(LL_INTINFO, VNCLOG("~vncDesktop Shutdown()\n"));
@@ -804,7 +806,7 @@ vncDesktop::Startup()
 		SYSTEMTIME lt;
 		GetLocalTime(&lt);
 		char str[MAX_PATH + 32]; // 29 January 2008 jdp 
-		_snprintf(str, sizeof str, "%02d_%02d_%02d_%02d_%02d", lt.wMonth, lt.wDay, lt.wHour, lt.wMinute, lt.wSecond);
+		_snprintf_s(str, sizeof str, "%02d_%02d_%02d_%02d_%02d", lt.wMonth, lt.wDay, lt.wHour, lt.wMinute, lt.wSecond);
 		strcat_s(str, "_vnc.avi");
 		AviGen = new CAVIGenerator(str, "c:\\temp", &m_bminfo.bmi.bmiHeader, 5);
 		HRESULT hr;
@@ -1677,7 +1679,7 @@ vncDesktop::WriteMessageOnScreenPreConnect(BYTE *scrBuff, UINT scrBuffSize)
 
 	HFONT hFont, hOldFont;
 	SetRect(&rect, 0, 10, 640, 640);
-    char *tout = "UVNC experimental server 1.2.2.4 pre-connect window \n";
+    char *tout = "UVNC experimental server 1.2.3.0 pre-connect window \n";
 	DrawText(m_hmemdc, tout, (int)strlen(tout), &rect, DT_CENTER);
 
 
@@ -1996,7 +1998,7 @@ void vncDesktop::SetClipText(LPSTR rfbStr)
 				// Get the data
 				if (pMem)
 				{
-					strcpy(pMem, rfbStr);
+					strcpy_s(pMem, strlen(rfbStr) + 1, rfbStr);
 					// Tell the clipboard
 					GlobalUnlock(hMem);
 					SetClipboardData(CF_TEXT, hMem);
@@ -2534,6 +2536,14 @@ void vncDesktop::InitHookSettings()
 	SethookMechanism(m_server->Hook(), m_server->Driver());
 }
 
+void vncDesktop::PreventScreensaver(bool state)
+{
+	if (state && m_server->GetNoScreensaver()) {
+		SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED | ES_SYSTEM_REQUIRED | ES_AWAYMODE_REQUIRED);
+	}
+	else
+		SetThreadExecutionState(ES_CONTINUOUS);
+}
 
 void vncDesktop::SetBlockInputState(bool newstate)
 {

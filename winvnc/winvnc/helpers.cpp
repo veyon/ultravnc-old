@@ -87,8 +87,9 @@ LONG locdom3;
 LONG DebugMode=2;
 LONG Avilog=0;
 LONG DebugLevel=10;
-LONG DisableTrayIcon;
+LONG DisableTrayIcon = 0;
 LONG Rdpmode=0;
+LONG NoScreensaver=0;
 LONG LoopbackOnly;
 LONG UseDSMPlugin;
 LONG AllowLoopback=1;
@@ -207,6 +208,7 @@ myIniFile_In.ReadString("admin", "accept_reject_mesg", accept_reject_mesg,512);
 DebugLevel=myIniFile_In.ReadInt("admin", "DebugLevel", 0);
 DisableTrayIcon=myIniFile_In.ReadInt("admin", "DisableTrayIcon", false);
 Rdpmode = myIniFile_In.ReadInt("admin", "rdpmode", 0);
+NoScreensaver = myIniFile_In.ReadInt("admin", "noscreensaver", 0);
 LoopbackOnly=myIniFile_In.ReadInt("admin", "LoopbackOnly", false);
 
 myIniFile_Out.WriteInt("admin", "DebugMode", DebugMode);
@@ -216,6 +218,7 @@ myIniFile_Out.WriteString("admin", "accept_reject_mesg", accept_reject_mesg);
 myIniFile_Out.WriteInt("admin", "DebugLevel", DebugLevel);
 myIniFile_Out.WriteInt("admin", "DisableTrayIcon", DisableTrayIcon);
 myIniFile_Out.WriteInt("admin", "rdpmode", Rdpmode);
+myIniFile_Out.WriteInt("admin", "noscreensaver", NoScreensaver);
 myIniFile_Out.WriteInt("admin", "LoopbackOnly", LoopbackOnly);
 
 UseDSMPlugin=myIniFile_In.ReadInt("admin", "UseDSMPlugin", false);
@@ -385,7 +388,7 @@ void
 Real_stop_service()
 {
     char command[MAX_PATH + 32]; // 29 January 2008 jdp
-    _snprintf(command, sizeof command, "net stop \"%s\"", service_name);
+    _snprintf_s(command, sizeof command, "net stop \"%s\"", service_name);
 	WinExec(command,SW_HIDE);
 }
 
@@ -423,7 +426,7 @@ void
 Real_start_service()
 {
     char command[MAX_PATH + 32]; // 29 January 2008 jdp
-    _snprintf(command, sizeof command, "net start \"%s\"", service_name);
+    _snprintf_s(command, sizeof command, "net start \"%s\"", service_name);
 	WinExec(command,SW_HIDE);
 }
 
@@ -575,7 +578,7 @@ bool GetServiceName(TCHAR *pszAppPath, TCHAR *pszServiceName)
                                 if (servicePath.find(appPath.c_str()) != -1)
                                 {
                                     bResult = true;
-                                    strncpy(pszServiceName, pServices[i].lpServiceName, 256);
+                                    strncpy_s(pszServiceName, 256, pServices[i].lpServiceName, 256);
                                     pszServiceName[255] = 0;
                                 }
                             }

@@ -134,8 +134,8 @@ void VNCLog::OpenFile()
 		char *backupfilename = new char[strlen(m_filename)+5];
 		if (backupfilename)
 		{
-			strcpy(backupfilename, m_filename);
-			strcat(backupfilename, ".bak");
+			strcpy_s(backupfilename, strlen(m_filename)+5, m_filename);
+			strcat_s(backupfilename, strlen(m_filename)+5, ".bak");
 			// Attempt the move and replace any existing backup
 			// Note that failure is silent - where would we log a message to? ;)
 			MoveFileEx(m_filename, backupfilename, MOVEFILE_REPLACE_EXISTING);
@@ -227,7 +227,7 @@ void VNCLog::ReallyPrint(int level, const char* format, va_list ap)
 	TCHAR line[(LINE_BUFFER_SIZE * 2) + 1]; // sf@2006 - Prevents buffer overflow
 	TCHAR szErrorMsg[LINE_BUFFER_SIZE];
 	DWORD  dwErrorCode = GetLastError();
-    _vsnprintf(line, LINE_BUFFER_SIZE, format, ap);
+    _vsnprintf_s(line, LINE_BUFFER_SIZE, format, ap);
 	SetLastError(0);
     if (dwErrorCode != 0) {
 	    if (FormatMessage( 

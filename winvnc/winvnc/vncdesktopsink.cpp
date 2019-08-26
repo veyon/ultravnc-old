@@ -325,7 +325,7 @@ DesktopWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 						for (int i=0;i<4;i++)
 							{
 								strcpy_s(split[i],"     ");
-								strncpy(split[i],myptr,4);
+								strncpy_s(split[i],myptr,4);
 								myptr=myptr+5;
 							}
 						_this->UpdateFullScreen();
@@ -574,7 +574,7 @@ vncDesktop::InitWindow()
 			char* p = strrchr(szCurrentDir, '\\');
 			if (p == NULL) return 0;
 			*p = '\0';
-			strcat (szCurrentDir,"\\vnchooks.dll");
+			strcat_s(szCurrentDir,"\\vnchooks.dll");
 		}
 	hSCModule=NULL;
 	char szCurrentDirSC[MAX_PATH];
@@ -584,9 +584,9 @@ vncDesktop::InitWindow()
 			if (p == NULL) return 0;
 			*p = '\0';
 #ifdef _X64
-			strcat (szCurrentDirSC,"\\schook64.dll");
+			strcat_s(szCurrentDirSC,"\\schook64.dll");
 #else
-			strcat (szCurrentDirSC,"\\schook.dll");
+			strcat_s(szCurrentDirSC,"\\schook.dll");
 #endif
 		}
 

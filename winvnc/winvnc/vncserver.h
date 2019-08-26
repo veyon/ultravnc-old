@@ -290,6 +290,8 @@ public:
 	virtual BOOL GetDisableTrayIcon();
 	virtual BOOL SetRdpmode(BOOL Rdpmode);
 	virtual BOOL GetRdpmode();
+	virtual BOOL SetNoScreensaver(BOOL NoScreensaver);
+	virtual BOOL GetNoScreensaver();
 	virtual BOOL SetAllowEditClients(BOOL AllowEditClients);
 	virtual BOOL GetAllowEditClients();
 
@@ -559,6 +561,7 @@ protected:
 	BOOL				m_remove_Aero;
 	BOOL				m_disableTrayIcon;
 	BOOL				m_Rdpmode;
+	BOOL				m_NoScreensaver;
 	BOOL				m_AllowEditClients;
 
 	// Polling preferences

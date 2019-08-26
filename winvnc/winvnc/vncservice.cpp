@@ -380,7 +380,7 @@ vncService::CurrentUser(char *buffer, UINT size)
 {
   BOOL result = GetCurrentUser(buffer, size);
   if (result && (strcmp(buffer, "") == 0) && !vncService::RunningAsService()) {
-    strncpy(buffer, "Default", size);
+    strncpy_s(buffer, size, "Default", size);
   }
   return result;
 }

@@ -178,6 +178,7 @@ vncServer::vncServer()
 	m_connect_pri = 0;
 	m_disableTrayIcon = FALSE;
 	m_Rdpmode = FALSE;
+	m_NoScreensaver = FALSE;
 	m_AllowEditClients = FALSE;
 
 	// Set the input options
@@ -603,7 +604,7 @@ char *vncDeskThreadError(DWORD code)
 {
     // create default message
     static char msg[255];
-    _snprintf(msg, sizeof msg, "Unknown error %u", static_cast<unsigned int>(code));
+    _snprintf_s(msg, sizeof msg, "Unknown error %u", static_cast<unsigned int>(code));
     msg[sizeof msg - 1] = 0;
 
     switch (code)
@@ -714,9 +715,9 @@ vncServer::Authenticated(vncClientId clientid)
 		char szInfo[256];
 
 		if (client->GetRepeaterID() && (strlen(client->GetRepeaterID()) > 0) ) {
-			_snprintf(szInfo, 255, "Remote user successfully connected (%s) and is currently sharing your desktop.", client->GetRepeaterID());
+			_snprintf_s(szInfo, 255, "Remote user successfully connected (%s) and is currently sharing your desktop.", client->GetRepeaterID());
 		} else {
-			_snprintf(szInfo, 255, "Remote user successfully connected (%s) and is currently sharing your desktop.", client->GetClientName());
+			_snprintf_s(szInfo, 255, "Remote user successfully connected (%s) and is currently sharing your desktop.", client->GetClientName());
 		}
 
 		szInfo[255] = '\0';
@@ -888,7 +889,7 @@ void vncServer::ListAuthClients(HWND hListBox)
 		vncClient* client = GetClient(*i);
 		if (client->GetRepeaterID() && (strlen(client->GetRepeaterID()) > 0) ) {
 			char szDescription[256];
-			_snprintf(szDescription, 255, "%s - %s", client->GetRepeaterID(), client->GetClientName());
+			_snprintf_s(szDescription, 255, "%s - %s", client->GetRepeaterID(), client->GetClientName());
 			szDescription[255] = '\0';
 
 			SendMessage(hListBox, 
@@ -918,7 +919,7 @@ void vncServer::ListUnauthClients(HWND hListBox)
 		vncClient* client = GetClient(*i);
 		if (client->GetRepeaterID() && (strlen(client->GetRepeaterID()) > 0) ) {
 			char szDescription[256];
-			_snprintf(szDescription, 255, "%s - %s", client->GetRepeaterID(), client->GetClientName());
+			_snprintf_s(szDescription, 255, "%s - %s", client->GetRepeaterID(), client->GetClientName());
 			szDescription[255] = '\0';
 
 			SendMessage(hListBox, 
@@ -2538,10 +2539,7 @@ void vncServer::EnableXRichCursor(BOOL fEnable)
 BOOL
 vncServer::SetDisableTrayIcon(BOOL disableTrayIcon)
 {
-	if (disableTrayIcon != m_disableTrayIcon)
-	{
-		m_disableTrayIcon = disableTrayIcon;
-	}
+	m_disableTrayIcon = disableTrayIcon;
 	return TRUE;
 }
 
@@ -2554,10 +2552,7 @@ vncServer::GetDisableTrayIcon()
 BOOL
 vncServer::SetRdpmode(BOOL Rdpmode)
 {
-	if (Rdpmode != m_Rdpmode)
-	{
-		m_Rdpmode = Rdpmode;
-	}
+	m_Rdpmode = Rdpmode;
 	return TRUE;
 }
 
@@ -2568,12 +2563,24 @@ vncServer::GetRdpmode()
 }
 
 BOOL
+vncServer::SetNoScreensaver(BOOL NoScreensaver)
+{
+	m_NoScreensaver = NoScreensaver;
+	if (m_desktop)
+		m_desktop->PreventScreensaver(true);
+	return TRUE;
+}
+
+BOOL
+vncServer::GetNoScreensaver()
+{
+	return m_NoScreensaver;
+}
+
+BOOL
 vncServer::SetAllowEditClients(BOOL AllowEditClients)
 {
-	if (AllowEditClients != m_AllowEditClients)
-	{
-		m_AllowEditClients = AllowEditClients;
-	}
+	m_AllowEditClients = AllowEditClients;
 	return TRUE;
 }
 
