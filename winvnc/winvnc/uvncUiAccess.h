@@ -25,7 +25,8 @@
 #ifndef _G_UIACCESS_H_
 #define _G_UIACCESS_H_
 
-#include "stdhdrs.h"
+#include <windows.h>
+#include <stdio.h>
 #include <sddl.h>
 #pragma warning (disable:6387)
 #include <shellapi.h>
