@@ -23,6 +23,10 @@
 // /macine-vnc Greg Wood (wood@agressiv.com)
 #include "authSSP.h"
 
+#define __try
+#define __leave goto cleanup
+#define __finally cleanup:
+
 /*
  *  AuthSSP.cpp: Domainuser could be 'domain\user', just 'user' or
  *  UPN-style 'user@domain'. Should work with Windows NT 4 and better.
@@ -86,8 +90,6 @@ BOOL WINAPI SSPLogonUser(LPTSTR szDomain,
 	HMODULE     hModule    = NULL;
 	SEC_WINNT_AUTH_IDENTITY ai;
 
-#define __leave goto cleanup
-#define __finally cleanup:
 	__try {
 		
 		hModule = LoadSecurityDll();

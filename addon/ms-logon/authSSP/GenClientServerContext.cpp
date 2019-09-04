@@ -25,6 +25,7 @@
 #include "GenClientServerContext.h"
 extern Fn fn;
 
+#define __try
 #define __leave goto cleanup
 #define __finally cleanup:
 
