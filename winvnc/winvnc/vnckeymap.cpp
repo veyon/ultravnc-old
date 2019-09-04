@@ -28,8 +28,8 @@
 // virtual keycodes.  Now it actually does the local-end simulation of
 // key presses, to keep this messy code on one place!
 #pragma warning(disable : 4786)
-#include "vncservice.h"
 #include "vnckeymap.h"
+#include <windows.h>
 #include <rdr/types.h>
 #define XK_MISCELLANY
 #define XK_LATIN1
@@ -364,24 +364,32 @@ public:
   void press() {
     if (!(GetAsyncKeyState(vkCode) & 0x8000)) {
       doKeyboardEvent(vkCode, flags);
+#ifndef ULTRAVNC_VEYON_SUPPORT
       vnclog.Print(LL_INTINFO, "fake %d down\n", vkCode);
+#endif
       pressed = true;
     }
   }
   void release() {
     if (GetAsyncKeyState(vkCode) & 0x8000) {
       doKeyboardEvent(vkCode, flags | KEYEVENTF_KEYUP);
+#ifndef ULTRAVNC_VEYON_SUPPORT
       vnclog.Print(LL_INTINFO, "fake %d up\n", vkCode);
+#endif
       released = true;
     }
   }
   ~KeyStateModifier() {
     if (pressed) {
       doKeyboardEvent(vkCode, flags | KEYEVENTF_KEYUP);
+#ifndef ULTRAVNC_VEYON_SUPPORT
       vnclog.Print(LL_INTINFO, "fake %d up\n", vkCode);
+#endif
     } else if (released) {
       doKeyboardEvent(vkCode, flags);
+#ifndef ULTRAVNC_VEYON_SUPPORT
       vnclog.Print(LL_INTINFO, "fake %d down\n", vkCode);
+#endif
     }
   }
   int vkCode;
@@ -415,7 +423,7 @@ class Keymapper {
 public:
   Keymapper()
   {
-    for (int i = 0; i < sizeof(keymap) / sizeof(keymap_t); i++) {
+    for (size_t i = 0; i < sizeof(keymap) / sizeof(keymap_t); i++) {
       vkMap[keymap[i].keysym] = keymap[i].vk;
       extendedMap[keymap[i].keysym] = keymap[i].extended;
     }
@@ -424,7 +432,7 @@ public:
   // XXX how could we handle the keyboard layout changing?
   BYTE keystate[256];
   memset(keystate, 0, 256);
-  for (int j = 0; j < sizeof(latin1DeadChars); j++) {
+  for (size_t j = 0; j < sizeof(latin1DeadChars); j++) {
     SHORT s = VkKeyScan(latin1DeadChars[j]);
     if (s != -1) {
       BYTE vkCode = LOBYTE(s);
@@ -463,7 +471,9 @@ public:
 	if (keysym>=XK_dead_grave && keysym <=XK_dead_belowdot)// && down)
 	{
 		keysymDead=keysym;
+#ifndef ULTRAVNC_VEYON_SUPPORT
 		vnclog.Print(LL_INTWARN, " ************** DEAD KEY");
+#endif
 		//we have a dead key
 		//Record dead key
 		return;
@@ -474,7 +484,9 @@ public:
     {
 	if (keysymDead!=0 && down)
 	{
+#ifndef ULTRAVNC_VEYON_SUPPORT
 		vnclog.Print(LL_INTWARN, " Compose dead 0x%x 0x%x",keysymDead,keysym);
+#endif
 		switch (keysymDead)
 		{
 		case XK_dead_grave:
@@ -556,7 +568,9 @@ public:
 			}
 		}
 		keysymDead=0;
+#ifndef ULTRAVNC_VEYON_SUPPORT
 		vnclog.Print(LL_INTWARN, " Composed 0x%x",keysym);
+#endif
 
 	}
       // ordinary Latin-1 character
@@ -584,10 +598,14 @@ public:
 	 {
 		 
       if (down) {
+#ifndef ULTRAVNC_VEYON_SUPPORT
 		  vnclog.Print(LL_INTWARN, "down");
+#endif
         // not a single keypress - try synthesizing dead chars.
 			{
+#ifndef ULTRAVNC_VEYON_SUPPORT
 			  vnclog.Print(LL_INTWARN, " Found key");
+#endif
 			  //Lookup ascii representation
 			  int ascii=0;
 #if 0
@@ -611,14 +629,16 @@ public:
               KeyStateModifier lshift(VK_LSHIFT);
               KeyStateModifier rshift(VK_RSHIFT);
 
-              if (vncService::IsWin95()) {
+              if (false/*vncService::IsWin95()*/) {
                 shift.release();
               } else {
                 lshift.release();
                 rshift.release();
 			  }
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
               vnclog.Print(LL_INTWARN, " Simulating ALT+%d%d%d\n", a0, a1 ,a2);
+#endif
 
 			  keybd_uni_event(VK_MENU,MapVirtualKey( VK_MENU, 0 ), 0 ,0);
               /**
@@ -649,7 +669,9 @@ public:
 			  return;
 			  }
         }
+#ifndef ULTRAVNC_VEYON_SUPPORT
         vnclog.Print(LL_INTWARN, "ignoring unrecognised Latin-1 keysym 0x%x",keysym);
+#endif
       }
       return;
     }
@@ -678,7 +700,7 @@ public:
           if (vkCode == 0x20){
 		  }
 		  else{
-            if (vncService::IsWin95()) {
+            if (false/*vncService::IsWin95()*/) {
               shift.release();
 			} else {
               lshift.release();
@@ -687,9 +709,11 @@ public:
 		  }
         }
       }
+#ifndef ULTRAVNC_VEYON_SUPPORT
       vnclog.Print(LL_INTINFO,
                    "latin-1 key: keysym %d(0x%x) vkCode 0x%x down %d capslockOn %d\n",
                    keysym, keysym, vkCode, down, capslockOn);
+#endif
 
       doKeyboardEvent(vkCode, down ? 0 : KEYEVENTF_KEYUP);
 
@@ -705,13 +729,15 @@ public:
 			char *key, text[32];
 			sprintf_s(text,"%d",keysym);
 			key = text;	
+#ifndef ULTRAVNC_VEYON_SUPPORT
 			vnclog.Print(LL_INTINFO, "trying unicode input key \"%s\"\n",key);
+#endif
 			if (down) {
 				inputs[0].type= INPUT_KEYBOARD;
 				inputs[0].ki.wVk = 0;
 				inputs[0].ki.wScan = atoi(key);
 				inputs[0].ki.time = 0;
-				inputs[0].ki.dwExtraInfo = NULL;
+				inputs[0].ki.dwExtraInfo = 0;
 				inputs[0].ki.dwFlags = KEYEVENTF_UNICODE;
 				SendInput(1, inputs, sizeof(INPUT));
 			} else {
@@ -719,7 +745,7 @@ public:
 				inputs[0].ki.wVk = 0;
 				inputs[0].ki.wScan = atoi(key);
 				inputs[0].ki.time = 0;
-				inputs[0].ki.dwExtraInfo = NULL;
+				inputs[0].ki.dwExtraInfo = 0;
 				inputs[0].ki.dwFlags = KEYEVENTF_UNICODE | KEYEVENTF_KEYUP;
 				SendInput(1, inputs, sizeof(INPUT));
 			}
@@ -737,16 +763,16 @@ public:
 
       if (down && (vkCode == VK_DELETE) &&
           ((GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0) &&
-          ((GetAsyncKeyState(VK_MENU) & 0x8000) != 0) &&
-          vncService::IsWinNT())
+          ((GetAsyncKeyState(VK_MENU) & 0x8000) != 0)/* &&
+          vncService::IsWinNT()*/)
       {
-		vnclog.Print(LL_INTINFO,
-                 "CAD\n");
 #ifdef ULTRAVNC_VEYON_SUPPORT
-		auto sasEvent = OpenEvent( EVENT_MODIFY_STATE, false, "Global\\VeyonServiceSasEvent" );
+		auto sasEvent = OpenEventW( EVENT_MODIFY_STATE, false, L"Global\\VeyonServiceSasEvent" );
 		SetEvent( sasEvent );
 		CloseHandle( sasEvent );
 #else
+		vnclog.Print(LL_INTINFO,
+                 "CAD\n");
 		// If running under Vista and started from Session0 in Application mode
 		if (vncService::VersionMajor()>=6 && vncService::RunningFromExternalService() )
 		{
@@ -781,7 +807,7 @@ public:
         return;
       }
 
-      if (vncService::IsWin95()) {
+      if (false/*vncService::IsWin95()*/) {
         switch (vkCode) {
         case VK_RSHIFT:   vkCode = VK_SHIFT;   break;
         case VK_RCONTROL: vkCode = VK_CONTROL; break;
@@ -796,7 +822,9 @@ public:
 private:
   std::map<rdr::U32,rdr::U8> vkMap;
   std::map<rdr::U32,bool> extendedMap;
-} key_mapper;
+};
+
+static Keymapper key_mapper;
 
 void vncKeymap::keyEvent(CARD32 keysym, bool down,bool jap, bool unicode)
 {
@@ -814,24 +842,28 @@ SetShiftState(BYTE key, BOOL down)
 	if ((keystate && down) || ((!keystate) && (!down)))
 		return;
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	vnclog.Print(LL_INTINFO,
 		VNCLOG("setshiftstate %d - (%s->%s)\n"),
 		key, keystate ? "down" : "up",
 		down ? "down" : "up");
+#endif
 
 	// Now send a key event to set the key to the new value
 	doKeyboardEvent(key, down ? 0 : KEYEVENTF_KEYUP);
 	keystate = (GetAsyncKeyState(key) & 0x8000) != 0;
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	vnclog.Print(LL_INTINFO,
 		VNCLOG("new state %d (%s)\n"),
 		key, keystate ? "down" : "up");
+#endif
 }
 
 void
 vncKeymap::ClearShiftKeys()
 {
-	if (vncService::IsWinNT())
+	if (true/*vncService::IsWinNT()*/)
 	{
 		// On NT, clear both sets of keys
 
