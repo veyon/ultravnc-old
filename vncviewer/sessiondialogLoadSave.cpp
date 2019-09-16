@@ -37,7 +37,7 @@ void SessionDialog::SaveConnection(HWND hwnd, bool saveAs)
 	SettingsFromUI();
 	char fname[_MAX_PATH];
 	int disp = PORT_TO_DISPLAY(m_port);
-	sprintf_s(fname, "%.10s-%d.vnc", m_host_dialog, (disp > 0 && disp < 100) ? disp : m_port);
+	sprintf_s(fname, "%.15s-%d.vnc", m_host_dialog, (disp > 0 && disp < 100) ? disp : m_port);
 	char buffer[_MAX_PATH];
 	getAppData(buffer);
 	strcat_s(buffer,"\\vnc");
@@ -100,7 +100,7 @@ void SessionDialog::SettingsFromUI()
 	ReadDlgProc();
 }
 
-void SessionDialog::SettingsToUI()
+void SessionDialog::SettingsToUI(bool initMruNeeded)
 {
 	InitDlgProcEncoders();
 	InitDlgProcKeyboardMouse();
@@ -108,7 +108,7 @@ void SessionDialog::SettingsToUI()
 	InitDlgProcMisc();
 	InitDlgProcSecurity();	
 	InitDlgProcListen();
-	InitDlgProc(true);		
+	InitDlgProc(true, initMruNeeded);		
 }
 
 void SessionDialog::saveInt(char *name, int value, char *fname) 
@@ -123,12 +123,17 @@ int SessionDialog::readInt(char *name, int defval, char *fname)
   return GetPrivateProfileInt("options", name, defval, fname);
 }
 
-void SessionDialog::SaveToFile(char *fname)
+void SessionDialog::SaveToFile(char *fname, bool asDefault)
 {
-	int ret = WritePrivateProfileString("connection", "host", m_host_dialog, fname);
+	int ret;
 	char buf[32];
-	sprintf_s(buf, "%d", m_port);
-	WritePrivateProfileString("connection", "port", buf, fname);
+	if (!asDefault) {
+		ret = WritePrivateProfileString("connection", "host", m_host_dialog, fname);		
+		sprintf_s(buf, "%d", m_port);
+		WritePrivateProfileString("connection", "port", buf, fname);
+	}
+	else
+		SettingsFromUI();
 	ret = WritePrivateProfileString("connection", "proxyhost", m_proxyhost, fname);
 	sprintf_s(buf, "%d", m_proxyport);
 	WritePrivateProfileString("connection", "proxyport", buf, fname);
@@ -264,6 +269,11 @@ void SessionDialog::LoadFromFile(char *fname)
   fAutoAcceptNoDSM = readInt("AutoAcceptNoDSM", (int)fAutoAcceptNoDSM, fname) ? true : false;
   fRequireEncryption = readInt("RequireEncryption", (int)fRequireEncryption, fname) ? true : false;
   preemptiveUpdates = readInt("PreemptiveUpdates", (int)preemptiveUpdates, fname) ? true : false;
+
+  GetPrivateProfileString("connection", "proxyhost", "", m_proxyhost, MAX_HOST_NAME_LEN, fname);
+  m_proxyport = GetPrivateProfileInt("connection", "proxyport", 0, fname);
+
+
 }
 
 void SessionDialog::getAppData(char * buffer)
@@ -279,7 +289,7 @@ void SessionDialog::IfHostExistLoadSettings(char *hostname)
 	ParseDisplay(hostname, tmphost, 255, &port);
 	char fname[_MAX_PATH];
 	int disp = PORT_TO_DISPLAY(port);
-	sprintf_s(fname, "%.10s-%d.vnc", tmphost, (disp > 0 && disp < 100) ? disp : port);
+	sprintf_s(fname, "%.15s-%d.vnc", tmphost, (disp > 0 && disp < 100) ? disp : port);
 	char buffer[_MAX_PATH];
 	getAppData(buffer);
 	strcat_s(buffer,"\\vnc\\");
@@ -289,6 +299,8 @@ void SessionDialog::IfHostExistLoadSettings(char *hostname)
 		fclose(file);
 		LoadFromFile(buffer);		
 	}
+	else
+		LoadFromFile(m_pOpt->getDefaultOptionsFileName());
 }
 
 void SessionDialog::SetDefaults()
