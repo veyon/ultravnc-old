@@ -48,7 +48,6 @@ extern HINSTANCE	hInstResDLL;
 
 bool RunningAsAdministrator ();
 const char WINVNC_REGISTRY_KEY [] = "Software\\ORL\\WinVNC3";
-DWORD GetExplorerLogonPid();
 
 // Constructor & Destructor
 vncPropertiesPoll::vncPropertiesPoll()
@@ -94,7 +93,7 @@ vncPropertiesPoll::Show(BOOL show, BOOL usersettings)
 {
 	HANDLE hProcess=NULL;
 	HANDLE hPToken=NULL;
-	DWORD id=GetExplorerLogonPid();
+	DWORD id = vncService::GetExplorerLogonPid();
 	int iImpersonateResult=0;
 	{
 		char WORKDIR[MAX_PATH];

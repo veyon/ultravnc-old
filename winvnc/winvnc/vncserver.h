@@ -454,6 +454,9 @@ public:
 	virtual void RunningFromExternalService(BOOL fEnabled){m_fRunningFromExternalService = fEnabled;};
 #endif
 
+	virtual BOOL RunningFromExternalServiceRdp(){return m_fRunningFromExternalServiceRdp;};
+	virtual void RunningFromExternalServiceRdp(BOOL fEnabled){m_fRunningFromExternalServiceRdp = fEnabled;};
+
 	virtual void AutoRestartFlag(BOOL fOn){m_fAutoRestart = fOn;};
 	virtual BOOL AutoRestartFlag(){return m_fAutoRestart;};
 
@@ -648,6 +651,7 @@ protected:
 
 	// sf@2007
 	BOOL m_fRunningFromExternalService;
+	BOOL m_fRunningFromExternalServiceRdp;
 	BOOL m_fAutoRestart;
 
 	// sf@2005 - FTUserImpersonation
@@ -666,6 +670,7 @@ protected:
 	bool clearconsole;
 	DWORD startTime;
     BOOL m_fSendExtraMouse;
+	bool KillAuthClientsBuzy;
 };
 
 #endif

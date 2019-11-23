@@ -164,7 +164,6 @@ bool replaceFile(const char *src, const char *dst)
 #include "Localization.h" // Act : add localization on messages
 typedef BOOL (WINAPI *PGETDISKFREESPACEEX)(LPCSTR,PULARGE_INTEGER, PULARGE_INTEGER, PULARGE_INTEGER);
 
-DWORD GetExplorerLogonPid();
 unsigned long updates_sent;
 
 // vncClient update thread class
@@ -3582,7 +3581,8 @@ vncClientThread::run(void *arg)
 				if (length < 0 && m_client->m_clipboard.settings.m_bSupportsEx) {
 
 					length = abs(length);
-
+					if (length > 104857600 || length < 0)
+						break;
 					ExtendedClipboardDataMessage extendedClipboardDataMessage;
 
 					extendedClipboardDataMessage.EnsureBufferLength(length, false);
@@ -4840,7 +4840,7 @@ vncClient::~vncClient()
 	//vnclog.Print(LL_INTINFO, VNCLOG("cached %d \n"),totalraw);
 
 #ifdef AUTH_SC_PROMP_SUPPORT
-	if ((SPECIAL_SC_EXIT || (m_server->GetRdpmode() && m_fRunningFromExternalService)) && !fShutdownOrdered) // if fShutdownOrdered, hwnd may not be valid
+	if ((SPECIAL_SC_EXIT || (m_server->RunningFromExternalServiceRdp())) && !fShutdownOrdered) // if fShutdownOrdered, hwnd may not be valid
 	{
 		//adzm 2009-06-20 - if we are SC, only exit if no other viewers are connected!
 		// (since multiple viewers is now allowed with the new DSM plugin)
@@ -6616,7 +6616,7 @@ bool vncClient::DoFTUserImpersonation()
 	{
 		// sf@2007 - New method to achieve FTUserImpersonation - Still needs to be further tested...
 		HANDLE hProcess;
-		DWORD pid = GetExplorerLogonPid();
+		DWORD pid = vncService::GetExplorerLogonPid();
 		if (pid != 0) 
 		{
 			hProcess = OpenProcess(MAXIMUM_ALLOWED, FALSE, pid);
