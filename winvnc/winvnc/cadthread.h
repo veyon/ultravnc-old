@@ -1,9 +1,7 @@
 #if (!defined(_WINVNC_VNCCAD))
 #define _WINVNC_VNCCAD
 
-#include <winsock2.h>
-#include "windows.h"
-#include "stdhdrs.h"
+#include <windows.h>
 
 class vncCad
 {
