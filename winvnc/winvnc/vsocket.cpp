@@ -140,7 +140,7 @@ VSocket::VSocket()
 
 #endif
 #ifdef DSM_SUPPORT
-	vnclog.Print(LL_SOCKINFO, VNCLOG("VSocket() m_pDSMPlugin = NULL \n"));
+	//vnclog.Print(LL_SOCKINFO, VNCLOG("VSocket() m_pDSMPlugin = NULL \n"));
 	m_pDSMPlugin = NULL;
 	//adzm 2009-06-20
 	m_pPluginInterface = NULL;
