@@ -450,6 +450,7 @@ protected:
 
 	// Boolean flag to indicate when the display resolution has changed
 	BOOL			m_displaychanged;
+	BOOL			m_screensize_changed;
 
 	// Extra vars used for the DIBsection optimisation
 	VOID			*m_DIBbits;
