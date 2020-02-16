@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <rdr/MemOutStream.h>
-#include <rdr/ZlibOutStream.h>
+#include <rdr/ZOutStream.h>
 
 #define GET_IMAGE_INTO_BUF(tx,ty,tw,th,buf)     \
   rfb::Rect rect;                                    \
@@ -88,9 +88,10 @@
 vncEncodeZRLE::vncEncodeZRLE()
 {
   mos = new rdr::MemOutStream;
-  zos = new rdr::ZlibOutStream;
+  zos = new rdr::ZOutStream;
   beforeBuf = new rdr::U32[rfbZRLETileWidth * rfbZRLETileHeight + 1];
   m_use_zywrle = FALSE;
+  m_use_zstd = FALSE;
 }
 
 vncEncodeZRLE::~vncEncodeZRLE()
@@ -103,6 +104,12 @@ vncEncodeZRLE::~vncEncodeZRLE()
 void vncEncodeZRLE::Init()
 {
   vncEncoder::Init();
+}
+
+void vncEncodeZRLE::SetUsedLib(int lib)
+{
+	zos->SetUsedLib(lib);
+	m_use_zstd = lib == 1;		
 }
 
 UINT vncEncodeZRLE::RequiredBuffSize(UINT width, UINT height)
@@ -203,12 +210,20 @@ UINT vncEncodeZRLE::EncodeRect(BYTE *source, BYTE *dest, const rfb::Rect &rect)
   surh->r.y = Swap16IfLE(y-monitor_Offsety);
   surh->r.w = Swap16IfLE(w);
   surh->r.h = Swap16IfLE(h);
+#ifdef _ZSTD
   if( m_use_zywrle ){
-    surh->encoding = Swap32IfLE(rfbEncodingZYWRLE);
+	surh->encoding = Swap32IfLE(m_use_zstd ? rfbEncodingZSTDYW: rfbEncodingZYWRLE);
   }else{
-    surh->encoding = Swap32IfLE(rfbEncodingZRLE);
+    surh->encoding = Swap32IfLE(m_use_zstd ? rfbEncodingZSTD : rfbEncodingZRLE);
   }
-
+#else
+  if (m_use_zywrle) {
+	  surh->encoding = Swap32IfLE(rfbEncodingZYWRLE);
+  }
+  else {
+	  surh->encoding = Swap32IfLE(rfbEncodingZRLE);
+  }
+#endif
   rfbZRLEHeader* hdr = (rfbZRLEHeader*)(dest +
                                         sz_rfbFramebufferUpdateRectHeader);
 

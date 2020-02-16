@@ -17,45 +17,61 @@
 // USA.
 
 //
-// ZlibInStream streams from a compressed data stream ("underlying"),
-// decompressing with zlib on the fly.
+// ZInStream streams from a compressed data stream ("underlying"),
+// decompressing with zlib or zstd on the fly.
 //
 
-#ifndef __RDR_ZLIBINSTREAM_H__
-#define __RDR_ZLIBINSTREAM_H__
+#ifndef __RDR_ZINSTREAM_H__
+#define __RDR_ZINSTREAM_H__
 
 #pragma once
 
 #include "InStream.h"
 
+#ifdef _ZSTD
+#ifdef _INTERNALLIB
+#include <zstd.h>
+#else
+#include "../zstd/lib/zstd.h"
+#endif
+#endif
+
 struct z_stream_s;
 
 namespace rdr {
 
-  class ZlibInStream : public InStream {
+  class ZInStream : public InStream {
 
   public:
 
-    ZlibInStream(int bufSize=0);
-    virtual ~ZlibInStream();
+    ZInStream(int bufSize=0);
+    virtual ~ZInStream();
 
     void setUnderlying(InStream* is, int bytesIn);
     void reset();
     int pos();
+	void SetUsedLib(int lib);
 
   private:
 
     int overrun(int itemSize, int nItems);
     void decompress();
 
+	int usedLib;
+  	
     InStream* underlying;
     int bufSize;
     int offset;
-    z_stream_s* zs;
+    z_stream_s* zlibs;
     int bytesIn;
     U8* start;
-  };
 
+#ifdef _ZSTD
+	ZSTD_outBuffer* outBuffer;
+	ZSTD_inBuffer* inBuffer;
+	ZSTD_DStream* zstds;
+#endif
+  };
 } // end of namespace rdr
 
 #endif

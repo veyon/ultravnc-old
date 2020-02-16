@@ -25,7 +25,7 @@
 // FILL_RECT
 // IMAGE_RECT
 
-#include <rdr/ZlibInStream.h>
+#include <rdr/ZInStream.h>
 #include <rdr/InStream.h>
 #include <assert.h>
 
@@ -76,7 +76,7 @@ using namespace rdr;
 #endif
 
 void ZRLE_DECODE_BPP (int x, int y, int w, int h, rdr::InStream* is,
-                      rdr::ZlibInStream* zis, PIXEL_T* buf)
+	                  rdr::ZInStream* zis, PIXEL_T* buf)
 {
   int length = is->readU32();
   zis->setUnderlying(is, length);

@@ -40,8 +40,8 @@
 #include <string>
 
 #include <rdr/MemInStream.h>
-#include <rdr/ZlibOutStream.h>
-#include <rdr/ZlibInStream.h>
+#include <rdr/ZOutStream.h>
+#include <rdr/ZInStream.h>
 #ifdef _INTERNALLIB
 #include <zlib.h>
 #else
@@ -482,7 +482,7 @@ bool ClipboardData::Restore(HWND hwndOwner, ExtendedClipboardDataMessage& extend
 	}
 
 	rdr::MemInStream inStream(extendedClipboardDataMessage.GetCurrentPos(), nCompressedDataLength);
-	rdr::ZlibInStream compressedStream;
+	rdr::ZInStream compressedStream;
 
 	compressedStream.setUnderlying(&inStream, nCompressedDataLength);
 
@@ -675,7 +675,7 @@ bool Clipboard::UpdateClipTextEx(ClipboardData& clipboardData, CARD32 overrideFl
 
 		rdr::MemOutStream memStream;
 		{
-			rdr::ZlibOutStream compressedStream(&memStream, 0, 9); //Z_BEST_COMPRESSION
+			rdr::ZOutStream compressedStream(&memStream, 0, 9); //Z_BEST_COMPRESSION
 
 			if (clipboardData.m_lengthText != 0) {
 				extendedClipboardDataNotifyMessage.AddFlag(clipText);

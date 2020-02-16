@@ -459,6 +459,10 @@ typedef struct {
 #define rfbEncodingZRLE 16
 // nyama/2006/08/02:new YUV-Wavlet lossy codec based on ZRLE
 #define rfbEncodingZYWRLE 17
+#ifdef _ZSTD
+#define rfbEncodingZSTD 25 //TODO: CHECK WITH OTHER VNC PRODUCST AND ASSIGN PERMANENT NUMBER
+#define rfbEncodingZSTDYW 26 //TODO: CHECK WITH OTHER VNC PRODUCST AND ASSIGN PERMANENT NUMBER
+#endif
 #ifdef _XZ
 #define rfbEncodingXZ 18
 #define rfbEncodingXZYW 19

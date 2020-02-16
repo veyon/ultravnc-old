@@ -132,7 +132,7 @@ int VSocket::m_defaultSocketKeepAliveTimeout = 10000;
 VSocket::VSocket()
 {
 	// Clear out the internal socket fields
-#ifdef IPV6V4
+#ifdef _IPV6V4
 	sock4 = INVALID_SOCKET;
 	sock6 = INVALID_SOCKET;
 #else
@@ -176,7 +176,7 @@ VSocket::~VSocket()
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VBool
 VSocket::CreateConnect(const VString address, const VCard port)
 {
@@ -360,7 +360,7 @@ VBool	VSocket::CreateBindListen(const VCard port, const VBool localOnly)
 ////////////////////////////////////////////////////////////////
 
 
-#ifdef IPV6V4
+#ifdef _IPV6V4
 #else
 VBool
 VSocket::Create()
@@ -388,7 +388,7 @@ VSocket::Create()
 }
 #endif
 ////////////////////////////
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VBool
 VSocket::Close()
 {
@@ -457,7 +457,7 @@ VSocket::Close()
 }
 #endif
 ////////////////////////////
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VBool
 VSocket::Shutdown()
 {
@@ -496,7 +496,7 @@ VSocket::Shutdown()
 }
 #endif
 ////////////////////////////
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VBool
 VSocket::Bind4(const VCard port, const VBool localOnly)
 {
@@ -573,7 +573,7 @@ VSocket::Bind(const VCard port, const VBool localOnly)
 #endif
 
 ////////////////////////////
-#ifdef IPV6V4
+#ifdef _IPV6V4
 #else
 VBool
 VSocket::Connect(const VString address, const VCard port)
@@ -620,7 +620,7 @@ VSocket::Connect(const VString address, const VCard port)
 #endif
 ////////////////////////////
 
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VBool
 VSocket::Listen4()
 {
@@ -663,7 +663,7 @@ VSocket::Listen()
 }
 #endif
 ////////////////////////////
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VSocket *
 VSocket::Accept()
 {
@@ -815,7 +815,7 @@ VSocket::Accept()
 #endif
 ////////////////////////////
 ////////////////////////////
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VString
 VSocket::GetPeerName()
 {
@@ -881,7 +881,7 @@ VSocket::GetPeerName()
 }
 #endif
 ////////////////////////////
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VString
 VSocket::GetSockName()
 {
@@ -949,7 +949,7 @@ VSocket::GetSockName()
 }
 #endif
 // 25 January 2008 jdp
-#ifdef IPV6V4
+#ifdef _IPV6V4
 bool VSocket::GetPeerAddress4(char *address, int size)
 {
 	struct sockaddr_in addr;
@@ -1001,7 +1001,7 @@ bool VSocket::GetPeerAddress(char *address, int size)
 }
 #endif
 ////////////////////////////
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VCard32
 VSocket::Resolve4(const VString address)
 {
@@ -1111,7 +1111,7 @@ VSocket::Resolve(const VString address)
 ////////////////////////////
 
 // adzm 2010-08
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VBool
 VSocket::SetDefaultSocketOptions4()
 {
@@ -1238,7 +1238,7 @@ VSocket::SetDefaultSocketOptions()
 } 
 #endif
 ////////////////////////////
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VBool
 VSocket::SetTimeout(VCard32 msecs)
 {
@@ -1344,7 +1344,7 @@ VBool VSocket::SetRecvTimeout(VCard32 msecs)
 }
 #endif
 ////////////////////////////
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VInt
 VSocket::Send(const char *buff, const VCard bufflen)
 {
@@ -1434,7 +1434,7 @@ VSocket::Send(const char *buff, const VCard bufflen)
 }
 #endif
 ////////////////////////////
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VInt
 VSocket::SendQueued(const char *buff, const VCard bufflen)
 {
@@ -1520,7 +1520,7 @@ VSocket::SendQueued(const char *buff, const VCard bufflen)
 /////////////////////////////
 
 // sf@2002 - DSMPlugin
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VBool
 VSocket::SendExact(const char *buff, const VCard bufflen, unsigned char msgType)
 {
@@ -1569,7 +1569,7 @@ VSocket::SendExact(const char *buff, const VCard bufflen, unsigned char msgType)
 }
 #endif
 
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VBool 
 VSocket::SendExactQueue(const char *buff, const VCard bufflen, unsigned char msgType)
 {
@@ -1619,7 +1619,7 @@ VSocket::SendExactQueue(const char *buff, const VCard bufflen, unsigned char msg
 }
 #endif
 //////////////////////////////////////////
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VBool
 VSocket::SendExact(const char *buff, const VCard bufflen)
 {
@@ -1715,7 +1715,7 @@ VSocket::SendExact(const char *buff, const VCard bufflen)
 }
 #endif
 ///////////////////////////////////////
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VBool
 VSocket::SendExactQueue(const char *buff, const VCard bufflen)
 {
@@ -1812,7 +1812,7 @@ VSocket::SendExactQueue(const char *buff, const VCard bufflen)
 }
 #endif
 ///////////////////////////////
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VBool
 VSocket::ClearQueue()
 {
@@ -1856,7 +1856,7 @@ VSocket::ClearQueue()
 }
 #endif
 ////////////////////////////
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VInt
 VSocket::Read(char *buff, const VCard bufflen)
 {
@@ -1885,7 +1885,7 @@ VSocket::Read(char *buff, const VCard bufflen)
 }
 #endif
 ////////////////////////////
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VBool
 VSocket::ReadExact(char *buff, const VCard bufflen)
 {
@@ -2242,7 +2242,7 @@ VSocket::ReadExactHTTP(char *buff, const VCard bufflen)
 
 	return VTrue;
 }
-#ifdef IPV6V4
+#ifdef _IPV6V4
 VBool
 VSocket::ReadSelect(VCard to)
 {

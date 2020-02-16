@@ -24,7 +24,7 @@
 
 #include "vncencoder.h"
 
-namespace rdr { class ZlibOutStream; class MemOutStream; }
+namespace rdr { class ZOutStream; class MemOutStream; }
 
 class vncEncodeZRLE : public vncEncoder
 {
@@ -38,10 +38,12 @@ public:
 
   virtual UINT EncodeRect(BYTE *source, BYTE *dest, const rfb::Rect &rect);
 
+  void SetUsedLib(int lib);
   BOOL m_use_zywrle;
+  BOOL m_use_zstd;
 
 private:
-  rdr::ZlibOutStream* zos;
+  rdr::ZOutStream* zos;
   rdr::MemOutStream* mos;
   void* beforeBuf;
 };

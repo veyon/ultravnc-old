@@ -76,12 +76,12 @@ public:
 
   // Create
   //        Create a socket and attach it to this VSocket object
-#ifdef IPV6V4
+#ifdef _IPV6V4
 #else
   VBool Create();
 #endif
 
-#ifdef IPV6V4
+#ifdef _IPV6V4
   VBool CreateConnect(const VString address, const VCard port);
   VBool CreateBindConnect(const VString address, const VCard port);
   VBool	CreateBindListen(const VCard port, const VBool localOnly = VFalse);
@@ -89,7 +89,7 @@ public:
 
   // Shutdown
   //        Shutdown the currently attached socket
-#ifdef IPV6V4
+#ifdef _IPV6V4
   VBool Shutdown();
   VBool Shutdown4();
   VBool Shutdown6();
@@ -99,7 +99,7 @@ public:
 
   // Close
   //        Close the currently attached socket
-#ifdef IPV6V4
+#ifdef _IPV6V4
   VBool Close();
   VBool Close4();
   VBool Close6();
@@ -111,7 +111,7 @@ public:
   //        Bind the attached socket to the specified port
   //		If localOnly is VTrue then the socket is bound only
   //        to the loopback adapter.
-#ifdef IPV6V4
+#ifdef _IPV6V4
   VBool Bind4(const VCard port, const VBool localOnly=VFalse);
   VBool Bind6(const VCard port, const VBool localOnly=VFalse);
 #else
@@ -121,14 +121,14 @@ public:
   // Connect
   //        Make a stream socket connection to the specified port
   //        on the named machine.
-#ifdef IPV6V4
+#ifdef _IPV6V4
 #else
   VBool Connect(const VString address, const VCard port);
 #endif
 
   // Listen
   //        Set the attached socket to listen for connections
-#ifdef IPV6V4
+#ifdef _IPV6V4
   VBool Listen4();
   VBool Listen6();
 #else
@@ -139,7 +139,7 @@ public:
   //        If the attached socket is set to listen then this
   //        call blocks waiting for an incoming connection, then
   //        returns a new socket object for the new connection
-#ifdef IPV6V4
+#ifdef _IPV6V4
   VSocket *Accept();
   VSocket *Accept4();
   VSocket *Accept6();
@@ -151,7 +151,7 @@ public:
   //        If the socket is connected then this returns the name
   //        of the machine to which it is connected.
   //        This string MUST be copied before the next socket call...
-#ifdef IPV6V4
+#ifdef _IPV6V4
   VString GetPeerName();
   VString GetPeerName4();
   VString GetPeerName6();
@@ -163,7 +163,7 @@ public:
   //		If the socket exists then the name of the local machine
   //		is returned.  This string MUST be copied before the next
   //		socket call!
-#ifdef IPV6V4
+#ifdef _IPV6V4
   VString GetSockName();
   VString GetSockName4();
   VString GetSockName6();
@@ -174,7 +174,7 @@ public:
   // Resolve
   //        Uses the Winsock API to resolve the supplied DNS name to
   //        an IP address and returns it as an Int32
-#ifdef IPV6V4
+#ifdef _IPV6V4
   static VCard32 Resolve4(const VString name);
   static bool Resolve6(const VString name, in6_addr * addr);
 #else
@@ -183,7 +183,7 @@ public:
 
   // SetTimeout
   //        Sets the socket timeout on reads and writes.
-#ifdef IPV6V4
+#ifdef _IPV6V4
   VBool SetSendTimeout(VCard32 msecs);
   VBool SetRecvTimeout(VCard32 msecs);
 
@@ -201,7 +201,7 @@ public:
 #endif
   
   // adzm 2010-08
-#ifdef IPV6V4
+#ifdef _IPV6V4
   VBool SetDefaultSocketOptions4();
   VBool SetDefaultSocketOptions6();
 #else
@@ -210,14 +210,14 @@ public:
 
   // adzm 2010-08
   static void SetSocketKeepAliveTimeoutDefault(int timeout) { m_defaultSocketKeepAliveTimeout = timeout; }
-#ifdef IPV6V4
+#ifdef _IPV6V4
   bool GetPeerAddress4(char *address, int size);
   bool GetPeerAddress6(char *address, int size);
 #else
   bool GetPeerAddress(char *address, int size);
 #endif
 
-#ifdef IPV6V4
+#ifdef _IPV6V4
  
   VBool ReadSelect(VCard to);
   VInt Send(const char *buff, const VCard bufflen);
@@ -294,7 +294,7 @@ public:
   // Internal structures
 protected:
   // The internal socket id
-#ifdef IPV6V4
+#ifdef _IPV6V4
     SOCKET sock4;
     SOCKET sock6;
 #else

@@ -30,10 +30,14 @@
 
 #include <vector>
 
+#ifdef _ZSTD
+#define LASTENCODING rfbEncodingZSTDYW
+#else
 #ifdef _XZ
 #define LASTENCODING rfbEncodingXZYW
 #else
 #define LASTENCODING rfbEncodingZYWRLE
+#endif
 #endif
 #define NOCURSOR 0
 #define DOTCURSOR 1

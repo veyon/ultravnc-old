@@ -145,7 +145,7 @@ void ZRLE_ENCODE_TILE (PIXEL_T* data, int w, int h, rdr::OutStream* os);
 #endif
 
 void ZRLE_ENCODE (int x, int y, int w, int h, rdr::OutStream* os,
-                  rdr::ZlibOutStream* zos, void* buf
+                  rdr::ZOutStream* zos, void* buf
                   EXTRA_ARGS
                   )
 {

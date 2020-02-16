@@ -1,8 +1,7 @@
 //
 // Copyright (C) 2002 RealVNC Ltd.  All Rights Reserved.
 //
-
-#include <rdr/ZlibInStream.h>
+//
 #include <rdr/FdInStream.h>
 #include <rdr/Exception.h>
 #include "stdhdrs.h"
@@ -99,7 +98,7 @@ void ClientConnection::zrleDecode(int x, int y, int w, int h)
 	}else{
 	  zywrle_level = 0;
 	}
-
+  	
     switch (m_myFormat.bitsPerPixel) {
 
     case 8:
