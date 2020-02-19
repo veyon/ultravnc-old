@@ -1420,7 +1420,15 @@ BOOL CALLBACK VNCOptions::OptDlgProc(  HWND hwnd,  UINT uMsg,
 		  HWND hxzyw = GetDlgItem(hwnd, IDC_XZYWRADIO);
 		  EnableWindow(hxzyw, false);
 		  ShowWindow(hxzyw, false);
-#endif		  
+#endif
+#ifdef _ZSTD
+		   HWND zstd = GetDlgItem(hwnd, IDC_ZSTD);
+		  EnableWindow(zstd, false);
+		  ShowWindow(zstd, false);
+		  HWND zstdyw = GetDlgItem(hwnd, IDC_ZSTDYW);
+		  EnableWindow(zstdyw, false);
+		  ShowWindow(zstdyw, false);
+#endif
 		  HWND hFullScreen = GetDlgItem(hwnd, IDC_FULLSCREEN);
 		  SendMessage(hFullScreen, BM_SETCHECK, _this->m_FullScreen, 0);
 
