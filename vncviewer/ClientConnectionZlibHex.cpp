@@ -142,6 +142,7 @@ void ClientConnection::HandleZlibHexEncoding##bpp(int rx, int ry, int rw, int rh
             if (subencoding & rfbHextileZlibHex) {								\
                 ReadExact((char *)&nCompData, 2);								\
                 nCompData = Swap16IfLE(nCompData);								\
+				CheckBufferSize(nCompData);										\
                 ReadExact(m_netbuf, nCompData);									\
 		        if (zlibDecompress((unsigned char *)m_netbuf, m_zlibbuf, nCompData, ((w*h+2)*(bpp/8)+20), &m_decompStreamEncoded)) {  \
                     HandleZlibHexSubencodingBuf##bpp(x, y, w, h, subencoding, m_zlibbuf);							\
