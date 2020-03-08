@@ -829,7 +829,7 @@ vncService::LockWorkstation()
 // Static routine to tell a locally-running instance of the server
 // to connect out to a new client
 
-#ifdef _IPV6V4
+#ifdef IPV6V4
 BOOL
 vncService::PostAddNewClient4(unsigned long ipaddress, unsigned short port)
 {

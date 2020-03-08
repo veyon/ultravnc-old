@@ -23,10 +23,10 @@
     <ClCompile Include="NullOutStream.cxx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ZInStream.cxx">
+    <ClCompile Include="ZlibInStream.cxx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ZOutStream.cxx">
+    <ClCompile Include="ZlibOutStream.cxx">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -61,10 +61,10 @@
     <ClInclude Include="types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ZInStream.h">
+    <ClInclude Include="ZlibInStream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ZOutStream.h">
+    <ClInclude Include="ZlibOutStream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

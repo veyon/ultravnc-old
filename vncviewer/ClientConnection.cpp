@@ -41,7 +41,8 @@ extern "C" {
 }
 
 #include <rdr/FdInStream.h>
-#include <rdr/ZInStream.h>
+#include <rdr/ZlibInStream.h>
+#include <rdr/ZlibOutStream.h>
 #ifdef _XZ
 #include <rdr/xzInStream.h>
 #endif
@@ -442,7 +443,7 @@ void ClientConnection::Init(VNCviewerApp *pApp)
 
 	m_fScalingDone = false;
 
-    zis = new rdr::ZInStream;
+    zis = new rdr::ZlibInStream;
 #ifdef _XZ
 	xzis = new rdr::xzInStream;
 #endif
@@ -3976,7 +3977,12 @@ void ClientConnection::SetFormatAndEncodings()
 	// Put the preferred encoding first, and change it if the
 	// preferred encoding is not actually usable.
 	std::vector<int> preferred_encodings = m_opts.m_PreferredEncodings;
-		
+
+	if (preferred_encodings.end() != std::find(preferred_encodings.begin(), preferred_encodings.end(), rfbEncodingZYWRLE)) {
+		zywrle = 1;
+	} else {
+		zywrle = 0;
+	}
 #ifdef _XZ
 	if (preferred_encodings.end() != std::find(preferred_encodings.begin(), preferred_encodings.end(), rfbEncodingXZYW)) {
 		xzyw = 1;
@@ -4197,7 +4203,8 @@ void ClientConnection::SuspendThread()
 
 	// Reinit encoders stuff
 	delete(zis);
-	zis = new rdr::ZInStream;
+	zis = new rdr::ZlibInStream;
+
 #ifdef _XZ
 	delete(xzis);
 	xzis = new rdr::xzInStream;
@@ -5598,11 +5605,7 @@ inline void ClientConnection::ReadScreenUpdate()
 			// ZRLE special case
 			if (!fis->GetReadFromMemoryBuffer())
 			{
-#ifdef _ZSTD
-				if ((surh.encoding == rfbEncodingZYWRLE)||(surh.encoding == rfbEncodingZRLE) || (surh.encoding == rfbEncodingZSTDYW) || (surh.encoding == rfbEncodingZSTD))
-#else
-				if ((surh.encoding == rfbEncodingZYWRLE) || (surh.encoding == rfbEncodingZRLE))
-#endif
+				if ((surh.encoding == rfbEncodingZYWRLE)||(surh.encoding == rfbEncodingZRLE))
 				{
 					if (m_minorVersion==6 || m_minorVersion==4 || m_minorVersion==16 || m_minorVersion==14 || m_opts.m_oldplugin)
 					{
@@ -5760,39 +5763,14 @@ inline void ClientConnection::ReadScreenUpdate()
 			ReadSolidRect(&surh);
 			break;
 		case rfbEncodingZRLE:
+			if (directx_used) m_DIBbits=directx_output->Preupdate((unsigned char *)m_DIBbits);
 			zywrle = 0;
-			zis->SetUsedLib(0);
-			if (directx_used) m_DIBbits = directx_output->Preupdate((unsigned char *)m_DIBbits);
-			SaveArea(cacherect);
-			zrleDecode(surh.r.x, surh.r.y, surh.r.w, surh.r.h);
-			EncodingStatusWindow = rfbEncodingZRLE;
-			break;
 		case rfbEncodingZYWRLE:
-			zywrle = 1;
-			zis->SetUsedLib(0);
 			if (directx_used) m_DIBbits=directx_output->Preupdate((unsigned char *)m_DIBbits);
 			SaveArea(cacherect);
 			zrleDecode(surh.r.x, surh.r.y, surh.r.w, surh.r.h);
-			EncodingStatusWindow = rfbEncodingZYWRLE;
+			EncodingStatusWindow=zywrle ? rfbEncodingZYWRLE : rfbEncodingZRLE;
 			break;
-#ifdef _ZSTD
-		case rfbEncodingZSTD:
-			zywrle = 0;
-			zis->SetUsedLib(1);
-			if (directx_used) m_DIBbits = directx_output->Preupdate((unsigned char *)m_DIBbits);
-			SaveArea(cacherect);
-			zrleDecode(surh.r.x, surh.r.y, surh.r.w, surh.r.h);
-			EncodingStatusWindow = rfbEncodingZSTD;
-			break;
-		case rfbEncodingZSTDYW:
-			zywrle = 1;
-			zis->SetUsedLib(1);
-			if (directx_used) m_DIBbits = directx_output->Preupdate((unsigned char *)m_DIBbits);
-			SaveArea(cacherect);
-			zrleDecode(surh.r.x, surh.r.y, surh.r.w, surh.r.h);
-			EncodingStatusWindow = rfbEncodingZSTDYW;
-			break;
-#endif
 #ifdef _XZ
 		case rfbEncodingXZ:
 			xzyw = 0;
@@ -7116,14 +7094,6 @@ void ClientConnection::UpdateStatusFields()
   			case rfbEncodingZYWRLE:
 				if (m_hwndStatus)SetDlgItemText(m_hwndStatus, IDC_ENCODER, m_opts.m_fEnableCache ? "ZYWRLE, Cache" :"ZYWRLE");
   				break;
-#ifdef _ZSTD
-			case rfbEncodingZSTD:
-				if (m_hwndStatus)SetDlgItemText(m_hwndStatus, IDC_ENCODER, m_opts.m_fEnableCache ? "Zstd, Cache" : "Zstd");
-				break;
-			case rfbEncodingZSTDYW:
-				if (m_hwndStatus)SetDlgItemText(m_hwndStatus, IDC_ENCODER, m_opts.m_fEnableCache ? "ZstdYW, Cache" : "ZstdYW");
-				break;
-#endif
 #ifdef _XZ
   			case rfbEncodingXZ:		
 				if (m_hwndStatus)SetDlgItemText(m_hwndStatus, IDC_ENCODER, m_opts.m_fEnableCache ? "XZ, Cache" :"XZ");

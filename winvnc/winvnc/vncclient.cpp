@@ -1934,7 +1934,7 @@ void GetIPString(char *buffer, int buflen)
 		strncpy_s(buffer, buflen, "Host name unavailable", buflen);
 		return;
     }
-#ifdef _IPV6V4
+#ifdef IPV6V4
 	*buffer = '\0';
 
 	LPSOCKADDR sockaddr_ip;
@@ -2144,7 +2144,7 @@ bool vncClientThread::TryReconnect()
 	// Connect out to the specified host on the VNCviewer listen port
 	// To be really good, we should allow a display number here but
 	// for now we'll just assume we're connecting to display zero
-#ifdef _IPV6V4
+#ifdef IPV6V4
 	if (m_socket->CreateConnect(m_client->GetHost(), m_client->GetHostPort()))
 #else
 	m_socket->Create();
@@ -2239,7 +2239,7 @@ vncClientThread::run(void *arg)
 			m_server->AutoReconnectPort(m_AutoReconnectPort);
 			m_server->AutoReconnectAdr(m_szAutoReconnectAdr);
 			m_server->AutoReconnectId(m_szAutoReconnectId);
-#ifdef _IPV6V4
+#ifdef IPV6V4
 			vncService::PostAddNewClient4(1111, 1111);
 #else
 			vncService::PostAddNewClient(1111, 1111);
@@ -2556,9 +2556,6 @@ vncClientThread::run(void *arg)
 	        // RDV XOR and client detection
 			m_client->m_encodemgr.AvailableXOR(FALSE);
 			m_client->m_encodemgr.AvailableZRLE(FALSE);
-#ifdef _ZSTD
-			m_client->m_encodemgr.AvailableZSTD(FALSE);
-#endif
 #ifdef _XZ
 			m_client->m_encodemgr.AvailableXZ(FALSE);
 #endif
@@ -2760,13 +2757,6 @@ vncClientThread::run(void *arg)
 						vnclog.Print(LL_INTINFO, VNCLOG("ZRLE found \n"));
 						// continue;
 					}
-#ifdef _ZSTD
-					if (Swap32IfLE(encoding) == rfbEncodingZSTD) {
-						m_client->m_encodemgr.AvailableZSTD(TRUE);
-						vnclog.Print(LL_INTINFO, VNCLOG("ZSTD found \n"));
-						// continue;
-					}
-#endif
 #ifdef _XZ
 					if (Swap32IfLE(encoding) == rfbEncodingXZ) {
 						m_client->m_encodemgr.AvailableXZ(TRUE);
@@ -4469,7 +4459,7 @@ vncClientThread::run(void *arg)
 			m_server->AutoReconnectPort(m_AutoReconnectPort);
 			m_server->AutoReconnectAdr(m_szAutoReconnectAdr);
 			m_server->AutoReconnectId(m_szAutoReconnectId);
-#ifdef _IPV6V4
+#ifdef IPV6V4
 			vncService::PostAddNewClient4(1111, 1111);
 #else
 			vncService::PostAddNewClient(1111, 1111);

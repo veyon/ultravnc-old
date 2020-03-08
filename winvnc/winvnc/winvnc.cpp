@@ -92,7 +92,7 @@ bool PostAddConnectClient_bool_null=false;
 bool PostAddNewRepeaterClient_bool=false;
 
 char pszId_char[20];
-#ifdef _IPV6V4
+#ifdef IPV6V4
 VCard32 address_vcard4;
 in6_addr address_in6;
 #else
@@ -978,7 +978,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 					}
 					vnclog.Print(LL_STATE, VNCLOG("test... %s %d\n"),name,port);
 					strcpy_s(dnsname,name);
-#ifdef _IPV6V4
+#ifdef IPV6V4
 					IniFile myIniFile;
 					G_ipv6_allowed=myIniFile.ReadInt("admin", "UseIpv6", false);
 					if (G_ipv6_allowed)
@@ -1070,7 +1070,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 				// We can not contact a runnning service, permissions, so we must store the settings
 				// and process until the vncmenu has been started
 				vnclog.Print(LL_INTERR, VNCLOG("PostAddNewClient IIII\n"));
-#ifdef _IPV6V4
+#ifdef IPV6V4
 				if (!vncService::PostAddNewClient4(0, 0))
 				{
 					PostAddNewClient_bool=true;
@@ -1122,7 +1122,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 					{
 						PostAddNewRepeaterClient_bool=true;
 						port_int=0;
-#ifdef _IPV6V4
+#ifdef IPV6V4
 						address_vcard4=0;
 						memset(&address_in6, 0, sizeof(address_in6));
 #else
@@ -1269,7 +1269,7 @@ DWORD WINAPI imp_desktop_thread(LPVOID lpParam)
 	{
 		PostAddNewClient_bool=false;
 		vnclog.Print(LL_INTERR, VNCLOG("PostAddNewClient IIIII\n"));
-#ifdef _IPV6V4
+#ifdef IPV6V4
 		if (G_ipv6_allowed)
 		{
 			vncService::PostAddNewClient6(&address_in6, port_int);

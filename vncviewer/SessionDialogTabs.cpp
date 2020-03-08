@@ -675,14 +675,6 @@ void SessionDialog::InitDlgProcEncoders()
 	EnableWindow(hxzyw, false);
 	ShowWindow(hxzyw, false);
 #endif
-#ifdef _ZSTD
-	HWND zstd = GetDlgItem(hwnd, IDC_ZSTD);
-	EnableWindow(zstd, false);
-	ShowWindow(zstd, false);
-	HWND zstdyw = GetDlgItem(hwnd, IDC_ZSTDYW);
-	EnableWindow(zstdyw, false);
-	ShowWindow(zstdyw, false);
-#endif
 	//adzm 2010-07-04
 	HWND hpreemptiveUpdates = GetDlgItem(hwnd, IDC_PREEMPTIVEUPDATES);
 	SendMessage(hpreemptiveUpdates, BM_SETCHECK, preemptiveUpdates ? BST_CHECKED : BST_UNCHECKED, 0);

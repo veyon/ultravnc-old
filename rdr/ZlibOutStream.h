@@ -18,57 +18,40 @@
 
 
 //
-// ZOutStream streams to a compressed data stream (underlying), compressing
-// with zlib or zstd on the fly.
+// ZlibOutStream streams to a compressed data stream (underlying), compressing
+// with zlib on the fly.
 //
 
-#ifndef __RDR_ZOUTSTREAM_H__
-#define __RDR_ZOUTSTREAM_H__
+#ifndef __RDR_ZLIBOUTSTREAM_H__
+#define __RDR_ZLIBOUTSTREAM_H__
 
 #include "OutStream.h"
-
-#ifdef _ZSTD
-#ifdef _INTERNALLIB
-#include <zstd.h>
-#else
-#include "../zstd/lib/zstd.h"
-#endif
-#endif
 
 struct z_stream_s;
 
 namespace rdr {
 
-  class ZOutStream : public OutStream {
+  class ZlibOutStream : public OutStream {
 
   public:
 
     // adzm - 2010-07 - Custom compression level
-	  ZOutStream(OutStream* os=0, int bufSize=0, int compressionLevel=-1); // Z_DEFAULT_COMPRESSION
-    virtual ~ZOutStream();
+    ZlibOutStream(OutStream* os=0, int bufSize=0, int compressionLevel=-1); // Z_DEFAULT_COMPRESSION
+    virtual ~ZlibOutStream();
 
     void setUnderlying(OutStream* os);
     void flush();
     int length();
-	void SetUsedLib(int lib);
 
   private:
 
     int overrun(int itemSize, int nItems);
-
-	int usedLib;
 
     OutStream* underlying;
     int bufSize;
     int offset;
     z_stream_s* zs;
     U8* start;
-
-#ifdef _ZSTD
-	ZSTD_outBuffer* outBuffer;
-	ZSTD_inBuffer* inBuffer;
-	ZSTD_CStream* zstds;
-#endif
   };
 
 } // end of namespace rdr

@@ -33,9 +33,6 @@
 #pragma comment(lib, "zip32.lib")
 #pragma comment(lib, "unz32lib.lib")
 #pragma comment(lib, "libjpeg-turbo-win-static.lib")
-#ifdef _ZSTD
-#pragma comment(lib, "libzstd_static.lib")
-#endif
 #endif
 
 #include "omnithread/omnithread.h"

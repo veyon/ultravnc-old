@@ -129,7 +129,7 @@ struct BitmapInfo {
   };
 };
 
-namespace rdr { class InStream; class FdInStream; class ZInStream; class xzInStream; }
+namespace rdr { class InStream; class FdInStream; class ZlibInStream; class xzInStream; }
 
 class ClientConnection  : public omni_thread
 {
@@ -729,21 +729,20 @@ private:
 	bool m_fScalingDone; // sf@2003 - Auto Scaling flag
 
 	rdr::FdInStream* fis;
-	rdr::ZInStream* zis;
-	
+	rdr::ZlibInStream* zis;
 	void zrleDecode(int x, int y, int w, int h);
 	void zrleDecode8NE(int x, int y, int w, int h, rdr::InStream* is,
-		rdr::ZInStream* zis, rdr::U8* buf);
+		rdr::ZlibInStream* zis, rdr::U8* buf);
 	void zrleDecode15LE(int x, int y, int w, int h, rdr::InStream* is,
-		rdr::ZInStream* zis, rdr::U16* buf);
+		rdr::ZlibInStream* zis, rdr::U16* buf);
 	void zrleDecode16LE(int x, int y, int w, int h, rdr::InStream* is,
-		rdr::ZInStream* zis, rdr::U16* buf);
+		rdr::ZlibInStream* zis, rdr::U16* buf);
 	void zrleDecode24ALE(int x, int y, int w, int h, rdr::InStream* is,
-		rdr::ZInStream* zis, rdr::U32* buf);
+		rdr::ZlibInStream* zis, rdr::U32* buf);
 	void zrleDecode24BLE(int x, int y, int w, int h, rdr::InStream* is,
-		rdr::ZInStream* zis, rdr::U32* buf);
+		rdr::ZlibInStream* zis, rdr::U32* buf);
 	void zrleDecode32LE(int x, int y, int w, int h, rdr::InStream* is,
-		rdr::ZInStream* zis, rdr::U32* buf);
+		rdr::ZlibInStream* zis, rdr::U32* buf);
 	long zywrle;
 	long zywrle_level;
 	int zywrleBuf[rfbZRLETileWidth*rfbZRLETileHeight];

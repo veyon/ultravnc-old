@@ -338,7 +338,7 @@ public:
 	// Whether or not to allow connections from the local machine
 	virtual void SetLoopbackOk(BOOL ok) {m_loopback_allowed = ok;};
 	virtual BOOL LoopbackOk() {return m_loopback_allowed;};
-#ifdef _IPV6V4
+#ifdef IPV6V4
 	// Whether or not to allow connections from the local machine
 	virtual void SetIPV6(BOOL ok) { G_ipv6_allowed = ok; };
 	virtual BOOL IPV6() { return G_ipv6_allowed; };

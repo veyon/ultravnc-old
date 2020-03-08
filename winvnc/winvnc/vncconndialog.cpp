@@ -332,7 +332,7 @@ BOOL CALLBACK vncConnDialog::vncConnDlgProc(HWND hwnd,
 			// Connect out to the specified host on the VNCviewer listen port
 			// To be really good, we should allow a display number here but
 			// for now we'll just assume we're connecting to display zero
-#ifdef _IPV6V4
+#ifdef IPV6V4
 			if (tmpsock->CreateConnect(actualhostname, port))
 #else
 			tmpsock->Create();

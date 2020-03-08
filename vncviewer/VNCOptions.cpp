@@ -92,15 +92,7 @@ int EncodingFromString(const char* szEncoding)
 	} else if (_tcsicmp(szEncoding, _T("zrle")) == 0) { 
 		return rfbEncodingZRLE; 
 	} else if (_tcsicmp(szEncoding, _T("zywrle")) == 0) { 
-		return rfbEncodingZYWRLE;
-#ifdef _ZSTD
-	}
-	else if (_tcsicmp(szEncoding, _T("zstd")) == 0) {
-		return rfbEncodingZSTD;
-	}
-	else if (_tcsicmp(szEncoding, _T("zstdyw")) == 0) {
-		return rfbEncodingZSTDYW;
-#endif
+		return rfbEncodingZYWRLE; 
 #ifdef _XZ
 	} else if (_tcsicmp(szEncoding, _T("xz")) == 0) { 
 		return rfbEncodingXZ; 
@@ -130,10 +122,6 @@ VNCOptions::VNCOptions()
   m_UseEnc[rfbEncodingZYWRLE] = true;
   m_UseEnc[rfbEncodingUltra] = true;
   m_UseEnc[rfbEncodingUltra2] = true;
-#ifdef _ZSTD
-  m_UseEnc[rfbEncodingZSTD] = true;
-  m_UseEnc[rfbEncodingZSTDYW] = true;
-#endif
  #ifdef _XZ
   m_UseEnc[rfbEncodingXZ] = true;
   m_UseEnc[rfbEncodingXZYW] = true;
@@ -1231,7 +1219,7 @@ void VNCOptions::ShowUsage(LPTSTR info) {
 			   "      [/reconnectcounter number_reconnect_attempt]\r\n"
 			   "      [/nohotkeys] [/proxy proxyhost [portnum]] [/256colors] [/64colors]\r\n"
 			   "      [/8colors] [/8greycolors] [/4greycolors] [/2greycolors]\r\n"
-			   "      [/encoding [xz | xzyw | zrle | zywrle | zstd | zstdyw | tight | zlib | zlibhex | ultra | ultra2 | corre | rre | raw]\r\n"
+			   "      [/encoding [xz | xzyw | zrle | zywrle | tight | zlib | zlibhex | ultra | ultra2 | corre | rre | raw]\r\n"
 			   "      [/encodings xz zrle ...]  (in order of priority)\r\n"
 			   "      [/autoacceptincoming] [/autoacceptnodsm] [/disablesponsor]\r\n" //adzm 2009-06-21, adzm 2009-07-19
 			   "      [/requireencryption] [/enablecache] [/throttlemouse n] [/socketkeepalivetimeout n]\r\n" //adzm 2010-05-12 
@@ -1420,15 +1408,7 @@ BOOL CALLBACK VNCOptions::OptDlgProc(  HWND hwnd,  UINT uMsg,
 		  HWND hxzyw = GetDlgItem(hwnd, IDC_XZYWRADIO);
 		  EnableWindow(hxzyw, false);
 		  ShowWindow(hxzyw, false);
-#endif
-#ifdef _ZSTD
-		   HWND zstd = GetDlgItem(hwnd, IDC_ZSTD);
-		  EnableWindow(zstd, false);
-		  ShowWindow(zstd, false);
-		  HWND zstdyw = GetDlgItem(hwnd, IDC_ZSTDYW);
-		  EnableWindow(zstdyw, false);
-		  ShowWindow(zstdyw, false);
-#endif
+#endif		  
 		  HWND hFullScreen = GetDlgItem(hwnd, IDC_FULLSCREEN);
 		  SendMessage(hFullScreen, BM_SETCHECK, _this->m_FullScreen, 0);
 

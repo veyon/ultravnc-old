@@ -98,7 +98,7 @@ public:
 
 	// Routine to make an already running copy of WinVNC form an outgoing
 	// connection to a new VNC client
-#ifdef _IPV6V4
+#ifdef IPV6V4
 	static BOOL PostAddNewClient4(unsigned long ipaddress, unsigned short port);
 	static BOOL PostAddNewClientInit4(unsigned long ipaddress, unsigned short port);
 	static BOOL PostAddNewClient6(in6_addr *ipaddress, unsigned short port);

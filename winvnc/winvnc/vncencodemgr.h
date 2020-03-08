@@ -134,9 +134,6 @@ public:
 	// CLIENT OPTIONS
 	inline void AvailableXOR(BOOL enable){m_use_xor = enable;};
 	inline void AvailableZRLE(BOOL enable){m_use_zrle = enable;};
-#ifdef _ZSTD
-	inline void AvailableZSTD(BOOL enable) { m_use_zstd = enable; };
-#endif
 #ifdef _XZ
 	inline void AvailableXZ(BOOL enable){m_use_xz = enable;};
 #endif
@@ -212,7 +209,6 @@ protected:
 	// if tight->tight zrle->zrle both=ultra
 	BOOL			m_use_xor;
 	BOOL			m_use_zrle;
-	BOOL			m_use_zstd;
 	BOOL			m_use_xz;
 	BOOL			m_use_tight;
 	BOOL			m_fEnableQueuing;
@@ -595,7 +591,6 @@ vncEncodeMgr::SetEncoding(CARD32 encoding,BOOL reinitialize)
 			zrleEncoder = new vncEncodeZRLE;
 		m_encoder = zrleEncoder;
 		((vncEncodeZRLE*)zrleEncoder)->m_use_zywrle = FALSE;
-		((vncEncodeZRLE*)zrleEncoder)->SetUsedLib(0);
 		break;
 
 	case rfbEncodingZYWRLE:
@@ -604,27 +599,7 @@ vncEncodeMgr::SetEncoding(CARD32 encoding,BOOL reinitialize)
 			zrleEncoder = new vncEncodeZRLE;
 		m_encoder = zrleEncoder;
 		((vncEncodeZRLE*)zrleEncoder)->m_use_zywrle = TRUE;
-		((vncEncodeZRLE*)zrleEncoder)->SetUsedLib(0);
 		break;
-#ifdef _ZSTD
-	case rfbEncodingZSTD:
-		vnclog.Print(LL_INTINFO, VNCLOG("ZSTD encoder requested\n"));
-		if (!zrleEncoder)
-			zrleEncoder = new vncEncodeZRLE;
-		m_encoder = zrleEncoder;
-		((vncEncodeZRLE*)zrleEncoder)->m_use_zywrle = FALSE;
-		((vncEncodeZRLE*)zrleEncoder)->SetUsedLib(1);
-		break;
-
-	case rfbEncodingZSTDYW:
-		vnclog.Print(LL_INTINFO, VNCLOG("ZSTDYW encoder requested\n"));
-		if (!zrleEncoder)
-			zrleEncoder = new vncEncodeZRLE;
-		m_encoder = zrleEncoder;
-		((vncEncodeZRLE*)zrleEncoder)->m_use_zywrle = TRUE;
-		((vncEncodeZRLE*)zrleEncoder)->SetUsedLib(1);
-		break;
-#endif
 #ifdef _XZ
 	case rfbEncodingXZ:
 		vnclog.Print(LL_INTINFO, VNCLOG("XZ encoder requested\n"));

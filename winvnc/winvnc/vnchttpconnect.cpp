@@ -525,7 +525,7 @@ vncHTTPConnect::~vncHTTPConnect()
 		((vncHTTPConnectThread *)m_thread)->m_shutdown = TRUE;
 
 		VSocket socket;
-#ifdef _IPV6V4
+#ifdef IPV6V4
 		socket.CreateBindConnect("localhost", m_port);
 #else
 		socket.Create();
@@ -546,7 +546,7 @@ BOOL vncHTTPConnect::Init(vncServer *server, UINT port)
 {
 	// Save the port id
 	m_port = port;
-#ifdef _IPV6V4
+#ifdef IPV6V4
 	if (!m_socket.CreateBindListen(m_port, server->LoopbackOnly()))
 		return FALSE;
 #else

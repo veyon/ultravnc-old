@@ -565,7 +565,7 @@ int getinfo(char mytext[1024])
 
     char name[255];
 	char *IP=NULL;
-#ifdef _IPV6V4
+#ifdef IPV6V4
 
 	LPSOCKADDR sockaddr_ip;
 	char ipstringbuffer[46];

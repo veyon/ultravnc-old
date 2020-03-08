@@ -51,7 +51,7 @@
 
 extern bool G_1111;
 // Constants
-#ifdef _IPV6V4
+#ifdef IPV6V4
 const UINT MENU_ADD_CLIENT6_MSG_INIT = RegisterWindowMessage("WinVNC.AddClient6.Message.Init");
 const UINT MENU_ADD_CLIENT6_MSG = RegisterWindowMessage("WinVNC.AddClient6.Message");
 #endif
@@ -255,7 +255,7 @@ vncMenu::vncMenu(vncServer *server)
 		{			
 			//pfnFilter(MENU_ADD_CLIENT_MSG, MSGFLT_ADD);
 			//pfnFilter(MENU_ADD_CLIENT_MSG_INIT, MSGFLT_ADD);
-#ifdef _IPV6V4
+#ifdef IPV6V4
 			//pfnFilter(MENU_ADD_CLIENT6_MSG, MSGFLT_ADD);
 			//pfnFilter(MENU_ADD_CLIENT6_MSG_INIT, MSGFLT_ADD);
 #endif
@@ -349,7 +349,7 @@ vncMenu::vncMenu(vncServer *server)
 		if (pfnFilter)  {			
 			pfnFilter(MENU_ADD_CLIENT_MSG, MSGFLT_ADD);
 			pfnFilter(MENU_ADD_CLIENT_MSG_INIT, MSGFLT_ADD);
-#ifdef _IPV6V4
+#ifdef IPV6V4
 			pfnFilter(MENU_ADD_CLIENT6_MSG, MSGFLT_ADD);
 			pfnFilter(MENU_ADD_CLIENT6_MSG_INIT, MSGFLT_ADD);		
 #endif
@@ -610,7 +610,7 @@ vncMenu::GetIPAddrString(char *buffer, int buflen) {
 		return;
     };
 
-#ifdef _IPV6V4
+#ifdef IPV6V4
 	*buffer = '\0';
 
 	LPSOCKADDR sockaddr_ip;	
@@ -1651,7 +1651,7 @@ LRESULT CALLBACK vncMenu::WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lP
 			return 0;
 		}
 
-#ifdef _IPV6V4
+#ifdef IPV6V4
 
 		if (iMsg == MENU_ADD_CLIENT6_MSG || iMsg == MENU_ADD_CLIENT6_MSG_INIT)
 		{
@@ -1765,7 +1765,7 @@ LRESULT CALLBACK vncMenu::WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lP
 				tmpsock = new VSocket;
 				if (tmpsock) {
 					// Connect out to the specified host on the VNCviewer listen port
-#ifdef _IPV6V4
+#ifdef IPV6V4
 					if (tmpsock->CreateConnect(szAdrName, nport))
 #else
 					tmpsock->Create();
@@ -1911,7 +1911,7 @@ LRESULT CALLBACK vncMenu::WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lP
 				tmpsock = new VSocket;
 				if (tmpsock) {
 					// Connect out to the specified host on the VNCviewer listen port
-#ifdef _IPV6V4
+#ifdef IPV6V4
 					if (tmpsock->CreateConnect(szAdrName, nport))
 #else
 					tmpsock->Create();
