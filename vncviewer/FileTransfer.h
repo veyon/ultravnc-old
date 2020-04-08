@@ -28,7 +28,7 @@
 
 #include <list>
 #include <string>
-#include "ZipUnZip32/zipUnZip32.h"
+#include "ZipUnZip32/ZipUnZip32.h"
 
 #define CONFIRM_YES 1
 #define CONFIRM_YESALL 2
@@ -219,6 +219,8 @@ public:
 
 	static __int64 GetFileSizeFromString(char* szSize);
 	static FILETIME GetFileTimeFromString(char* szFileSystemTime);
+private:
+	int nDirZipRet;
 
 };
 

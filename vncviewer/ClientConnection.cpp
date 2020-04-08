@@ -774,11 +774,11 @@ HWND ClientConnection::GTGBS_ShowConnectWindow()
 }
 
 ////////////////////////////////////////////////////////
-#include <commctrl.h>
+#include <CommCtrl.h>
 #include <shellapi.h>
-#include <lmaccess.h>
-#include <lmat.h>
-#include <lmalert.h>
+#include <LMaccess.h>
+#include <LMat.h>
+#include <LMalert.h>
 
 void ClientConnection::CreateButtons(BOOL mini,BOOL ultra)
 {
@@ -5620,7 +5620,7 @@ inline void ClientConnection::ReadScreenUpdate()
 			// ZRLE special case
 			if (!fis->GetReadFromMemoryBuffer())
 			{
-				if ((surh.encoding == rfbEncodingZYWRLE)||(surh.encoding == rfbEncodingZRLE) || (surh.encoding == rfbEncodingZSTDRLE) || (surh.encoding == rfbEncodingZSTDYWRLE))
+				if ((surh.encoding == rfbEncodingZYWRLE)||(surh.encoding == rfbEncodingZRLE) || (surh.encoding == rfbEncodingZSTDYWRLE) || (surh.encoding == rfbEncodingZSTDRLE))
 				{
 					if (m_minorVersion==6 || m_minorVersion==4 || m_minorVersion==16 || m_minorVersion==14 || m_opts.m_oldplugin)
 					{
