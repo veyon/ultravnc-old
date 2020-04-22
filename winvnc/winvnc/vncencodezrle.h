@@ -24,8 +24,7 @@
 
 #include "vncencoder.h"
 
-namespace rdr { class ZlibOutStream; class MemOutStream; }
-
+namespace rdr { class ZlibOutStream; class MemOutStream; class ZstdOutStream; }
 class vncEncodeZRLE : public vncEncoder
 {
 public:
@@ -42,6 +41,9 @@ public:
 
 private:
   rdr::ZlibOutStream* zos;
+#ifndef ULTRAVNC_VEYON_SUPPORT
+  rdr::ZstdOutStream* zstdos;
+#endif
   rdr::MemOutStream* mos;
   void* beforeBuf;
 };

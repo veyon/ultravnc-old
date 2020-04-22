@@ -1,4 +1,4 @@
-//  Copyright (C) 2002 UltraVNC Team Members. All Rights Reserved.
+//  Copyright (C) 2020 UltraVNC Team Members. All Rights Reserved.
 //  Copyright (C) 2015 D. R. Commander. All Rights Reserved.
 //  Copyright (C) 2000-2002 Const Kaplinsky. All Rights Reserved.
 //  Copyright (C) 2002 RealVNC Ltd. All Rights Reserved.
@@ -64,9 +64,14 @@
 
 #ifdef _INTERNALLIB
 #include <zlib.h>
-#else
-#include <zlib/zlib.h>
+#ifndef ULTRAVNC_VEYON_SUPPORT
+#include <zstd.h>
 #endif
+#else
+#include "../zlib/zlib.h"
+#include "../zstd-1.4.4/lib/zstd.h"
+#endif
+
 #include "mmsystem.h" // sf@2002
 #include "sys/types.h"
 #include "sys/stat.h"
@@ -365,7 +370,6 @@ BOOL
 vncClientUpdateThread::Init(vncClient *client)
 {
 	vnclog.Print(LL_INTINFO, VNCLOG("init update thread\n"));
-
 	m_client = client;
 	omni_mutex_lock l(m_client->GetUpdateLock(),80);
 	m_signal = new omni_condition(&m_client->GetUpdateLock());
@@ -2698,7 +2702,7 @@ vncClientThread::run(void *arg)
 			m_client->m_encodemgr.EnableCache(FALSE);
 
 	        // RDV XOR and client detection
-			m_client->m_encodemgr.AvailableXOR(FALSE);
+			m_client->m_encodemgr.AvailableQueueEnabled(FALSE);
 			m_client->m_encodemgr.AvailableZRLE(FALSE);
 #ifdef _XZ
 			m_client->m_encodemgr.AvailableXZ(FALSE);
@@ -2764,14 +2768,14 @@ vncClientThread::run(void *arg)
 						continue;
 					}
 
-
+#ifndef ULTRAVNC_VEYON_SUPPORT
 					// XOR zlib
-					if (Swap32IfLE(encoding) == rfbEncodingXOREnable) {
-						m_client->m_encodemgr.AvailableXOR(TRUE);
+					if (Swap32IfLE(encoding) == rfbEncodingQueueEnable) {
+						m_client->m_encodemgr.AvailableQueueEnabled(TRUE);
 						vnclog.Print(LL_INTINFO, VNCLOG("XOR protocol extension enabled\n"));
 						continue;
 					}
-
+#endif
 
 					// Is this a CompressLevel encoding?
 					if ((Swap32IfLE(encoding) >= rfbEncodingCompressLevel0) &&
@@ -4928,6 +4932,8 @@ vncClient::Kill(bool deleted)
 #endif
 	if (m_socket != NULL)
 		m_socket->Close();
+	delete m_socket;
+	m_socket = NULL;
 	if(deleted)
 		((vncClientThread *) m_thread_ClientThread)->m_deleted = true;
 }

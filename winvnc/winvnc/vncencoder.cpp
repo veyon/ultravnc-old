@@ -29,6 +29,15 @@
 #include "stdhdrs.h"
 #include "vncencoder.h"
 #include "vncbuffer.h"
+#ifdef _INTERNALLIB
+#include <zlib.h>
+#ifndef ULTRAVNC_VEYON_SUPPORT
+#include <zstd.h>
+#endif
+#else
+#include "../zlib/zlib.h"
+#include "../zstd-1.4.4/lib/zstd.h"
+#endif
 
 // Pixel format used internally when the client is palette-based & server is truecolour
 
@@ -58,6 +67,9 @@ vncEncoder::vncEncoder()
 	m_use_lastrect = FALSE;
 	m_use_xcursor = FALSE;
 	m_use_richcursor = FALSE;
+#ifndef ULTRAVNC_VEYON_SUPPORT
+	m_use_zstd = false;
+#endif
 
 }
 
@@ -95,6 +107,13 @@ UINT
 vncEncoder::NumCodedRects(const rfb::Rect &rect)
 {
 	return 1;
+}
+
+void vncEncoder::set_use_zstd(bool use_zstd)
+{ 
+#ifndef ULTRAVNC_VEYON_SUPPORT
+	m_use_zstd = use_zstd;
+#endif
 }
 
 
@@ -154,7 +173,7 @@ vncEncoder::EncodeRect(BYTE *source, BYTE *dest, const rfb::Rect &rect)
 }
 
 inline UINT
-vncEncoder::EncodeRect(BYTE *source, BYTE *source2,VSocket *outConn, BYTE *dest, const rfb::Rect &rect)
+vncEncoder::EncodeRect(BYTE *source, VSocket *outConn, BYTE *dest, const rfb::Rect &rect, bool queue_enabled)
 {
 
 	return EncodeRect(source, dest, rect);

@@ -92,7 +92,6 @@ protected:
 	BYTE			  *m_QueueCompressedbuffer;
 	int			       m_bufflen;
 	int totalraw;
-	int SoMoMu; //solid/mono/multi color
 
 	int				   m_Queuebufflen;
 	int				   MaxQueuebufflen;

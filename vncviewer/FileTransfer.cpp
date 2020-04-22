@@ -47,12 +47,14 @@
 #include "vncviewer.h"
 #include "FileTransfer.h"
 #include "Exception.h"
-#include "commctrl.h"
-#include "shlobj.h"
+#include "CommCtrl.h"
+#include "ShlObj.h"
 #ifdef _INTERNALLIB
 #include <zlib.h>
+#include <zstd.h>
 #else
 #include "../zlib/zlib.h"
+#include "../zstd-1.4.4/lib/zstd.h"
 #endif
 #include "Log.h"
 #include <string>
@@ -511,6 +513,11 @@ void FileTransfer::ProcessFileTransferMsg(void)
 
 		// Response to a rfbRDirContent request 
 		case rfbADirectory:
+			if (nDirZipRet == 1)
+			{
+				SetStatus("Folder unzipped.");
+				nDirZipRet = 0;
+			}
 		case rfbAFile:
 			if (!m_fDirectoryReceptionRunning)
 				PopulateRemoteListBox(hWnd, Swap32IfLE(ft.length));
@@ -839,6 +846,8 @@ bool FileTransfer::OfferNextFile()
 		ShowFileTransferWindow(true);
 		Sleep(1000);
 		//MessageBeep(-1);
+		if (!m_fAbort && nDirZipRet == 1)
+			SetStatus("Decompressing folder(s). Please wait...");
 
 		// Unlock 
 		m_fFileCommandPending = false;
@@ -2471,7 +2480,7 @@ bool FileTransfer::OfferLocalFile(LPSTR szSrcFileName)
 	// The File to transfer is actually a directory, so we must Zip it recursively and send
 	// the resulting zip file (it will be recursively unzipped on server side once
 	// the transfer is done)
-	int nDirZipRet = ZipPossibleDirectory(m_szSrcFileName);
+	nDirZipRet = ZipPossibleDirectory(m_szSrcFileName);
 	if (nDirZipRet == -1)
     {
         m_fFileUploadError = true;

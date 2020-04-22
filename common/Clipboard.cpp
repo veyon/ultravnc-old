@@ -34,7 +34,7 @@
 
 
 #ifdef ULTRAVNC_VEYON_SUPPORT
-#include "stdhdrs.h"
+#include "../winvnc/winvnc/stdhdrs.h"
 #endif
 
 #define VC_EXTRALEAN
@@ -48,8 +48,12 @@
 #include <rdr/ZlibInStream.h>
 #ifdef _INTERNALLIB
 #include <zlib.h>
+#ifndef ULTRAVNC_VEYON_SUPPORT
+#include <zstd.h>
+#endif
 #else
-#include <zlib/zlib.h>
+#include "../zlib/zlib.h"
+#include "../zstd-1.4.4/lib/zstd.h"
 #endif
 
 

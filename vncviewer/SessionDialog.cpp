@@ -30,7 +30,7 @@
 #include "SessionDialog.h"
 #include "Exception.h"
 #include "common/win32_helpers.h"
-#include <shlobj.h>
+#include <ShlObj.h>
 #include <sys/stat.h>
 #include <direct.h>
 #include "display.h"
@@ -95,6 +95,7 @@ SessionDialog::SessionDialog(VNCOptions *pOpt, ClientConnection* pCC, CDSMPlugin
 	FTTimeout = m_pOpt->m_FTTimeout;
 	listenport = m_pOpt->m_listenPort;
 	fEnableCache = m_pOpt->m_fEnableCache;
+	fEnableZstd = m_pOpt->m_fEnableZstd;
 	useCompressLevel = m_pOpt->m_useCompressLevel;
 	enableJpegCompression = m_pOpt->m_enableJpegCompression;
 	compressLevel = m_pOpt->m_compressLevel;
@@ -566,6 +567,7 @@ bool SessionDialog::connect(HWND hwnd)
 	m_pOpt->m_FTTimeout = FTTimeout;
 	m_pOpt->m_listenPort = listenport;
 	m_pOpt->m_fEnableCache = fEnableCache;
+	m_pOpt->m_fEnableZstd = fEnableZstd;
 	m_pOpt->m_useCompressLevel = useCompressLevel;
 	m_pOpt->m_enableJpegCompression = enableJpegCompression;
 	m_pOpt->m_compressLevel = compressLevel;
