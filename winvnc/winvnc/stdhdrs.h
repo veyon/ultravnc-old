@@ -116,8 +116,6 @@ extern VNCLog vnclog;
 // Log everything, including internal table setup, etc.
 #define LL_ALL		10
 
-#include "ultravnc-rfbproto.h"
-
 // Macros for sticking in the current file name
 #ifdef ULTRAVNC_VEYON_SUPPORT
 #define VNCLOG(s)	(QStringLiteral("%1 : %2").arg(QLatin1String(__PRETTY_FUNCTION__)).arg(QStringLiteral(s)).toUtf8().constData())
