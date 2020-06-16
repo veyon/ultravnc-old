@@ -129,7 +129,9 @@ HINSTANCE	hInstResDLL;
 BOOL SPECIAL_SC_EXIT=false;
 BOOL SPECIAL_SC_PROMPT=false;
 //BOOL G_HTTP;
+#ifndef ULTRAVNC_VEYON_SUPPORT
 BOOL multi=false;
+#endif
 
 void Reboot_in_safemode_elevated();
 void Reboot_in_safemode();
@@ -1402,6 +1404,7 @@ int WinVNCAppMain()
 	LPVOID lpvState = Install(NULL,  "rudi.de.vos@skynet.be", "UltraVNC");
 #endif
 
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	// Set this process to be the last application to be shut down.
 	// Check for previous instances of WinVNC!
 	vncInstHandler *instancehan=new vncInstHandler;
@@ -1412,17 +1415,12 @@ int WinVNCAppMain()
     		vnclog.Print(LL_INTINFO, VNCLOG("%s -- exiting\n"), sz_ID_ANOTHER_INST);
 			// We don't allow multiple instances!
 			if (!fRunningFromExternalService)
-#ifdef ULTRAVNC_VEYON_SUPPORT
-				MessageBoxSecure(NULL, "Another VNC server is already running. Please uninstall "
-										"any iTALC or UltraVNC installations or disable the "
-										"correspondig services of these products.", szAppName, MB_OK);
-#else
 				MessageBoxSecure(NULL, sz_ID_ANOTHER_INST, szAppName, MB_OK);
-#endif
 			if (instancehan != NULL) delete instancehan;
 			return 0;
 		}
 	}
+#endif
 
 	//vnclog.Print(LL_INTINFO, VNCLOG("***** DBG - Previous instance checked - Trying to create server\n"));
 	// CREATE SERVER
@@ -1463,8 +1461,10 @@ int WinVNCAppMain()
 	}
 	fShutdownOrdered = true;
 	//KillSDTimer();
+#ifndef ULTRAVNC_VEYON_SUPPORT
 	if (instancehan!=NULL)
 		delete instancehan;
+#endif
 
 	if (hShutdownEvent)CloseHandle(hShutdownEvent);	
 	vnclog.Print(LL_STATE, VNCLOG("################## SHUTING DOWN SERVER ####################\n"));
